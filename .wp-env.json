@@ -1,6 +1,9 @@
 {
     "core": "WordPress/WordPress",
-    "plugins": [ "." ],
+    "plugins": [],
+    "mappings": {
+        "wp-content/plugins/dsuite-redirects": "."
+    },
     "env": {
         "tests": {
             "phpVersion": "8.1"
