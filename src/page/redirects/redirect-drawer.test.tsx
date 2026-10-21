@@ -1,0 +1,130 @@
+import '@testing-library/jest-dom';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { useGroupDropdown, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
+import type { Redirect } from 'types';
+import RedirectDrawer from './redirect-drawer';
+
+jest.mock( 'lib/api/hooks', () => ( {
+	useGroupDropdown: jest.fn(),
+	useRedirectCreate: jest.fn(),
+	useRedirectUpdate: jest.fn(),
+} ) );
+jest.mock( './search-content', () => ( { searchContent: jest.fn().mockResolvedValue( [] ) } ) );
+
+global.ResizeObserver = class {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+} as any;
+
+const create = { mutate: jest.fn(), isPending: false, error: null as Error | null };
+const update = { mutate: jest.fn(), isPending: false, error: null as Error | null };
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	create.error = null;
+	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
+	( useRedirectCreate as jest.Mock ).mockReturnValue( create );
+	( useRedirectUpdate as jest.Mock ).mockReturnValue( update );
+	window.localStorage.clear();
+} );
+
+const redirect307: Redirect = {
+	id: 5,
+	url: '/promo',
+	match_type: 'url',
+	action_type: 'url',
+	action_code: 307,
+	action_data: { url: '/sale' },
+	match_data: {
+		source: { flag_regex: false, flag_trailing: false, flag_case: false, flag_query: 'exact' },
+		options: {},
+	},
+	group_id: 1,
+	title: '',
+	position: 0,
+};
+
+describe( 'RedirectDrawer', () => {
+	it( 'creates a temporary redirect from the simple fields', () => {
+		const onClose = jest.fn();
+		render( <RedirectDrawer item={ null } initialUrl="/old" onClose={ onClose } /> );
+
+		const dialog = screen.getByRole( 'dialog', { name: 'New redirect' } );
+		expect( within( dialog ).getByLabelText( 'Old URL' ) ).toHaveValue( '/old' );
+
+		fireEvent.change( within( dialog ).getByLabelText( 'Send visitors to' ), { target: { value: '/new' } } );
+		fireEvent.click( within( dialog ).getByRole( 'radio', { name: /Temporary/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+
+		expect( create.mutate ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				url: '/old',
+				action_type: 'url',
+				action_code: 302,
+				action_data: { url: '/new' },
+				group_id: 1,
+			} ),
+			expect.objectContaining( { onSuccess: onClose } )
+		);
+	} );
+
+	it( 'disables save until a destination is entered', () => {
+		render( <RedirectDrawer item={ null } initialUrl="/old" onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
+	} );
+
+	it( 'edit of a 307 shows no plain type and keeps it', () => {
+		render( <RedirectDrawer item={ redirect307 } onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'radio', { checked: true } ) ).toBeNull();
+		expect( screen.getByText( /custom action/i ) ).toBeInTheDocument();
+		expect( document.querySelector( 'details.dsr-advanced' ) ).toHaveAttribute( 'open' );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+
+		expect( update.mutate ).toHaveBeenCalledWith(
+			expect.objectContaining( { id: 5, action_code: 307, action_data: { url: '/sale' } } ),
+			expect.anything()
+		);
+	} );
+
+	it( 'asks before discarding changes', () => {
+		const onClose = jest.fn();
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		render( <RedirectDrawer item={ null } onClose={ onClose } /> );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( confirm ).not.toHaveBeenCalled();
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+
+		fireEvent.change( screen.getByLabelText( 'Old URL' ), { target: { value: '/typed' } } );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( confirm ).toHaveBeenCalled();
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+		confirm.mockRestore();
+	} );
+
+	it( 'keeps values and shows the error when saving fails', () => {
+		create.error = new Error( 'Source URL already exists' );
+		render( <RedirectDrawer item={ null } initialUrl="/dup" onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Source URL already exists' );
+		expect( screen.getByLabelText( 'Old URL' ) ).toHaveValue( '/dup' );
+	} );
+
+	it( 'remembers the Advanced section state', () => {
+		render( <RedirectDrawer item={ null } onClose={ jest.fn() } /> );
+
+		const details = document.querySelector( 'details.dsr-advanced' ) as HTMLDetailsElement;
+		expect( details ).not.toHaveAttribute( 'open' );
+
+		details.open = true;
+		fireEvent( details, new Event( 'toggle' ) );
+
+		expect( window.localStorage.getItem( 'dsr_advanced_open' ) ).toBe( '1' );
+	} );
+} );

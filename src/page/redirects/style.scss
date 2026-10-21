@@ -3,3 +3,125 @@
 	overflow-wrap: break-word;
 	word-break: break-all;
 }
+
+// --- DSuite drawer form ---
+
+.dsr-app .dsr-redirect-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-5);
+}
+
+.dsr-app .dsr-input-group {
+	display: flex;
+	min-width: 0;
+	overflow: hidden;
+	border: 1px solid var(--dsr-border-strong);
+	border-radius: var(--dsr-radius-sm);
+	background: var(--dsr-surface);
+
+	&:focus-within {
+		border-color: var(--dsr-accent);
+		box-shadow: 0 0 0 1px var(--dsr-accent);
+	}
+
+	.dsr-input {
+		flex: 1;
+		min-width: 0;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+}
+
+.dsr-app .dsr-input-group__prefix {
+	display: flex;
+	align-items: center;
+	max-width: 45%;
+	padding: 0 var(--dsr-space-3);
+	overflow: hidden;
+	border-right: 1px solid var(--dsr-border);
+	background: var(--dsr-surface-muted);
+	color: var(--dsr-text-subtle);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.dsr-app .dsr-advanced {
+	padding-top: var(--dsr-space-4);
+	border-top: 1px solid var(--dsr-border);
+}
+
+.dsr-app .dsr-advanced__summary {
+	display: flex;
+	align-items: baseline;
+	gap: var(--dsr-space-2);
+	color: var(--dsr-text);
+	font-weight: 500;
+	cursor: pointer;
+
+	&:focus-visible {
+		border-radius: 4px;
+		outline: none;
+		box-shadow: var(--dsr-focus-ring);
+	}
+}
+
+.dsr-app .dsr-advanced__hint {
+	color: var(--dsr-text-subtle);
+	font-size: 12px;
+	font-weight: 400;
+}
+
+.dsr-app .dsr-advanced__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-4);
+	margin-top: var(--dsr-space-4);
+}
+
+.dsr-app .dsr-advanced__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: var(--dsr-space-4);
+}
+
+.dsr-app .dsr-checks {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-2);
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.dsr-app .dsr-check {
+	display: flex;
+	align-items: center;
+	gap: var(--dsr-space-2);
+	color: var(--dsr-text);
+}
+
+.dsr-app .dsr-advanced-table {
+	width: 100%;
+	border-collapse: collapse;
+
+	th {
+		width: 110px;
+		padding: var(--dsr-space-2) var(--dsr-space-3) var(--dsr-space-2) 0;
+		color: var(--dsr-text);
+		font-weight: 500;
+		text-align: left;
+		vertical-align: top;
+	}
+
+	td {
+		padding: var(--dsr-space-1) 0;
+	}
+
+	input[type="text"],
+	select {
+		max-width: 100%;
+	}
+}
