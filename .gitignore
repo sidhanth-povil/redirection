@@ -22,3 +22,5 @@ svn
 .agents
 /CLAUDE.md
 /docs
+!docs/
+.superpowers/
