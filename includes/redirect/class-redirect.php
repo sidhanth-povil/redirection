@@ -350,10 +350,12 @@ class Redirect {
 			$this->group_id = intval( $values['group_id'], 10 );
 		}
 
-		foreach ( [ 'start_at', 'end_at' ] as $key ) {
-			if ( array_key_exists( $key, $values ) ) {
-				$this->$key = is_string( $values[ $key ] ) && $values[ $key ] !== '' ? $values[ $key ] : null;
-			}
+		if ( array_key_exists( 'start_at', $values ) ) {
+			$this->start_at = is_string( $values['start_at'] ) && $values['start_at'] !== '' ? $values['start_at'] : null;
+		}
+
+		if ( array_key_exists( 'end_at', $values ) ) {
+			$this->end_at = is_string( $values['end_at'] ) && $values['end_at'] !== '' ? $values['end_at'] : null;
 		}
 
 		$this->match_type = $this->match_type !== '' ? $this->match_type : 'url';

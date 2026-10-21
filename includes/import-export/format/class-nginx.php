@@ -43,6 +43,7 @@ class Nginx extends FormatHandler {
 		$parts = [];
 		foreach ( $items as $item ) {
 			// Server config can't switch rules on and off by date, so scheduled redirects stay in WordPress.
+			// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
 			if ( $item->is_enabled() && ! $item->has_schedule() ) {
 				$parts[] = $this->get_nginx_item( $item );
 			}

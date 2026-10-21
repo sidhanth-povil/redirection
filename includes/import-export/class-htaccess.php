@@ -81,6 +81,7 @@ class Htaccess {
 	 */
 	public function add( $item ) {
 		// Server config can't switch rules on and off by date, so scheduled redirects stay in WordPress.
+		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
 		if ( $item->has_schedule() ) {
 			return;
 		}
