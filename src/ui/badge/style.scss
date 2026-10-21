@@ -1,0 +1,40 @@
+.dsr-app .dsr-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px var(--dsr-space-2);
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 18px;
+	white-space: nowrap;
+}
+
+.dsr-app .dsr-badge--success {
+	background: var(--dsr-success-bg);
+	color: var(--dsr-success-text);
+}
+
+.dsr-app .dsr-badge--info {
+	background: var(--dsr-info-bg);
+	color: var(--dsr-info-text);
+}
+
+.dsr-app .dsr-badge--warning {
+	background: var(--dsr-warning-bg);
+	color: var(--dsr-warning-text);
+}
+
+.dsr-app .dsr-badge--neutral {
+	background: var(--dsr-neutral-bg);
+	color: var(--dsr-neutral-text);
+}
+
+.dsr-app .dsr-badge--danger {
+	background: var(--dsr-danger-bg);
+	color: var(--dsr-danger-text);
+}
+
+.dsr-app .dsr-badge--accent {
+	background: var(--dsr-accent-soft);
+	color: var(--dsr-accent-text);
+}

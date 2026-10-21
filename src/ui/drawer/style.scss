@@ -1,0 +1,76 @@
+// Between the admin menu (9990) and the admin bar (99999).
+.dsr-app.dsr-drawer-root {
+	position: fixed;
+	inset: 0;
+	z-index: 99000;
+}
+
+.dsr-app .dsr-drawer__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(17, 24, 39, 0.35);
+}
+
+.dsr-app .dsr-drawer {
+	position: absolute;
+	top: var(--wp-admin--admin-bar--height, 32px);
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	width: min(520px, 100%);
+	background: var(--dsr-surface);
+	box-shadow: -10px 0 30px rgba(17, 24, 39, 0.12);
+}
+
+.dsr-app .dsr-drawer__header {
+	display: flex;
+	align-items: center;
+	gap: var(--dsr-space-3);
+	padding: var(--dsr-space-5) var(--dsr-space-6);
+	border-bottom: 1px solid var(--dsr-border);
+}
+
+.dsr-app .dsr-drawer__title {
+	margin: 0;
+	padding: 0;
+	color: var(--dsr-text);
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.dsr-app .dsr-drawer__close {
+	width: 32px;
+	height: 32px;
+	margin-left: auto;
+	border: 0;
+	border-radius: var(--dsr-radius-sm);
+	background: transparent;
+	color: var(--dsr-text-subtle);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+
+	&:hover {
+		background: var(--dsr-surface-muted);
+	}
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: var(--dsr-focus-ring);
+	}
+}
+
+.dsr-app .dsr-drawer__body {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--dsr-space-6);
+}
+
+.dsr-app .dsr-drawer__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--dsr-space-2);
+	padding: var(--dsr-space-4) var(--dsr-space-6);
+	border-top: 1px solid var(--dsr-border);
+}

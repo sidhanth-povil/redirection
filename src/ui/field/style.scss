@@ -1,0 +1,70 @@
+.dsr-app .dsr-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-2);
+	min-width: 0;
+}
+
+.dsr-app .dsr-label {
+	margin: 0;
+	padding: 0;
+	color: var(--dsr-text);
+	font-size: 13px;
+	font-weight: 500;
+}
+
+.dsr-app .dsr-hint {
+	margin: 0;
+	color: var(--dsr-text-subtle);
+	font-size: 12px;
+}
+
+.dsr-app .dsr-input,
+.dsr-app .dsr-select {
+	width: 100%;
+	max-width: 100%;
+	min-height: 36px;
+	padding: 0 var(--dsr-space-3);
+	border: 1px solid var(--dsr-border-strong);
+	border-radius: var(--dsr-radius-sm);
+	background-color: var(--dsr-surface);
+	box-shadow: none;
+	color: var(--dsr-text);
+	font: inherit;
+
+	&:focus {
+		border-color: var(--dsr-accent);
+		box-shadow: 0 0 0 1px var(--dsr-accent);
+		outline: none;
+	}
+}
+
+.dsr-app .dsr-select {
+	width: auto;
+	padding-right: var(--dsr-space-8);
+}
+
+.dsr-app .dsr-notice {
+	margin: 0;
+	padding: var(--dsr-space-3) var(--dsr-space-4);
+	border-radius: var(--dsr-radius-sm);
+	font-size: 13px;
+
+	p {
+		margin: 0;
+	}
+
+	p + p {
+		margin-top: var(--dsr-space-2);
+	}
+}
+
+.dsr-app .dsr-notice--error {
+	background: var(--dsr-danger-bg);
+	color: var(--dsr-danger-text);
+}
+
+.dsr-app .dsr-notice--warning {
+	background: var(--dsr-warning-bg);
+	color: var(--dsr-warning-text);
+}

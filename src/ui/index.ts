@@ -1,2 +1,8 @@
+export { Badge } from './badge';
+export type { BadgeTone } from './badge';
 export { Button } from './button';
 export type { ButtonProps } from './button';
+export { Drawer } from './drawer';
+export { Field } from './field';
+export { Segmented } from './segmented';
+export type { SegmentedOption } from './segmented';
