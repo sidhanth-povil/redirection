@@ -239,7 +239,7 @@
 
 	.dsr-app .dsr-table tr {
 		position: relative;
-		padding: var(--dsr-space-3) var(--dsr-space-4) var(--dsr-space-3) 44px;
+		padding: var(--dsr-space-3) var(--dsr-space-4) var(--dsr-space-3) 56px; // room for WP's larger mobile checkbox
 		border-bottom: 1px solid var(--dsr-border);
 	}
 
