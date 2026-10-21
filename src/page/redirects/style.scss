@@ -1,7 +1,272 @@
-.widefat td .redirect-source__details p {
+// --- DSuite redirects list ---
+
+.dsr-app .dsr-redirects {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-4);
+}
+
+.dsr-app .dsr-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--dsr-space-3);
+}
+
+.dsr-app .dsr-search {
+	display: flex;
+	flex: 1 1 320px;
+	gap: var(--dsr-space-2);
+	min-width: 0;
+
+	.dsr-input {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+.dsr-app .dsr-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--dsr-space-1);
+}
+
+.dsr-app .dsr-chip {
+	padding: 6px var(--dsr-space-3);
+	border: 1px solid var(--dsr-border-strong);
+	border-radius: 999px;
+	background: var(--dsr-surface);
+	color: var(--dsr-text-muted);
+	font: inherit;
+	cursor: pointer;
+
+	&[aria-pressed="true"] {
+		border-color: transparent;
+		background: var(--dsr-accent-soft);
+		color: var(--dsr-accent-text);
+		font-weight: 500;
+	}
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: var(--dsr-focus-ring);
+	}
+}
+
+.dsr-app .dsr-bulkbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--dsr-space-2);
+	padding: var(--dsr-space-2) var(--dsr-space-3);
+	border-radius: var(--dsr-radius-md);
+	background: var(--dsr-accent-soft);
+	color: var(--dsr-accent-text);
+}
+
+.dsr-app .dsr-bulkbar__count {
+	margin-right: var(--dsr-space-2);
+	font-weight: 500;
+}
+
+.dsr-app .dsr-table {
+	width: 100%;
+	overflow: hidden;
+	border: 1px solid var(--dsr-border);
+	border-radius: var(--dsr-radius-lg);
+	border-collapse: separate;
+	border-spacing: 0;
+	background: var(--dsr-surface);
+	table-layout: fixed;
+
+	th {
+		padding: var(--dsr-space-3) var(--dsr-space-4);
+		border-bottom: 1px solid var(--dsr-border);
+		background: var(--dsr-surface-muted);
+		color: var(--dsr-text-subtle);
+		font-size: 12px;
+		font-weight: 500;
+		text-align: left;
+	}
+
+	td {
+		padding: var(--dsr-space-3) var(--dsr-space-4);
+		border-bottom: 1px solid var(--dsr-border);
+		vertical-align: middle;
+	}
+
+	tbody tr:last-child td {
+		border-bottom: 0;
+	}
+
+	tbody tr:hover td {
+		background: #fafbfc;
+	}
+}
+
+.dsr-app .dsr-table__check {
+	width: 20px;
+}
+
+.dsr-app .dsr-table__type {
+	width: 150px;
+}
+
+.dsr-app .dsr-table__hits {
+	width: 64px;
+}
+
+.dsr-app .dsr-table__last {
+	width: 150px;
+	color: var(--dsr-text-muted);
+}
+
+.dsr-app .dsr-table__actions {
+	width: 170px;
+	text-align: right;
+	white-space: nowrap;
+
+	.dsr-link + .dsr-link {
+		margin-left: var(--dsr-space-3);
+	}
+}
+
+.dsr-app .dsr-table__redirect {
+	min-width: 0;
+}
+
+.dsr-app .dsr-table__title,
+.dsr-app .dsr-table__source,
+.dsr-app .dsr-table__target {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.dsr-app .dsr-table__title {
+	color: var(--dsr-text-muted);
+	font-size: 12px;
+}
+
+.dsr-app .dsr-table__source {
+	color: var(--dsr-text);
+	font-weight: 600;
+}
+
+.dsr-app .dsr-table__target {
+	color: var(--dsr-text-subtle);
+	font-size: 12px;
+}
+
+.dsr-app .dsr-table__badges {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: var(--dsr-space-1);
+}
+
+.dsr-app .is-disabled .dsr-table__source {
+	color: var(--dsr-text-subtle);
+}
+
+.dsr-app .dsr-num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+.dsr-app .dsr-link {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--dsr-accent);
+	font: inherit;
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+
+	&:focus-visible {
+		border-radius: 4px;
+		outline: none;
+		box-shadow: var(--dsr-focus-ring);
+	}
+}
+
+.dsr-app .dsr-link--danger {
+	color: var(--dsr-danger-text);
+}
+
+.dsr-app .dsr-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--dsr-space-3);
 	margin: 0;
-	overflow-wrap: break-word;
-	word-break: break-all;
+	padding: var(--dsr-space-8);
+	border: 1px dashed var(--dsr-border-strong);
+	border-radius: var(--dsr-radius-lg);
+	background: var(--dsr-surface);
+	color: var(--dsr-text-muted);
+	text-align: center;
+
+	p {
+		margin: 0;
+	}
+}
+
+.dsr-app .dsr-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--dsr-space-3);
+	color: var(--dsr-text-muted);
+}
+
+// Narrow container: each row becomes a card.
+@container dsr (max-width: 781px) {
+	.dsr-app .dsr-table thead {
+		display: none;
+	}
+
+	.dsr-app .dsr-table,
+	.dsr-app .dsr-table tbody,
+	.dsr-app .dsr-table tr,
+	.dsr-app .dsr-table td {
+		display: block;
+		width: auto;
+	}
+
+	.dsr-app .dsr-table tr {
+		position: relative;
+		padding: var(--dsr-space-3) var(--dsr-space-4) var(--dsr-space-3) 44px;
+		border-bottom: 1px solid var(--dsr-border);
+	}
+
+	.dsr-app .dsr-table tbody tr:last-child {
+		border-bottom: 0;
+	}
+
+	.dsr-app .dsr-table td {
+		padding: 2px 0;
+		border: 0;
+		text-align: left;
+	}
+
+	.dsr-app .dsr-table .dsr-table__check {
+		position: absolute;
+		top: var(--dsr-space-3);
+		left: var(--dsr-space-4);
+	}
+
+	.dsr-app .dsr-table td[data-label]::before {
+		content: attr(data-label) ": ";
+		color: var(--dsr-text-subtle);
+	}
+
+	.dsr-app .dsr-table__actions {
+		padding-top: var(--dsr-space-2);
+	}
 }
 
 // --- DSuite drawer form ---

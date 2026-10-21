@@ -1,309 +1,322 @@
-import { __ } from '@wordpress/i18n';
-import { useRedirectList, useGroupDropdown, useRedirectDelete, useRedirectBulkAction, useExport } from 'lib/api/hooks';
-import type { ExportRequestVariables } from 'lib/api/hooks';
-import { useTableStore, useSettingsStore } from 'stores';
-import {
-	getDisplayGroups,
-	getDisplayOptions,
-	getBulk,
-	getHeaders,
-	getFilterOptions,
-	getSearchOptions,
-} from './constants';
+import { useCallback, useEffect, useState } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { useDebouncedCallback } from 'use-debounce';
+import { useExport, useGroupDropdown, useRedirectBulkAction, useRedirectDelete, useRedirectList } from 'lib/api/hooks';
 import { cleanApiParams } from 'lib/api/utils';
+import { useTableStore } from 'stores';
 import { useTableUrlSync } from 'lib/hooks';
-import { has_capability, CAP_REDIRECT_ADD } from 'lib/capabilities';
-import { STATUS_IDLE, STATUS_LOADING, STATUS_COMPLETE } from 'lib/constants';
-import { nestedGroups } from 'lib/wordpress-url';
+import { has_capability, CAP_REDIRECT_ADD, CAP_REDIRECT_DELETE } from 'lib/capabilities';
 import { getExportFilename } from 'page/export/export-helpers';
-import LogPage, {
-	type LogPageTable,
-	type LogOptions,
-	type LogActions,
-	type FilterBy,
-	type RowId,
-} from 'component/log-page';
-import CreateRedirect from './create';
-import RedirectRowActions from './row-actions';
-import getColumns from './columns';
+import { buildHash, useRoute } from 'app/router';
+import { Button } from 'ui';
+import type { Redirect } from 'types';
+import RedirectTable from './redirect-table';
+import RedirectDrawer from './redirect-drawer';
 import './style.scss';
 
-function alwaysHasSource( selected: string[] ) {
-	if ( ! selected.includes( 'source' ) ) {
-		return selected.concat( [ 'source' ] );
-	}
+type SearchField = 'url' | 'target' | 'title';
+type StatusFilter = '' | 'enabled' | 'disabled';
+type BulkAction = 'enable' | 'disable' | 'delete' | 'export';
 
-	return selected;
+const SEARCH_FIELDS: SearchField[] = [ 'url', 'target', 'title' ];
+const SEARCH_DELAY = 300;
+
+interface DrawerTarget {
+	item: Redirect | null;
+	url: string;
 }
 
-function validateDisplay( selected: string[] ) {
-	// Ensure we have at least source or title
-	if ( ! selected.includes( 'title' ) && ! selected.includes( 'source' ) ) {
-		return alwaysHasSource( selected.concat( [ 'title' ] ) );
-	}
+const getStatusChips = (): Array< { value: StatusFilter; label: string } > => [
+	{ value: '', label: __( 'All', 'dsuite-redirects' ) },
+	{ value: 'enabled', label: __( 'Live', 'dsuite-redirects' ) },
+	{ value: 'disabled', label: __( 'Disabled', 'dsuite-redirects' ) },
+];
 
-	return alwaysHasSource( selected );
-}
+export default function Redirects() {
+	const table = useTableStore( ( store ) => store.redirects );
+	const addTop = useTableStore( ( store ) => store.redirectsAddTop );
+	const { setRedirectsTable, setRedirectsAddTop } = useTableStore();
 
-function getGroups( groups: any[] ) {
-	return [
-		{
-			value: '0',
-			label: __( 'All groups', 'dsuite-redirects' ),
-		},
-	].concat( nestedGroups( groups ) as any );
-}
-
-function isAvailable( item: string, table: any ) {
-	return table.displaySelected.includes( item );
-}
-
-function Redirects() {
-	// Get table UI state from table store
-	const table = useTableStore( ( state ) => state.redirects );
-	const addTop = useTableStore( ( state ) => state.redirectsAddTop );
-	const { setRedirectsTable, setRedirectsSelected } = useTableStore();
-
-	const settings = useSettingsStore( ( state ) => state.values );
-
-	// Sync table state with URL query parameters
 	useTableUrlSync( {
 		table,
 		setTable: setRedirectsTable,
 		allowedOrder: [ 'id', 'url', 'last_access', 'last_count', 'position' ],
-		allowedFilters: [ 'url', 'url-exact', 'target', 'title', 'group', 'status', 'match', 'action' ],
+		allowedFilters: [ 'url', 'target', 'title', 'group', 'status' ],
 		defaultOrder: 'id',
 		pageName: 'redirect',
 	} );
 
-	// Fetch groups for dropdown - read directly from Query
-	const { data: groupData, isSuccess: groupSuccess } = useGroupDropdown();
-	const groupRows = groupData?.items ?? [];
+	const { data, isLoading } = useRedirectList( table );
+	const { data: groupData } = useGroupDropdown();
+	const groups = groupData?.items ?? [];
+	const rows = data?.items ?? [];
+	const total = data?.total ?? 0;
 
-	// Bulk action mutations
-	const deleteMutation = useRedirectDelete();
-	const enableMutation = useRedirectBulkAction( 'enable' );
-	const disableMutation = useRedirectBulkAction( 'disable' );
-	const resetMutation = useRedirectBulkAction( 'reset' );
-	const exportMutation = useExport();
+	const remove = useRedirectDelete();
+	const enable = useRedirectBulkAction( 'enable' );
+	const disable = useRedirectBulkAction( 'disable' );
+	const exportRedirects = useExport();
 
-	// Fetch redirects with current table params - read directly from Query
-	const { data: redirectData, isLoading, isSuccess } = useRedirectList( table );
-	const rows = redirectData?.items ?? [];
-	const total = redirectData?.total ?? 0;
+	const canAdd = has_capability( CAP_REDIRECT_ADD );
+	const canDelete = has_capability( CAP_REDIRECT_DELETE );
 
-	// Derive status from Query states
-	let status = STATUS_IDLE;
-	if ( isLoading && ! redirectData ) {
-		status = STATUS_LOADING;
-	} else if ( isSuccess || redirectData ) {
-		status = STATUS_COMPLETE;
-	}
+	const [ drawer, setDrawer ] = useState< DrawerTarget | null >( null );
+	const route = useRoute();
 
-	// Get default flags from settings
-	const defaultFlags = {
-		flag_query: settings?.flag_query ?? 'ignore',
-		flag_case: settings?.flag_case ?? false,
-		flag_trailing: settings?.flag_trailing ?? false,
-		flag_regex: settings?.flag_regex ?? false,
-	};
+	// The header's "Add redirect" button.
+	useEffect( () => {
+		if ( addTop ) {
+			setDrawer( { item: null, url: '' } );
+			setRedirectsAddTop( false );
+		}
+	}, [ addTop, setRedirectsAddTop ] );
 
-	const canAdd = status === STATUS_COMPLETE && groupSuccess && has_capability( CAP_REDIRECT_ADD );
+	// Deep link used by 404 emails and other pages: #/redirects?new=1&from=/old-url
+	const { new: isNew, from } = route.query;
+	useEffect( () => {
+		if ( isNew === '1' && canAdd ) {
+			setDrawer( { item: null, url: from ?? '' } );
+			window.history.replaceState( {}, '', buildHash( 'redirects' ) );
+		}
+	}, [ isNew, from, canAdd ] );
 
-	const handleChangePage = ( page: number ) => {
-		setRedirectsTable( { page, selected: [], selectAll: false } );
-	};
+	const filterBy: Record< string, string > = table.filterBy ?? {};
+	const status = ( filterBy.status ?? '' ) as StatusFilter;
+	const [ field, setField ] = useState< SearchField >(
+		() => SEARCH_FIELDS.find( ( name ) => filterBy[ name ] ) ?? 'url'
+	);
+	const [ search, setSearch ] = useState( () => filterBy[ field ] ?? '' );
 
-	const handleBulk = ( action: string ) => {
-		// Redirect IDs are always numbers
-		const items = table.selected as number[];
-		if ( items.length === 0 && ! table.selectAll ) {
+	const setFilter = useCallback(
+		( next: Record< string, string > ) => {
+			const merged: Record< string, string > = {};
+
+			Object.entries( { ...( table.filterBy ?? {} ), ...next } ).forEach( ( [ key, value ] ) => {
+				if ( value !== '' ) {
+					merged[ key ] = value;
+				}
+			} );
+
+			setRedirectsTable( { filterBy: merged, page: 0, selected: [], selectAll: false } );
+		},
+		[ table.filterBy, setRedirectsTable ]
+	);
+
+	const applySearch = useDebouncedCallback( ( value: string, onField: SearchField ) => {
+		setFilter( { url: '', target: '', title: '', [ onField ]: value.trim() } );
+	}, SEARCH_DELAY );
+
+	const selected = table.selected.filter( ( id ): id is number => typeof id === 'number' );
+	const clearSelection = () => setRedirectsTable( { selected: [], selectAll: false } );
+
+	const runBulk = ( action: BulkAction ) => {
+		if ( selected.length === 0 ) {
 			return;
 		}
 
 		if ( action === 'delete' ) {
-			const message = table.selectAll
-				? __( 'Are you sure you want to delete all items?', 'dsuite-redirects' )
-				: __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' );
+			const message = sprintf(
+				/* translators: %d: number of redirects */
+				_n( 'Delete %d redirect?', 'Delete %d redirects?', selected.length, 'dsuite-redirects' ),
+				selected.length
+			);
 
 			if ( ! window.confirm( message ) ) {
 				return;
 			}
-		}
 
-		if ( [ 'export-csv', 'export-json', 'copy-csv', 'copy-json' ].includes( action ) ) {
-			const params = cleanApiParams(
-				table.selectAll
-					? {
-							global: true,
-							filterBy: table.filterBy,
-					  }
-					: {
-							items,
-					  }
-			);
-			const format = action.endsWith( 'csv' ) ? 'csv' : 'json';
-			const isCopy = action.startsWith( 'copy-' );
-
-			const variables: ExportRequestVariables = {
+			remove.mutate( { items: selected } );
+		} else if ( action === 'enable' ) {
+			enable.mutate( { items: selected } );
+		} else if ( action === 'disable' ) {
+			disable.mutate( { items: selected } );
+		} else {
+			exportRedirects.mutate( {
 				exportType: 'redirect',
-				format,
-				download: ! isCopy,
-				copy: isCopy,
-				completionNotice: {
-					message: isCopy
-						? __( 'Export copied', 'dsuite-redirects' )
-						: __( 'Export downloaded', 'dsuite-redirects' ),
-				},
-				params,
-			};
-
-			if ( ! isCopy ) {
-				variables.filename = getExportFilename( 'redirect', format );
-			}
-
-			exportMutation.mutate( variables );
-
-			return;
+				format: 'csv',
+				download: true,
+				copy: false,
+				filename: getExportFilename( 'redirect', 'csv' ),
+				completionNotice: { message: __( 'Export downloaded', 'dsuite-redirects' ) },
+				params: cleanApiParams( { items: selected } ),
+			} as any );
 		}
 
-		if ( table.selectAll ) {
-			// Apply action to all items matching current filters
-			const params = { global: true, filterBy: table.filterBy };
-			switch ( action ) {
-				case 'delete':
-					deleteMutation.mutate( { items: [], params } );
-					break;
-				// Enable, disable, and reset don't support global yet
-				default:
-					break;
-			}
-		} else {
-			// Apply action to selected items only
-			switch ( action ) {
-				case 'delete':
-					deleteMutation.mutate( { items } );
-					break;
-				case 'enable':
-					enableMutation.mutate( { items } );
-					break;
-				case 'disable':
-					disableMutation.mutate( { items } );
-					break;
-				case 'reset':
-					resetMutation.mutate( { items } );
-					break;
-			}
+		clearSelection();
+	};
+
+	const onDeleteRow = ( row: Redirect ) => {
+		/* translators: %s: old URL */
+		if ( window.confirm( sprintf( __( 'Delete the redirect for %s?', 'dsuite-redirects' ), row.url ) ) ) {
+			remove.mutate( { items: [ row.id ] } );
 		}
 	};
 
-	const handleSelect = ( items: RowId[] | boolean | RowId ) => {
-		if ( typeof items === 'boolean' ) {
-			setRedirectsSelected( items ? rows.map( ( r ) => r.id ) : [] );
-		} else if ( typeof items === 'number' || typeof items === 'string' ) {
-			// Toggle single item selection - clear selectAll if active
-			const newSelected = table.selected.includes( items )
-				? table.selected.filter( ( id ) => id !== items )
-				: [ ...table.selected, items ];
-			setRedirectsTable( { selected: newSelected, selectAll: false } );
-		} else {
-			setRedirectsSelected( items );
-		}
-	};
+	const hasFilters = Object.keys( filterBy ).length > 0;
+	const pages = Math.max( 1, Math.ceil( total / table.per_page ) );
 
-	const handleSetOrder = ( column: string, direction: string ) => {
-		setRedirectsTable( { orderby: column, direction: direction as 'asc' | 'desc' } );
-	};
-
-	const handleFilter = ( filterBy: any ) => {
-		setRedirectsTable( { filterBy, page: 0, selected: [], selectAll: false } );
-	};
-
-	const handleSetDisplay = ( displayType: string, displaySelected: string[] ) => {
-		setRedirectsTable( { displayType, displaySelected } );
-	};
-
-	const handleSetAll = ( allOrClear: boolean ) => {
-		setRedirectsTable( {
-			selected: allOrClear ? rows.map( ( r ) => r.id ) : [],
-			selectAll: allOrClear,
-		} );
-	};
-
-	const logOptions: LogOptions = {
-		displayFilters: getDisplayOptions(),
-		displayGroups: getDisplayGroups(),
-		searchOptions: getSearchOptions(),
-		groupBy: getGroups( groupRows ),
-		bulk: getBulk(),
-		rowFilters: getFilterOptions(),
-		headers: getHeaders().filter( ( item ) => isAvailable( item.name, table ) ),
-		validateDisplay,
-	};
-
-	const logActions: LogActions = {
-		onChangePage: handleChangePage,
-		onBulk: handleBulk,
-		onSelect: handleSelect,
-		onSetOrder: handleSetOrder,
-		onFilter: ( filter: FilterBy ) => {
-			handleFilter( {
-				...filter,
-				...( table.filterBy?.group ? { group: String( table.filterBy.group ) } : {} ),
-			} );
-		},
-		onSetDisplay: handleSetDisplay,
-		onSetAll: handleSetAll,
-		onGroup: ( group: string ) => {
-			handleFilter(
-				parseInt( group, 10 ) > 0
-					? {
-							...( table.filterBy || {} ),
-							group,
-					  }
-					: {}
-			);
-		},
-	};
-
-	// Convert TableState to LogPage's Table format (camelCase)
-	const logPageTable: LogPageTable = {
-		page: table.page,
-		perPage: table.per_page,
-		orderBy: table.orderby,
-		direction: table.direction,
-		selected: table.selected,
-		selectAll: table.selectAll ?? false,
-		filter: '',
-		filterBy: ( table.filterBy ?? {} ) as FilterBy,
-		displayType: table.displayType ?? 'standard',
-		displaySelected: table.displaySelected ?? [],
-		groupBy: String( table.filterBy?.group ?? '0' ),
-	};
+	const empty = hasFilters ? (
+		<>
+			<p>{ __( 'No redirects match these filters.', 'dsuite-redirects' ) }</p>
+			<Button
+				onClick={ () => {
+					setSearch( '' );
+					setRedirectsTable( { filterBy: {}, page: 0 } );
+				} }
+			>
+				{ __( 'Clear filters', 'dsuite-redirects' ) }
+			</Button>
+		</>
+	) : (
+		<>
+			<p>{ __( 'No redirects yet. Send an old address to a new page in a few seconds.', 'dsuite-redirects' ) }</p>
+			{ canAdd && (
+				<Button variant="primary" onClick={ () => setDrawer( { item: null, url: '' } ) }>
+					{ __( 'Add your first redirect', 'dsuite-redirects' ) }
+				</Button>
+			) }
+		</>
+	);
 
 	return (
-		<div className="redirects">
-			{ addTop && has_capability( CAP_REDIRECT_ADD ) && <CreateRedirect defaultFlags={ defaultFlags } addTop /> }
+		<div className="dsr-redirects">
+			<div className="dsr-toolbar">
+				<div className="dsr-search">
+					<label className="screen-reader-text" htmlFor="dsr-redirect-search">
+						{ __( 'Search redirects', 'dsuite-redirects' ) }
+					</label>
+					<input
+						id="dsr-redirect-search"
+						type="search"
+						className="dsr-input"
+						placeholder={ __( 'Search redirects…', 'dsuite-redirects' ) }
+						value={ search }
+						onChange={ ( event ) => {
+							setSearch( event.target.value );
+							applySearch( event.target.value, field );
+						} }
+					/>
+					<label className="screen-reader-text" htmlFor="dsr-redirect-search-field">
+						{ __( 'Search in', 'dsuite-redirects' ) }
+					</label>
+					<select
+						id="dsr-redirect-search-field"
+						className="dsr-select"
+						value={ field }
+						onChange={ ( event ) => {
+							const next = event.target.value as SearchField;
+							setField( next );
+							applySearch( search, next );
+						} }
+					>
+						<option value="url">{ __( 'Old URL', 'dsuite-redirects' ) }</option>
+						<option value="target">{ __( 'Destination', 'dsuite-redirects' ) }</option>
+						<option value="title">{ __( 'Title', 'dsuite-redirects' ) }</option>
+					</select>
+				</div>
 
-			<LogPage
-				logOptions={ logOptions as any }
-				logActions={ logActions as any }
-				table={ logPageTable as any }
-				status={ status as any }
-				total={ total }
-				rows={ rows as any }
-				saving={ [] }
-				getRow={ ( row: any, rowParams: any ) =>
-					getColumns( row, rowParams, false, defaultFlags, { rows: groupRows } )
-				}
-				getRowActions={ ( row: any, rowParams: any ) => (
-					<RedirectRowActions disabled={ false } row={ row } rowParams={ rowParams } />
+				<div className="dsr-chips" role="group" aria-label={ __( 'Status', 'dsuite-redirects' ) }>
+					{ getStatusChips().map( ( chip ) => (
+						<button
+							key={ chip.value }
+							type="button"
+							className="dsr-chip"
+							aria-pressed={ status === chip.value }
+							onClick={ () => setFilter( { status: chip.value } ) }
+						>
+							{ chip.label }
+						</button>
+					) ) }
+				</div>
+
+				{ groups.length > 1 && (
+					<select
+						className="dsr-select"
+						aria-label={ __( 'Group', 'dsuite-redirects' ) }
+						value={ filterBy.group ?? '' }
+						onChange={ ( event ) => setFilter( { group: event.target.value } ) }
+					>
+						<option value="">{ __( 'All groups', 'dsuite-redirects' ) }</option>
+						{ groups.map( ( group ) => (
+							<option key={ group.id } value={ String( group.id ) }>
+								{ group.name }
+							</option>
+						) ) }
+					</select>
 				) }
+			</div>
+
+			{ selected.length > 0 && (
+				<div className="dsr-bulkbar" role="region" aria-label={ __( 'Bulk actions', 'dsuite-redirects' ) }>
+					<span className="dsr-bulkbar__count">
+						{ sprintf(
+							/* translators: %d: number of selected redirects */
+							_n( '%d selected', '%d selected', selected.length, 'dsuite-redirects' ),
+							selected.length
+						) }
+					</span>
+					{ canAdd && (
+						<Button onClick={ () => runBulk( 'enable' ) }>{ __( 'Enable', 'dsuite-redirects' ) }</Button>
+					) }
+					{ canAdd && (
+						<Button onClick={ () => runBulk( 'disable' ) }>{ __( 'Disable', 'dsuite-redirects' ) }</Button>
+					) }
+					<Button onClick={ () => runBulk( 'export' ) }>{ __( 'Export CSV', 'dsuite-redirects' ) }</Button>
+					{ canDelete && (
+						<Button onClick={ () => runBulk( 'delete' ) }>{ __( 'Delete', 'dsuite-redirects' ) }</Button>
+					) }
+					<button type="button" className="dsr-link" onClick={ clearSelection }>
+						{ __( 'Clear', 'dsuite-redirects' ) }
+					</button>
+				</div>
+			) }
+
+			<RedirectTable
+				rows={ rows }
+				loading={ isLoading && ! data }
+				selected={ selected }
+				canEdit={ canAdd }
+				canDelete={ canDelete }
+				empty={ empty }
+				onSelect={ ( ids ) => setRedirectsTable( { selected: ids, selectAll: false } ) }
+				onEdit={ ( row ) => setDrawer( { item: row, url: '' } ) }
+				onToggle={ ( row ) => ( row.enabled === false ? enable : disable ).mutate( { items: [ row.id ] } ) }
+				onDelete={ onDeleteRow }
 			/>
 
-			{ canAdd && ! addTop && <CreateRedirect defaultFlags={ defaultFlags } addTop={ false } /> }
+			{ pages > 1 && (
+				<nav className="dsr-pagination" aria-label={ __( 'Pagination', 'dsuite-redirects' ) }>
+					<Button
+						disabled={ table.page === 0 }
+						onClick={ () => setRedirectsTable( { page: table.page - 1, selected: [] } ) }
+					>
+						{ __( 'Previous', 'dsuite-redirects' ) }
+					</Button>
+					<span>
+						{ sprintf(
+							/* translators: 1: current page, 2: total pages */
+							__( 'Page %1$d of %2$d', 'dsuite-redirects' ),
+							table.page + 1,
+							pages
+						) }
+					</span>
+					<Button
+						disabled={ table.page + 1 >= pages }
+						onClick={ () => setRedirectsTable( { page: table.page + 1, selected: [] } ) }
+					>
+						{ __( 'Next', 'dsuite-redirects' ) }
+					</Button>
+				</nav>
+			) }
+
+			{ drawer && (
+				<RedirectDrawer
+					key={ drawer.item?.id ?? 'new' }
+					item={ drawer.item }
+					initialUrl={ drawer.url }
+					onClose={ () => setDrawer( null ) }
+				/>
+			) }
 		</div>
 	);
 }
-
-export default Redirects;
