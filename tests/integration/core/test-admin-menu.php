@@ -47,6 +47,20 @@ class AdminMenuTest extends WP_UnitTestCase {
 		);
 	}
 
+	public function testLegacyUrlKeepsOtherArgsForSavedRssFeeds() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=dsuite-redirects.php&sub=rss&module=1&token=abc123' ),
+			Admin::get_legacy_redirect( 'tools.php', [ 'page' => 'redirection.php', 'sub' => 'rss', 'module' => '1', 'token' => 'abc123' ] )
+		);
+	}
+
+	public function testLegacyUrlDropsNonStringSub() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=dsuite-redirects.php' ),
+			Admin::get_legacy_redirect( 'tools.php', [ 'page' => 'redirection.php', 'sub' => [ 'x' ] ] )
+		);
+	}
+
 	public function testLegacyUrlIgnoresOtherPages() {
 		$this->assertNull( Admin::get_legacy_redirect( 'tools.php', [ 'page' => 'other.php' ] ) );
 		$this->assertNull( Admin::get_legacy_redirect( 'admin.php', [ 'page' => 'redirection.php' ] ) );

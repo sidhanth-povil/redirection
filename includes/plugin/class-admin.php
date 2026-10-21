@@ -613,10 +613,16 @@ class Admin {
 			return null;
 		}
 
-		$url = 'admin.php?page=' . basename( REDIRECTION_FILE );
-		$sub = isset( $query['sub'] ) ? sanitize_key( (string) $query['sub'] ) : '';
+		// Keep the other args so saved views and RSS feed URLs (`sub=rss&module=1&token=…`) still work.
+		$args = map_deep( array_diff_key( $query, [ 'page' => true ] ), 'sanitize_text_field' );
 
-		return admin_url( $sub === '' ? $url : $url . '&sub=' . $sub );
+		if ( isset( $query['sub'] ) ) {
+			$args['sub'] = is_string( $query['sub'] ) ? sanitize_key( $query['sub'] ) : '';
+		}
+
+		$args = array_filter( $args, fn( $value ) => $value !== '' );
+
+		return add_query_arg( urlencode_deep( $args ), admin_url( 'admin.php?page=' . basename( REDIRECTION_FILE ) ) );
 	}
 
 	/**
