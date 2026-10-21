@@ -1,0 +1,47 @@
+.dsr-app .dsr-combobox {
+	position: relative;
+}
+
+.dsr-app .dsr-combobox__options {
+	position: absolute;
+	z-index: 2;
+	top: calc(100% + 4px);
+	right: 0;
+	left: 0;
+	max-height: 260px;
+	margin: 0;
+	padding: var(--dsr-space-1);
+	overflow-y: auto;
+	border: 1px solid var(--dsr-border-strong);
+	border-radius: var(--dsr-radius-sm);
+	background: var(--dsr-surface);
+	box-shadow: var(--dsr-shadow-md);
+	list-style: none;
+}
+
+.dsr-app .dsr-combobox__option {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 0;
+	padding: var(--dsr-space-2) var(--dsr-space-3);
+	border-radius: 6px;
+	cursor: pointer;
+
+	&[data-focus] {
+		background: var(--dsr-accent-soft);
+		color: var(--dsr-accent-text);
+	}
+}
+
+.dsr-app .dsr-combobox__label {
+	font-weight: 500;
+}
+
+.dsr-app .dsr-combobox__detail {
+	overflow: hidden;
+	color: var(--dsr-text-subtle);
+	font-size: 12px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
