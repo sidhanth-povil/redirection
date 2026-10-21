@@ -1,11 +1,25 @@
+import { pageForRoute, parseHash } from 'app/router';
+
 const ALLOWED_PAGES = [ 'groups', '404s', 'log', 'import', 'export', 'options', 'support', 'site' ];
 
 interface QueryParams {
 	[ key: string ]: string | number | undefined;
 }
 
+/**
+ * With no argument, read the app's hash route query and add the upstream page name as `sub`,
+ * so old pages that check `query.sub` keep working under hash routing.
+ *
+ * @param query Optional search string, e.g. `?page=x&sub=log`.
+ */
 export function getPageUrl( query?: string ): any {
-	const searchParams = new URLSearchParams( query ? query.slice( 1 ) : document.location.search.slice( 1 ) );
+	if ( query === undefined ) {
+		const route = parseHash( document.location.hash );
+
+		return { ...route.query, sub: pageForRoute( route.name ) };
+	}
+
+	const searchParams = new URLSearchParams( query.slice( 1 ) );
 	const result: any = {};
 
 	searchParams.forEach( ( value, key ) => {

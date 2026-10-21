@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { getPageUrl } from 'lib/wordpress-url';
+import { buildHash, parseHash, routeForPage, toQuery } from 'app/router';
 import { removeDefaults } from 'lib/table';
 import type { TableState } from 'types';
 
@@ -133,15 +134,10 @@ export function useTableUrlSync( options: TableUrlSyncOptions ): void {
 		previousTable.current = table;
 
 		// Build URL using URLSearchParams for proper encoding
-		const searchParams = new URLSearchParams( document.location.search );
+		const searchParams = new URLSearchParams( parseHash( document.location.hash ).query );
 
 		// Add non-default values
 		const cleaned = removeDefaults( table as Parameters< typeof removeDefaults >[ 0 ], defaultOrder );
-
-		// Handle sub parameter
-		if ( pageName !== 'redirect' ) {
-			searchParams.set( 'sub', pageName );
-		}
 
 		// Handle orderby
 		if ( cleaned.orderby ) {
@@ -189,8 +185,7 @@ export function useTableUrlSync( options: TableUrlSyncOptions ): void {
 			}
 		}
 
-		// Update URL without adding to history
-		const newUrl = '?' + searchParams.toString();
-		history.replaceState( {}, '', newUrl );
+		// Update the hash route without adding to history
+		history.replaceState( {}, '', buildHash( routeForPage( pageName ), toQuery( searchParams ) ) );
 	}, [ table, defaultOrder, pageName ] );
 }

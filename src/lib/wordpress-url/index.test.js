@@ -1,4 +1,4 @@
-import { getServerUrl, getOrigin, isRedirection } from 'lib/wordpress-url';
+import { getServerUrl, getOrigin, isRedirection, getPageUrl } from 'lib/wordpress-url';
 
 // jsdom sets document.location.origin to 'http://localhost' by default
 const ORIGIN = 'http://localhost';
@@ -110,5 +110,21 @@ describe( 'isRedirection', () => {
 
 	it( 'ignores other agents', () => {
 		expect( isRedirection( [ { name: 'x-redirect-by', value: 'WordPress' } ] ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'getPageUrl', () => {
+	afterEach( () => {
+		window.location.hash = '';
+	} );
+
+	it( 'reads the hash query and adds the upstream page name as sub', () => {
+		window.location.hash = '#/logs?orderby=ip&filterby%5Bip%5D=1.2.3.4';
+
+		expect( getPageUrl() ).toEqual( { orderby: 'ip', 'filterby[ip]': '1.2.3.4', sub: 'log' } );
+	} );
+
+	it( 'still parses an explicit search string', () => {
+		expect( getPageUrl( '?page=x&sub=404s' ) ).toEqual( { page: 'x', sub: '404s' } );
 	} );
 } );
