@@ -1,7 +1,7 @@
 {
-	"name": "redirection",
+	"name": "dsuite-redirects",
 	"version": "5.10.1",
-	"description": "Redirection is a WordPress plugin to manage 301 redirections and keep track of 404 errors without requiring knowledge of Apache .htaccess files.",
+	"description": "DSuite Redirects: redirect manager for marketing teams. Fork of Redirection.",
 	"main": "dsuite-redirects.php",
 	"browser": {
 		"dsuite-redirects.php": false
@@ -18,10 +18,9 @@
 		"build:analyze": "ANALYZE=true pnpm build",
 		"build:stats": "wp-scripts build --webpack-bundle-analyzer",
 		"doc": "redocly build-docs dev/openapi.yaml -o release/api-doc.html --theme.openapi.nativeScrollbars=true",
-		"plugin": "pnpm build && rm -rf release && mkdir -p release/redirection && cp -R *.php changelog.txt readme.txt build license.txt includes modules models matches images actions release/redirection && rm release/redirection/rector.php release/redirection/rector-max.php",
-		"plugin:zip": "pnpm plugin && cd release && zip -r redirection.zip redirection",
+		"plugin": "pnpm build && rm -rf release && mkdir -p release/dsuite-redirects && cp -R *.php changelog.txt readme.txt build license.txt includes modules models matches images actions release/dsuite-redirects && rm release/dsuite-redirects/rector.php release/dsuite-redirects/rector-max.php",
+		"plugin:zip": "pnpm plugin && cd release && zip -r dsuite-redirects.zip dsuite-redirects",
 		"release": "bash dev/release-github.sh",
-		"release:svn": "pnpm plugin:zip && dev/svn.sh $npm_package_version",
 		"lint": "pnpm lint:css && pnpm lint:js && pnpm lint:ts && pnpm lint:php",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
@@ -41,7 +40,7 @@
 		"type": "git",
 		"url": "git+https://github.com/johngodley/redirection.git"
 	},
-	"author": "John Godley",
+	"author": "DSuite (fork of Redirection by John Godley)",
 	"license": "GPL-3.0",
 	"bugs": {
 		"url": "https://github.com/johngodley/redirection/issues"

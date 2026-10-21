@@ -79,7 +79,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 		return (
 			<>
 				{ __(
-					'Something is wrong with the server. This is not a problem with Redirection and you will need to resolve the error yourself.',
+					'Something is wrong with the server. This is not a problem with DSuite Redirects and you will need to resolve the error yourself.',
 					'dsuite-redirects'
 				) }
 			</>
@@ -91,7 +91,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 			<>
 				{ createInterpolateElement(
 					__(
-						'An error page was returned. This is unlikely to be a problem with Redirection. {{support}}What does this mean?{{/support}}.',
+						'An error page was returned. This is unlikely to be a problem with DSuite Redirects. {{support}}What does this mean?{{/support}}.',
 						'dsuite-redirects'
 					),
 					{
@@ -106,7 +106,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 		if ( isMatching ) {
 			return (
 				<>
-					{ __( 'Redirected by Redirection.', 'dsuite-redirects' ) }{ ' ' }
+					{ __( 'Redirected by DSuite Redirects.', 'dsuite-redirects' ) }{ ' ' }
 					<span className="redirection-httpstep__match">
 						{ __( 'Matches your redirect', 'dsuite-redirects' ) }{ ' ' }
 						<span className="dashicons dashicons-yes" />
@@ -120,7 +120,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 
 		if ( agent ) {
 			if ( agent.value.toLowerCase() === 'dsuite-redirects' ) {
-				return <>{ __( 'Redirected by Redirection.', 'dsuite-redirects' ) }</>;
+				return <>{ __( 'Redirected by DSuite Redirects.', 'dsuite-redirects' ) }</>;
 			}
 
 			return (

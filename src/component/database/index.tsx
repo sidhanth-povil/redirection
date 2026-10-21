@@ -25,10 +25,10 @@ interface DatabaseProps {
 
 function getTitle( status: DatabaseStatus ): string {
 	if ( status === 'need-update' ) {
-		return __( 'Upgrading Redirection', 'dsuite-redirects' );
+		return __( 'Upgrading DSuite Redirects', 'dsuite-redirects' );
 	}
 
-	return __( 'Setting up Redirection', 'dsuite-redirects' );
+	return __( 'Setting up DSuite Redirects', 'dsuite-redirects' );
 }
 
 function hasWork( status: DatabaseStatus, result: DatabaseResult ): boolean {

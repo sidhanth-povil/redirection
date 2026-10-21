@@ -74,7 +74,7 @@ function CreateGroup( props: CreateGroupProps ) {
 				{ moduleId === 2 && (
 					<p>
 						{ __(
-							'Note that you will need to set the Apache module path in your Redirection options.',
+							'Note that you will need to set the Apache module path in your DSuite Redirects options.',
 							'dsuite-redirects'
 						) }
 					</p>

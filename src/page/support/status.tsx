@@ -17,7 +17,7 @@ function Status() {
 			<h2>{ __( 'WordPress REST API', 'dsuite-redirects' ) }</h2>
 			<p>
 				{ __(
-					'Redirection communicates with WordPress through the WordPress REST API. This is a standard part of WordPress, and you will experience problems if you cannot use it.',
+					'DSuite Redirects communicates with WordPress through the WordPress REST API. This is a standard part of WordPress, and you will experience problems if you cannot use it.',
 					'dsuite-redirects'
 				) }
 			</p>

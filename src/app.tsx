@@ -53,11 +53,9 @@ function AppCrashHandler( error: Error | null, errorInfo: ErrorInfo | null ) {
 				errorInfo?.componentStack || '',
 			] ) }
 			locale="redirection"
-			title={ __( 'Redirection plugin error', 'dsuite-redirects' ) }
+			title={ __( 'DSuite Redirects error', 'dsuite-redirects' ) }
 		>
-			<p>
-				{ __( 'The Redirection plugin encountered an error and could not load properly.', 'dsuite-redirects' ) }
-			</p>
+			<p>{ __( 'DSuite Redirects encountered an error and could not load properly.', 'dsuite-redirects' ) }</p>
 			<p>
 				<strong>{ __( 'Possible solutions:', 'dsuite-redirects' ) }</strong>
 			</p>

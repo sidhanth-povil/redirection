@@ -1,13 +1,13 @@
 <?php
 /*
-Plugin Name: Redirection
-Plugin URI: https://redirection.me/
-Description: Manage all your 301 redirects and monitor 404 errors
+Plugin Name: DSuite Redirects
+Description: Manage redirects, schedule campaign redirects and catch 404s, built for marketing teams. Based on Redirection by John Godley.
 Version: 5.10.1
-Author: John Godley
+Author: DSuite
 Text Domain: dsuite-redirects
 Requires PHP: 7.4
 Requires at least: 6.7
+License: GPLv3
 ============================================================================================================
 For full license details see license.txt
 ============================================================================================================

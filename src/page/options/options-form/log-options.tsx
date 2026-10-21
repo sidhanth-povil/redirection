@@ -161,7 +161,7 @@ function LogOptions( props: LogOptionsProps ) {
 					/>
 					<label htmlFor="log-options-log-external">
 						{ __(
-							'Log "external" redirects - those not from Redirection. This can increase your log size and contains no user information.',
+							'Log "external" redirects - those not from DSuite Redirects. This can increase your log size and contains no user information.',
 							'dsuite-redirects'
 						) }
 					</label>
@@ -202,7 +202,7 @@ function LogOptions( props: LogOptionsProps ) {
 				<td>
 					{ createInterpolateElement(
 						__(
-							'Redirection stores no user identifiable information other than what is configured above. It is your responsibility to ensure your site meets any applicable {{link}}privacy requirements{{/link}}.',
+							'DSuite Redirects stores no user identifiable information other than what is configured above. It is your responsibility to ensure your site meets any applicable {{link}}privacy requirements{{/link}}.',
 							'dsuite-redirects'
 						),
 						{

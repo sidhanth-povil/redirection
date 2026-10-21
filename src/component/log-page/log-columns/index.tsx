@@ -85,7 +85,7 @@ function getColumns( row: Row, rowParams: RowParams, actions: Actions, isSaving:
 		},
 		{
 			name: 'redirect_by',
-			content: redirect_by ? redirect_by : __( 'Redirection', 'dsuite-redirects' ),
+			content: redirect_by ? redirect_by : __( 'DSuite Redirects', 'dsuite-redirects' ),
 		},
 		{
 			name: 'code',

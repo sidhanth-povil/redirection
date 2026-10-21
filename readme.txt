@@ -1,4 +1,4 @@
-=== Redirection ===
+=== DSuite Redirects ===
 Contributors: johnny5
 Donate link: https://redirection.me/donation/
 Tags: redirect, htaccess, 301, 404, apache
@@ -6,7 +6,7 @@ Tested up to: 7.1
 Stable tag: 5.10.1
 License: GPLv3
 
-Manage 301 redirects, track 404 errors, and improve your site. No knowledge of Apache or Nginx required.
+Redirect manager for marketing teams. Fork of Redirection by John Godley.
 
 == Description ==
 

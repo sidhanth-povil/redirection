@@ -56,11 +56,11 @@ function DeletePlugin( props: DeletePluginProps ) {
 	return (
 		<div className="wrap">
 			<form action="" method="post" onSubmit={ handleSubmit }>
-				<h2>{ __( 'Delete Redirection', 'dsuite-redirects' ) }</h2>
+				<h2>{ __( 'Delete DSuite Redirects', 'dsuite-redirects' ) }</h2>
 
 				<p>
 					{ __(
-						'Selecting this option will delete all redirections, all logs, and any options associated with the Redirection plugin. Make sure this is what you want to do.',
+						'Selecting this option will delete all redirections, all logs, and any options associated with the DSuite Redirects plugin. Make sure this is what you want to do.',
 						'dsuite-redirects'
 					) }
 				</p>

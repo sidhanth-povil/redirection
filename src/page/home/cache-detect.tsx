@@ -12,7 +12,7 @@ function CacheDetect() {
 			errors={ '' }
 			details={ getErrorDetails().concat( [ getCacheBuster() ] ) }
 			type="fixed"
-			title={ __( 'Cached Redirection detected', 'dsuite-redirects' ) }
+			title={ __( 'Cached DSuite Redirects detected', 'dsuite-redirects' ) }
 			links={ getErrorLinks() }
 			locale="redirection"
 		>

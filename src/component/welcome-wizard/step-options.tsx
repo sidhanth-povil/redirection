@@ -64,7 +64,7 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 				</p>
 				<p>
 					{ __(
-						'If you change the permalink in a post or page then Redirection can automatically create a redirect for you.',
+						'If you change the permalink in a post or page then DSuite Redirects can automatically create a redirect for you.',
 						'dsuite-redirects'
 					) }
 					&nbsp;

@@ -54,7 +54,7 @@ function DefaultCrashMessage() {
 		<>
 			<p>
 				{ __(
-					'Redirection is not working. Try clearing your browser cache and reloading this page.',
+					'DSuite Redirects is not working. Try clearing your browser cache and reloading this page.',
 					'dsuite-redirects'
 				) }
 				&nbsp;

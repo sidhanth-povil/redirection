@@ -46,7 +46,7 @@ export default function StepAPI( { setStep, step }: StepApiProps ) {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Redirection uses the {{link}}WordPress REST API{{/link}} to communicate with WordPress. This is enabled and working by default. Sometimes the REST API is blocked by:',
+						'DSuite Redirects uses the {{link}}WordPress REST API{{/link}} to communicate with WordPress. This is enabled and working by default. Sometimes the REST API is blocked by:',
 						'dsuite-redirects'
 					),
 					{
@@ -65,7 +65,7 @@ export default function StepAPI( { setStep, step }: StepApiProps ) {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'If you do experience a problem then please consult your plugin documentation, or try contacting your host support. This is generally {{link}}not a problem caused by Redirection{{/link}}.',
+						'If you do experience a problem then please consult your plugin documentation, or try contacting your host support. This is generally {{link}}not a problem caused by DSuite Redirects{{/link}}.',
 						'dsuite-redirects'
 					),
 					{

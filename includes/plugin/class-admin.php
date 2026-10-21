@@ -149,10 +149,10 @@ class Admin {
 		$message = false;
 		if ( $status->needs_installing() ) {
 			/* translators: 1: URL to plugin page */
-			$message = sprintf( __( 'Please complete your <a href="%s">Redirection setup</a> to activate the plugin.', 'dsuite-redirects' ), esc_url( $this->get_plugin_url() ) );
+			$message = sprintf( __( 'Please complete your <a href="%s">DSuite Redirects setup</a> to activate the plugin.', 'dsuite-redirects' ), esc_url( $this->get_plugin_url() ) );
 		} elseif ( $status->needs_updating() ) {
 			/* translators: 1: URL to plugin page, 2: current version, 3: target version */
-			$message = sprintf( __( 'Redirection\'s database needs to be updated - <a href="%1$1s">click to update</a>.', 'dsuite-redirects' ), esc_url( $this->get_plugin_url() ) );
+			$message = sprintf( __( 'DSuite Redirects needs a database update - <a href="%1$1s">click to update</a>.', 'dsuite-redirects' ), esc_url( $this->get_plugin_url() ) );
 		}
 
 		if ( $message === false || strpos( Request::get_request_url(), 'page=' . basename( REDIRECTION_FILE ) ) !== false ) {
@@ -560,8 +560,8 @@ class Admin {
 	 */
 	private function add_help_tab() {
 		/* translators: URL */
-		$content = sprintf( __( 'You can find full documentation about using Redirection on the <a href="%s" target="_blank">redirection.me</a> support site.', 'dsuite-redirects' ), 'https://redirection.me/support/?utm_source=redirection&utm_medium=plugin&utm_campaign=context-help' );
-		$title = __( 'Redirection Support', 'dsuite-redirects' );
+		$content = sprintf( __( 'You can find full documentation about using DSuite Redirects on the <a href="%s" target="_blank">redirection.me</a> support site.', 'dsuite-redirects' ), 'https://redirection.me/support/?utm_source=redirection&utm_medium=plugin&utm_campaign=context-help' );
+		$title = __( 'DSuite Redirects Support', 'dsuite-redirects' );
 
 		$current_screen = get_current_screen();
 		if ( $current_screen === null ) {
@@ -571,7 +571,7 @@ class Admin {
 		$current_screen->add_help_tab(
 			[
 				'id'        => 'redirection',
-				'title'     => 'Redirection',
+				'title'     => 'DSuite Redirects',
 				'content'   => "<h2>$title</h2><p>$content</p>",
 			]
 		);
@@ -713,7 +713,7 @@ class Admin {
 		global $wp_version;
 
 		/* translators: 1: Expected WordPress version, 2: Actual WordPress version */
-		$wp_requirement = sprintf( __( 'Redirection requires WordPress v%1$1s, you are using v%2$2s - please update your WordPress', 'dsuite-redirects' ), REDIRECTION_MIN_WP, $wp_version );
+		$wp_requirement = sprintf( __( 'DSuite Redirects requires WordPress v%1$1s, you are using v%2$2s - please update your WordPress', 'dsuite-redirects' ), REDIRECTION_MIN_WP, $wp_version );
 		?>
 	<div class="react-error">
 		<h1><?php esc_html_e( 'Unable to load Redirection', 'dsuite-redirects' ); ?></h1>
@@ -759,7 +759,7 @@ class Admin {
 			<p class="versions">
 				<?php
 				echo wp_kses_post(
-					__( '<code>Redirectioni10n</code> is not defined. This usually means another plugin is blocking Redirection from loading. Please disable all plugins and try again.', 'dsuite-redirects' )
+					__( '<code>Redirectioni10n</code> is not defined. This usually means another plugin is blocking DSuite Redirects from loading. Please disable all plugins and try again.', 'dsuite-redirects' )
 				);
 				?>
 			</p>

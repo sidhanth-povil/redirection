@@ -36,7 +36,7 @@ export default function StepImporter( { setOptions, options, setStep, step }: St
 
 			<p>
 				{ __(
-					'Importing existing redirects from WordPress or other plugins is a good way to get started with Redirection. Check each set of redirects you wish to import.',
+					'Importing existing redirects from WordPress or other plugins is a good way to get started with DSuite Redirects. Check each set of redirects you wish to import.',
 					'dsuite-redirects'
 				) }
 			</p>
@@ -45,7 +45,7 @@ export default function StepImporter( { setOptions, options, setStep, step }: St
 				<>
 					<p>
 						{ __(
-							'WordPress automatically creates redirects when you change a post URL. Importing these into Redirection will allow you to manage and monitor them.',
+							'WordPress automatically creates redirects when you change a post URL. Importing these into DSuite Redirects will allow you to manage and monitor them.',
 							'dsuite-redirects'
 						) }
 					</p>

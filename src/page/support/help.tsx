@@ -14,7 +14,7 @@ const Help = () => {
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Full documentation for Redirection can be found at {{site}}https://redirection.me{{/site}}. If you have a problem please check the {{faq}}FAQ{{/faq}} first.',
+						'Full documentation for DSuite Redirects can be found at {{site}}https://redirection.me{{/site}}. If you have a problem please check the {{faq}}FAQ{{/faq}} first.',
 						'dsuite-redirects'
 					),
 					{

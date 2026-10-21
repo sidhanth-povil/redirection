@@ -57,12 +57,12 @@ export default function StepFinish( { options }: StepFinishProps ) {
 		<div>
 			<h2>{ __( 'Installation Complete', 'dsuite-redirects' ) }</h2>
 
-			<p>{ __( 'Redirection is now installed!', 'dsuite-redirects' ) }</p>
+			<p>{ __( 'DSuite Redirects is now installed!', 'dsuite-redirects' ) }</p>
 
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Please take a moment to consult the {{support}}support site{{/support}} for information about how to use Redirection.',
+						'Please take a moment to consult the {{support}}support site{{/support}} for information about how to use DSuite Redirects.',
 						'dsuite-redirects'
 					),
 					{

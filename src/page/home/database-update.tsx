@@ -28,7 +28,7 @@ function getUpgradeNotice() {
 					sprintf(
 						// translators: %(current)s is the current database version, %(latest)s is the latest database version
 						__(
-							'Redirection stores data in your database and sometimes this needs upgrading. Your database is at version {{strong}}%(current)s{{/strong}} and the latest is {{strong}}%(latest)s{{/strong}}.',
+							'DSuite Redirects stores data in your database and sometimes this needs upgrading. Your database is at version {{strong}}%(current)s{{/strong}} and the latest is {{strong}}%(latest)s{{/strong}}.',
 							'dsuite-redirects'
 						),
 						{
@@ -139,7 +139,7 @@ function ShowDatabase() {
 					links={ getErrorLinks() }
 					locale="redirection"
 				>
-					{ __( 'Something went wrong when upgrading Redirection.', 'dsuite-redirects' ) }
+					{ __( 'Something went wrong when upgrading DSuite Redirects.', 'dsuite-redirects' ) }
 				</Error>
 			) }
 
@@ -208,14 +208,14 @@ function ShowNotice( { onShowUpgrade }: ShowNoticeProps ) {
 			<h1 className="wp-heading-inline">{ __( 'Upgrade Required', 'dsuite-redirects' ) }</h1>
 
 			<div className="wpl-error">
-				<h3>{ __( 'Redirection database needs upgrading', 'dsuite-redirects' ) }</h3>
+				<h3>{ __( 'DSuite Redirects database needs upgrading', 'dsuite-redirects' ) }</h3>
 
 				{ getUpgradeNotice() }
 
 				<p>
 					{ createInterpolateElement(
 						__(
-							'Please make a backup of your Redirection data: {{download}}downloading a backup{{/download}}. If you experience any issues you can import this back into Redirection.',
+							'Please make a backup of your DSuite Redirects data: {{download}}downloading a backup{{/download}}. If you experience any issues you can import this back into DSuite Redirects.',
 							'dsuite-redirects'
 						),
 						{

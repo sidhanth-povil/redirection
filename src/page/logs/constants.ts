@@ -167,7 +167,7 @@ export const getFilterOptions = (): FilterOption[] => [
 		value: 'redirect_by',
 		options: [
 			{ label: __( 'WordPress', 'dsuite-redirects' ), value: 'wordpress' },
-			{ label: __( 'Redirection', 'dsuite-redirects' ), value: 'redirection' },
+			{ label: __( 'DSuite Redirects', 'dsuite-redirects' ), value: 'redirection' },
 		],
 	},
 ];

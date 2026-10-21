@@ -52,7 +52,7 @@ const EXPORT_TYPES: ExportTypeOption[] = [
 		id: 'setting',
 		name: __( 'Settings', 'dsuite-redirects' ),
 		description: __(
-			'Export a portable subset of plugin settings and site-level Redirection options.',
+			'Export a portable subset of plugin settings and site-level DSuite Redirects options.',
 			'dsuite-redirects'
 		),
 		formats: [ 'json' ],

@@ -71,7 +71,7 @@ function EditColumn( props: EditColumnProps ) {
 								<p>
 									<br />
 									{ __(
-										'Note that you will need to set the Apache module path in your Redirection options.',
+										'Note that you will need to set the Apache module path in your DSuite Redirects options.',
 										'dsuite-redirects'
 									) }
 								</p>

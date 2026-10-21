@@ -46,7 +46,7 @@ export default function ManualInstall( { onCancel, onComplete: onCompleteCallbac
 					<h3>{ __( 'Database problem', 'dsuite-redirects' ) }</h3>
 					<p>
 						{ __(
-							'The Redirection database does not appear to exist. Have you run the above SQL?',
+							'The DSuite Redirects database does not appear to exist. Have you run the above SQL?',
 							'dsuite-redirects'
 						) }
 					</p>

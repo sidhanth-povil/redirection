@@ -15,7 +15,7 @@ class Latest extends Upgrader {
 	public function get_stages() {
 		return [
 			/* translators: displayed when installing the plugin */
-			'create_tables' => __( 'Install Redirection tables', 'dsuite-redirects' ),
+			'create_tables' => __( 'Install DSuite Redirects tables', 'dsuite-redirects' ),
 			/* translators: displayed when installing the plugin */
 			'create_groups' => __( 'Create basic data', 'dsuite-redirects' ),
 		];

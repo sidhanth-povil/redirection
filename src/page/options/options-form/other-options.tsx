@@ -59,7 +59,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 				<br />
 				<span className="sub">
 					{ __(
-						'A unique token allowing feed readers access to Redirection log RSS (leave blank to auto-generate)',
+						'A unique token allowing feed readers access to DSuite Redirects log RSS (leave blank to auto-generate)',
 						'dsuite-redirects'
 					) }
 				</span>
@@ -123,7 +123,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 				/>{ ' ' }
 				&nbsp;
 				<span className="sub">
-					{ __( 'Decide how Redirection updates itself, if needed.', 'dsuite-redirects' ) }
+					{ __( 'Decide how DSuite Redirects updates its database, if needed.', 'dsuite-redirects' ) }
 				</span>
 			</TableRow>
 		</>

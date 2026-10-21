@@ -104,7 +104,7 @@ describe( 'Database Component', () => {
 	} );
 
 	describe( 'Initial Installation (need-install)', () => {
-		it( 'should display "Setting up Redirection" title for initial installation', () => {
+		it( 'should display "Setting up DSuite Redirects" title for initial installation', () => {
 			mockDatabaseState( {
 				status: 'need-install',
 				result: 'ok',
@@ -113,7 +113,7 @@ describe( 'Database Component', () => {
 
 			render( <Database />, { wrapper: createWrapper() } );
 
-			expect( screen.getByText( 'Setting up Redirection' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Setting up DSuite Redirects' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should automatically trigger upgrade after delay when work is needed', async () => {
@@ -173,7 +173,7 @@ describe( 'Database Component', () => {
 	} );
 
 	describe( 'Database Update (need-update)', () => {
-		it( 'should display "Upgrading Redirection" title for updates', () => {
+		it( 'should display "Upgrading DSuite Redirects" title for updates', () => {
 			mockDatabaseState( {
 				status: 'need-update',
 				result: 'ok',
@@ -184,7 +184,7 @@ describe( 'Database Component', () => {
 
 			render( <Database />, { wrapper: createWrapper() } );
 
-			expect( screen.getByText( 'Upgrading Redirection' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Upgrading DSuite Redirects' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should automatically trigger upgrade for updates', async () => {

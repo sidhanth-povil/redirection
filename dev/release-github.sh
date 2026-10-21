@@ -52,7 +52,7 @@ fi
 
 VERSION="$(node -p "require('./package.json').version")"
 TAG="$VERSION"
-ZIP_FILE="release/redirection.zip"
+ZIP_FILE="release/dsuite-redirects.zip"
 REMOTE_TAG_EXISTS=0
 
 if git ls-remote --exit-code --refs --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then

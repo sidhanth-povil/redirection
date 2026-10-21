@@ -20,13 +20,13 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 
 	return (
 		<>
-			<h2>{ __( 'Welcome to Redirection 🚀🎉', 'dsuite-redirects' ) }</h2>
+			<h2>{ __( 'Welcome to DSuite Redirects 🚀🎉', 'dsuite-redirects' ) }</h2>
 
 			<p>
 				{ sprintf(
 					// translators: %(version)s is the plugin version number
 					__(
-						'Thank you for installing and using Redirection v%(version)s. This plugin will allow you to manage 301 redirections, keep track of 404 errors, and improve your site, with no knowledge of Apache or Nginx needed.',
+						'Thank you for installing and using DSuite Redirects v%(version)s. This plugin will allow you to manage 301 redirections, keep track of 404 errors, and improve your site, with no knowledge of Apache or Nginx needed.',
 						'dsuite-redirects'
 					),
 					{
@@ -36,7 +36,7 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 			</p>
 			<p>
 				{ __(
-					'Redirection is designed to be used on sites with a few redirects to sites with thousands of redirects.',
+					'DSuite Redirects is designed to be used on sites with a few redirects to sites with thousands of redirects.',
 					'dsuite-redirects'
 				) }
 			</p>
@@ -93,7 +93,7 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Full documentation can be found on the {{link}}Redirection website.{{/link}}',
+						'Full documentation can be found in the {{link}}Redirection documentation.{{/link}}',
 						'dsuite-redirects'
 					),
 					{
@@ -147,7 +147,7 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 			<h3>{ __( "What's next?", 'dsuite-redirects' ) }</h3>
 			<p>
 				{ __(
-					'First you will be asked a few questions, and then Redirection will set up your database.',
+					'First you will be asked a few questions, and then DSuite Redirects will set up your database.',
 					'dsuite-redirects'
 				) }
 			</p>
