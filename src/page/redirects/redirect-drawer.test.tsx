@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { useGroupDropdown, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
 import type { Redirect } from 'types';
 import RedirectDrawer from './redirect-drawer';
@@ -67,6 +67,21 @@ describe( 'RedirectDrawer', () => {
 			} ),
 			expect.objectContaining( { onSuccess: onClose } )
 		);
+	} );
+
+	it( 'starts typing in Old URL and files new redirects in the last used group', async () => {
+		( useGroupDropdown as jest.Mock ).mockReturnValue( {
+			data: {
+				items: [
+					{ id: 2, name: 'Modified Posts' },
+					{ id: 1, name: 'Redirections' },
+				],
+			},
+		} );
+		render( <RedirectDrawer item={ null } initialUrl="/old" onClose={ jest.fn() } /> );
+
+		await waitFor( () => expect( screen.getByLabelText( 'Old URL' ) ).toHaveFocus() );
+		expect( screen.getByLabelText( 'Group' ) ).toHaveValue( '1' );
 	} );
 
 	it( 'disables save until a destination is entered', () => {

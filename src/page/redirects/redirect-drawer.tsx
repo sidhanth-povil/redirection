@@ -19,6 +19,7 @@ import {
 	createState,
 	getTarget,
 	hasSingleTarget,
+	pickDefaultGroup,
 	setTarget,
 	simpleTypeOf,
 	toPayload,
@@ -75,13 +76,15 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const { data: groupData } = useGroupDropdown();
 	const groups = groupData?.items ?? [];
 	const settings = useSettingsStore( ( store ) => store.values );
+	// Not in the typed settings schema, but the server includes it in the preloaded settings.
+	const lastGroupId = Number( ( settings as { last_group_id?: number } | null )?.last_group_id ?? 0 );
 	const create = useRedirectCreate();
 	const update = useRedirectUpdate();
 
 	const [ state, setState ] = useState< DrawerState >( () =>
 		createState( item, {
 			url: initialUrl,
-			groupId: groups[ 0 ]?.id ?? 0,
+			groupId: pickDefaultGroup( groups, lastGroupId ),
 			flags: {
 				flag_regex: Boolean( settings?.flag_regex ),
 				flag_trailing: Boolean( settings?.flag_trailing ),
@@ -93,13 +96,13 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const [ touched, setTouched ] = useState( false );
 	const [ advancedOpen, setAdvancedOpen ] = useState( () => readAdvancedOpen() || needsAdvanced( state ) );
 
-	// Groups may arrive after the drawer opens; pick the first one for a new redirect.
-	const firstGroupId = groups[ 0 ]?.id;
+	// Groups may arrive after the drawer opens; file a new redirect in the default group.
+	const defaultGroupId = pickDefaultGroup( groups, lastGroupId );
 	useEffect( () => {
-		if ( state.group_id <= 0 && firstGroupId !== undefined ) {
-			setState( ( prev ) => ( { ...prev, group_id: firstGroupId } ) );
+		if ( state.group_id <= 0 && defaultGroupId > 0 ) {
+			setState( ( prev ) => ( { ...prev, group_id: defaultGroupId } ) );
 		}
-	}, [ state.group_id, firstGroupId ] );
+	}, [ state.group_id, defaultGroupId ] );
 
 	const change = useCallback( ( next: ( prev: DrawerState ) => DrawerState ) => {
 		setTouched( true );
@@ -225,6 +228,8 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 							value={ state.url }
 							placeholder="/old-page"
 							autoComplete="off"
+							// react-focus-lock moves focus here when the drawer opens.
+							data-autofocus
 							aria-describedby={ `${ sourceId }-hint` }
 							onChange={ ( event ) => {
 								const url = event.target.value;

@@ -5,6 +5,7 @@ import {
 	createState,
 	getTarget,
 	hasSingleTarget,
+	pickDefaultGroup,
 	setTarget,
 	simpleTypeOf,
 	toPayload,
@@ -136,5 +137,26 @@ describe( 'toPayload', () => {
 			title: 'Spring',
 			position: 3,
 		} );
+	} );
+} );
+
+describe( 'pickDefaultGroup', () => {
+	const groups = [
+		{ id: 2, name: 'Modified Posts' },
+		{ id: 1, name: 'Redirections' },
+		{ id: 5, name: 'Campaigns' },
+	];
+
+	it( 'prefers the last used group', () => {
+		expect( pickDefaultGroup( groups, 5 ) ).toBe( 5 );
+	} );
+
+	it( 'falls back to the first group created, not the first listed', () => {
+		expect( pickDefaultGroup( groups, 0 ) ).toBe( 1 );
+		expect( pickDefaultGroup( groups, 99 ) ).toBe( 1 );
+	} );
+
+	it( 'returns 0 when there are no groups yet', () => {
+		expect( pickDefaultGroup( [], 3 ) ).toBe( 0 );
 	} );
 } );

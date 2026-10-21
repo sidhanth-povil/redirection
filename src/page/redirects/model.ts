@@ -75,6 +75,21 @@ export function createState( item: Redirect | null, defaults: Defaults ): Drawer
 	};
 }
 
+/**
+ * The group a new redirect is filed in: the last one used (kept by the server in `last_group_id`),
+ * otherwise the oldest group. The dropdown lists module groups first, so its first entry is not a safe default.
+ *
+ * @param groups      Groups from the dropdown endpoint.
+ * @param lastGroupId Settings `last_group_id`, 0 when unset.
+ */
+export function pickDefaultGroup( groups: Array< { id: number } >, lastGroupId: number ): number {
+	if ( groups.some( ( group ) => group.id === lastGroupId ) ) {
+		return lastGroupId;
+	}
+
+	return groups.reduce( ( lowest, group ) => ( lowest === 0 || group.id < lowest ? group.id : lowest ), 0 );
+}
+
 export function simpleTypeOf( state: DrawerState ): SimpleType | null {
 	if ( state.match_type !== MATCH_URL ) {
 		return null;
