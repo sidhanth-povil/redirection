@@ -4,6 +4,8 @@
  * PHP binds these top-level functions at compile time, so they must not live in the main file.
  */
 
+dsr_forget_original_uninstall();
+
 /**
  * Autoload a namespaced class from a plugin directory.
  *

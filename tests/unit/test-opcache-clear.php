@@ -14,6 +14,7 @@ class OpcacheClearTest extends TestCase {
 				'add_filter' => null,
 				'is_admin' => false,
 				'get_option' => [],
+				'update_option' => true,
 				'is_multisite' => false,
 			]
 		);
