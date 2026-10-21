@@ -57,6 +57,7 @@ class Admin {
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
 		add_action( 'admin_menu', [ $this, 'redirect_legacy_page' ] );
+		add_action( 'admin_init', [ \Redirection\Database\DsrUpgrader::class, 'maybe_run' ] );
 		add_action( 'admin_notices', [ $this, 'update_nag' ] );
 		add_filter( 'plugin_action_links_' . basename( dirname( REDIRECTION_FILE ) ) . '/' . basename( REDIRECTION_FILE ), [ $this, 'plugin_settings' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 4 );

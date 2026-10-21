@@ -39,6 +39,9 @@ function _manually_load_plugin() {
 	$database = new Latest();
 	$database->remove();
 	$database->install();
+
+	// DSuite schema (schedule columns) on top of upstream's, as admin_init does on a real site.
+	\Redirection\Database\DsrUpgrader::run();
 }
 
 // @phpstan-ignore function.notFound

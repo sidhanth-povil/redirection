@@ -70,6 +70,7 @@ class Latest extends Upgrader {
 		delete_option( 'redirection_index' );
 		delete_option( 'redirection_options' );
 		delete_option( Status::OLD_DB_VERSION );
+		delete_option( \Redirection\Redirect\Schedule::VERSION_OPTION );
 	}
 
 	/**
