@@ -65,6 +65,13 @@ class Cache {
 	private $cached = [];
 
 	/**
+	 * URLs whose lookup involved a scheduled redirect, and so must never be cached
+	 *
+	 * @var array<string, true>
+	 */
+	private $uncacheable = [];
+
+	/**
 	 * Cache key. Changed to current time whenever a redirect is updated.
 	 *
 	 * @var integer
@@ -98,6 +105,7 @@ class Cache {
 		$settings = Settings::get();
 		$this->key = $settings['cache_key'];
 		$this->cached = [];
+		$this->uncacheable = [];
 	}
 
 	/**
@@ -150,6 +158,16 @@ class Cache {
 	}
 
 	/**
+	 * A scheduled redirect switches on or off by time alone, so any lookup that saw one is never cached.
+	 *
+	 * @param string $url Requested URL.
+	 * @return void
+	 */
+	public function mark_uncacheable( $url ) {
+		$this->uncacheable[ $url ] = true;
+	}
+
+	/**
 	 * Set the cache for a URL
 	 *
 	 * @param string         $url URL to cache.
@@ -158,7 +176,7 @@ class Cache {
 	 * @return boolean
 	 */
 	public function set( $url, $matched, $redirects ) {
-		if ( ! $this->can_cache() || isset( $this->cached[ $url ] ) ) {
+		if ( ! $this->can_cache() || isset( $this->cached[ $url ] ) || isset( $this->uncacheable[ $url ] ) ) {
 			return false;
 		}
 

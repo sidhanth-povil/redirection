@@ -189,6 +189,13 @@ class Sanitize {
 			$data['action_data'] = is_array( $match_data ) ? serialize( $match_data ) : $match_data;
 		}
 
+		$schedule = $this->get_schedule( $details );
+		if ( is_wp_error( $schedule ) ) {
+			return $schedule;
+		}
+
+		$data = array_merge( $data, $schedule );
+
 		// Any errors?
 		foreach ( $data as $value ) {
 			if ( is_wp_error( $value ) ) {
@@ -369,5 +376,39 @@ class Sanitize {
 		}
 
 		return sanitize_textarea_field( $text );
+	}
+
+	/**
+	 * Only keys present in the request are returned, so callers that don't know about schedules never clear one.
+	 *
+	 * @param array<string, mixed> $details Request details.
+	 * @return array<string, string|null>|WP_Error UTC DB values keyed by column.
+	 */
+	private function get_schedule( array $details ) {
+		$schedule = [];
+
+		// Before dsr_db_version 1 the columns don't exist yet.
+		if ( ! Schedule::columns_ready() ) {
+			return $schedule;
+		}
+
+		foreach ( [ 'start_at', 'end_at' ] as $key ) {
+			if ( ! array_key_exists( $key, $details ) ) {
+				continue;
+			}
+
+			$value = Schedule::parse( $details[ $key ], wp_timezone() );
+			if ( $value === false ) {
+				return new WP_Error( 'redirect_schedule', __( 'The schedule date is not a valid date.', 'dsuite-redirects' ) );
+			}
+
+			$schedule[ $key ] = $value;
+		}
+
+		if ( array_key_exists( 'start_at', $schedule ) && array_key_exists( 'end_at', $schedule ) && ! Schedule::is_valid_window( $schedule['start_at'], $schedule['end_at'] ) ) {
+			return new WP_Error( 'redirect_schedule', __( 'The end date must be after the start date.', 'dsuite-redirects' ) );
+		}
+
+		return $schedule;
 	}
 }

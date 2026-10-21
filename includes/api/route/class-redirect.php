@@ -23,7 +23,7 @@ class Redirect extends Filtered {
 	 */
 	public function __construct( $api_namespace ) {
 		$orders = [ 'source', 'last_count', 'last_access', 'position', 'id', '' ];
-		$filters = [ 'status', 'url-match', 'match', 'action', 'http', 'access', 'url', 'target', 'title', 'group', 'id' ];
+		$filters = [ 'status', 'url-match', 'match', 'action', 'http', 'access', 'url', 'target', 'title', 'group', 'id', 'schedule' ];
 
 		// GET /redirect - List redirects
 		// POST /redirect - Create redirect

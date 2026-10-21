@@ -51,7 +51,10 @@ use WP_Error;
  *     group_id: int,
  *     position: int,
  *     last_access: string,
- *     enabled: bool
+ *     enabled: bool,
+ *     start_at: string|null,
+ *     end_at: string|null,
+ *     schedule_state: string
  * }
  * @phpstan-type RedirectStatusAction 'enable'|'disable'
  * @phpstan-type RedirectFilterBy array<string, string>
@@ -216,6 +219,20 @@ class Redirect {
 	private $group_id = 0;
 
 	/**
+	 * Start of the active window, UTC `Y-m-d H:i:s`; null = no start
+	 *
+	 * @var string|null
+	 */
+	private $start_at = null;
+
+	/**
+	 * End of the active window (exclusive), UTC `Y-m-d H:i:s`; null = no end
+	 *
+	 * @var string|null
+	 */
+	private $end_at = null;
+
+	/**
 	 * Source flags
 	 *
 	 * @var SourceFlags|null
@@ -333,6 +350,12 @@ class Redirect {
 			$this->group_id = intval( $values['group_id'], 10 );
 		}
 
+		foreach ( [ 'start_at', 'end_at' ] as $key ) {
+			if ( array_key_exists( $key, $values ) ) {
+				$this->$key = is_string( $values[ $key ] ) && $values[ $key ] !== '' ? $values[ $key ] : null;
+			}
+		}
+
 		$this->match_type = $this->match_type !== '' ? $this->match_type : 'url';
 		$this->action_type = $this->action_type !== '' ? $this->action_type : 'nothing';
 		// @phpstan-ignore cast.useless
@@ -433,6 +456,8 @@ class Redirect {
 	public static function get_for_matched_url( $url ) {
 		global $wpdb;
 
+		$requested_url = $url;
+
 		// Anything in the cache?
 		$cache = Cache::init();
 		$rows = $cache->get( $url );
@@ -449,8 +474,22 @@ class Redirect {
 		$items = [];
 
 		if ( is_array( $rows ) ) {
+			$now = Schedule::now();
+
 			foreach ( $rows as $row ) {
-				$items[] = new Redirect( $row );
+				$item = new Redirect( $row );
+
+				// The window is checked here rather than in SQL so the cache also sees not-yet-started redirects:
+				// a lookup involving any scheduled candidate is never cached, so it can't go stale at a boundary.
+				if ( $item->has_schedule() ) {
+					$cache->mark_uncacheable( $requested_url );
+
+					if ( ! $item->is_active_at( $now ) ) {
+						continue;
+					}
+				}
+
+				$items[] = $item;
 			}
 
 			usort( $items, [ self::class, 'sort_urls' ] );
@@ -1147,6 +1186,35 @@ class Redirect {
 	}
 
 	/**
+	 * @return string|null UTC start of the active window.
+	 */
+	public function get_start_at() {
+		return $this->start_at;
+	}
+
+	/**
+	 * @return string|null UTC end of the active window (exclusive).
+	 */
+	public function get_end_at() {
+		return $this->end_at;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function has_schedule() {
+		return $this->start_at !== null || $this->end_at !== null;
+	}
+
+	/**
+	 * @param string $now UTC `Y-m-d H:i:s`.
+	 * @return bool
+	 */
+	public function is_active_at( $now ) {
+		return Schedule::is_active( $this->start_at, $this->end_at, $now );
+	}
+
+	/**
 	 * Convert the redirect to JSON
 	 *
 	 * @return RedirectJson
@@ -1168,6 +1236,9 @@ class Redirect {
 			'position' => $this->get_position(),
 			'last_access' => $this->get_last_hit() > 0 ? date_i18n( get_option( 'date_format' ), $this->get_last_hit() ) : '-',
 			'enabled' => $this->is_enabled(),
+			'start_at' => Schedule::to_site_iso( $this->start_at, wp_timezone() ),
+			'end_at' => Schedule::to_site_iso( $this->end_at, wp_timezone() ),
+			'schedule_state' => Schedule::state( $this->start_at, $this->end_at, Schedule::now() ),
 		];
 	}
 
@@ -1196,6 +1267,8 @@ class Redirect {
 		return array_merge(
 			$json,
 			[
+				'start_at'    => $this->start_at,
+				'end_at'      => $this->end_at,
 				'match_data'  => wp_json_encode( $this->get_match_data(), JSON_UNESCAPED_SLASHES ),
 				'action_data' => $action_data,
 				'last_access' => gmdate( 'Y-m-d H:i:s', $this->last_access ),

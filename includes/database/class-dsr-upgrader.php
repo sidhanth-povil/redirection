@@ -39,7 +39,7 @@ class DsrUpgrader {
 			return false;
 		}
 
-		$columns = $wpdb->get_col( "SHOW COLUMNS FROM `$table`" );
+		$columns = $wpdb->get_col( "SHOW COLUMNS FROM `{$wpdb->prefix}redirection_items`" );
 		$changes = [];
 
 		if ( ! in_array( 'start_at', $columns, true ) ) {
@@ -50,11 +50,13 @@ class DsrUpgrader {
 			$changes[] = 'ADD COLUMN `end_at` DATETIME NULL DEFAULT NULL';
 		}
 
-		if ( $wpdb->get_var( "SHOW INDEX FROM `$table` WHERE Key_name = 'schedule'" ) === null ) {
+		if ( $wpdb->get_var( "SHOW INDEX FROM `{$wpdb->prefix}redirection_items` WHERE Key_name = 'schedule'" ) === null ) {
 			$changes[] = 'ADD KEY `schedule` (`start_at`,`end_at`)';
 		}
 
-		if ( count( $changes ) > 0 && $wpdb->query( "ALTER TABLE `$table` " . implode( ', ', $changes ) ) === false ) {
+		// $changes holds only the fixed clauses above.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( count( $changes ) > 0 && $wpdb->query( "ALTER TABLE `{$wpdb->prefix}redirection_items` " . implode( ', ', $changes ) ) === false ) {
 			// @phpstan-ignore disallowed.function
 			error_log( 'DSuite Redirects: unable to add schedule columns: ' . $wpdb->last_error ); // phpcs:ignore
 			return false;

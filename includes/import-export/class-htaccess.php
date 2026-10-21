@@ -80,6 +80,11 @@ class Htaccess {
 	 * @return void
 	 */
 	public function add( $item ) {
+		// Server config can't switch rules on and off by date, so scheduled redirects stay in WordPress.
+		if ( $item->has_schedule() ) {
+			return;
+		}
+
 		foreach ( $this->rule_builder->build_for_item( $item ) as $line ) {
 			$this->items[] = $line;
 		}

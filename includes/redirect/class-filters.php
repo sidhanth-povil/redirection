@@ -70,6 +70,16 @@ class Filters {
 				$this->filters[] = $wpdb->prepare( 'title LIKE %s', '%' . $wpdb->esc_like( $filter ) . '%' );
 			} elseif ( $filter_by === 'group' ) {
 				$this->filters[] = $wpdb->prepare( 'group_id=%d', intval( $filter, 10 ) );
+			} elseif ( $filter_by === 'schedule' && Schedule::columns_ready() ) {
+				$now = Schedule::now();
+
+				if ( $filter === Schedule::STATE_SCHEDULED ) {
+					$this->filters[] = $wpdb->prepare( 'start_at > %s', $now );
+				} elseif ( $filter === Schedule::STATE_EXPIRED ) {
+					$this->filters[] = $wpdb->prepare( 'end_at <= %s', $now );
+				} elseif ( $filter === Schedule::STATE_LIVE ) {
+					$this->filters[] = $wpdb->prepare( '(start_at IS NULL OR start_at <= %s) AND (end_at IS NULL OR end_at > %s)', $now, $now );
+				}
 			}
 		}
 	}

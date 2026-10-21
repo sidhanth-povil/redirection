@@ -42,7 +42,8 @@ class Nginx extends FormatHandler {
 
 		$parts = [];
 		foreach ( $items as $item ) {
-			if ( $item->is_enabled() ) {
+			// Server config can't switch rules on and off by date, so scheduled redirects stay in WordPress.
+			if ( $item->is_enabled() && ! $item->has_schedule() ) {
 				$parts[] = $this->get_nginx_item( $item );
 			}
 		}
