@@ -1,0 +1,140 @@
+import type { Redirect } from 'types';
+import {
+	applySimpleType,
+	canSave,
+	createState,
+	getTarget,
+	hasSingleTarget,
+	setTarget,
+	simpleTypeOf,
+	toPayload,
+} from './model';
+
+const FLAGS = { flag_regex: false, flag_trailing: true, flag_case: true, flag_query: 'ignore' };
+
+const urlRedirect: Redirect = {
+	id: 4,
+	url: '/old',
+	match_type: 'url',
+	action_type: 'url',
+	action_code: 301,
+	action_data: { url: '/new' },
+	match_data: {
+		source: { flag_regex: false, flag_trailing: false, flag_case: false, flag_query: 'exact' },
+		options: {},
+	},
+	group_id: 2,
+	title: 'Spring',
+	position: 3,
+};
+
+const conditional: Redirect = {
+	...urlRedirect,
+	id: 9,
+	url: '^/shop/(.*)$',
+	match_type: 'login',
+	action_type: 'url',
+	action_code: 307,
+	action_data: { logged_in: '/members/$1', logged_out: '/login' },
+	match_data: {
+		source: { flag_regex: true, flag_trailing: false, flag_case: true, flag_query: 'pass' },
+		options: { log_exclude: true },
+	},
+};
+
+describe( 'createState', () => {
+	it( 'starts a new redirect from the defaults', () => {
+		const state = createState( null, { url: '/from-404', groupId: 1, flags: FLAGS } );
+
+		expect( state ).toMatchObject( {
+			url: '/from-404',
+			group_id: 1,
+			match_type: 'url',
+			action_type: 'url',
+			action_code: 301,
+			flag_case: true,
+			flag_query: 'ignore',
+		} );
+		expect( getTarget( state ) ).toBe( '' );
+	} );
+
+	it( 'reads an existing redirect', () => {
+		const state = createState( urlRedirect, { url: '', groupId: 1, flags: FLAGS } );
+
+		expect( state ).toMatchObject( { url: '/old', title: 'Spring', group_id: 2, position: 3, flag_case: false } );
+		expect( getTarget( state ) ).toBe( '/new' );
+	} );
+} );
+
+describe( 'plain types', () => {
+	const base = createState( null, { url: '/a', groupId: 1, flags: FLAGS } );
+
+	it( 'maps codes to plain types', () => {
+		expect( simpleTypeOf( base ) ).toBe( 'permanent' );
+		expect( simpleTypeOf( applySimpleType( base, 'temporary' ) ) ).toBe( 'temporary' );
+		expect( simpleTypeOf( applySimpleType( base, 'gone' ) ) ).toBe( 'gone' );
+		expect( simpleTypeOf( { ...base, action_code: 307 } ) ).toBeNull();
+		expect( simpleTypeOf( { ...base, action_type: 'pass', action_code: 200 } ) ).toBeNull();
+		expect( simpleTypeOf( createState( conditional, { url: '', groupId: 1, flags: FLAGS } ) ) ).toBeNull();
+	} );
+
+	it( 'Gone is a 410 error and keeps the typed target for switching back', () => {
+		const gone = applySimpleType( setTarget( base, '/new' ), 'gone' );
+
+		expect( gone ).toMatchObject( { action_type: 'error', action_code: 410 } );
+		expect( hasSingleTarget( gone ) ).toBe( false );
+		expect( getTarget( applySimpleType( gone, 'permanent' ) ) ).toBe( '/new' );
+	} );
+} );
+
+describe( 'canSave', () => {
+	const base = createState( null, { url: '/a', groupId: 1, flags: FLAGS } );
+
+	it( 'needs an old URL, a group and a destination for URL redirects', () => {
+		expect( canSave( base ) ).toBe( false );
+		expect( canSave( setTarget( base, '/b' ) ) ).toBe( true );
+		expect( canSave( setTarget( { ...base, url: '  ' }, '/b' ) ) ).toBe( false );
+		expect( canSave( setTarget( { ...base, group_id: 0 }, '/b' ) ) ).toBe( false );
+	} );
+
+	it( 'does not need a destination for Gone', () => {
+		expect( canSave( applySimpleType( base, 'gone' ) ) ).toBe( true );
+	} );
+} );
+
+describe( 'toPayload', () => {
+	it( 'builds the REST payload with nested source flags', () => {
+		const state = setTarget( createState( null, { url: ' /a ', groupId: 1, flags: FLAGS } ), '/b' );
+
+		expect( toPayload( state ) ).toEqual( {
+			url: '/a',
+			title: '',
+			match_type: 'url',
+			action_type: 'url',
+			action_code: 301,
+			action_data: { url: '/b' },
+			match_data: {
+				source: { flag_regex: false, flag_trailing: true, flag_case: true, flag_query: 'ignore' },
+				options: {},
+			},
+			group_id: 1,
+			position: 0,
+		} );
+	} );
+
+	it( 'round-trips a conditional redirect unchanged', () => {
+		const payload = toPayload( createState( conditional, { url: '', groupId: 1, flags: FLAGS } ) );
+
+		expect( payload ).toMatchObject( {
+			url: conditional.url,
+			match_type: 'login',
+			action_type: 'url',
+			action_code: 307,
+			action_data: { logged_in: '/members/$1', logged_out: '/login' },
+			match_data: conditional.match_data,
+			group_id: 2,
+			title: 'Spring',
+			position: 3,
+		} );
+	} );
+} );
