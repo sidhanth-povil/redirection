@@ -29,6 +29,13 @@ class AdminMenuTest extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'dsuite-redirects.php', $submenu );
 	}
 
+	public function testLegacyRedirectRunsBeforeUnknownPageCheck() {
+		// WordPress rejects an unregistered tools.php page inside wp-admin/menu.php, after admin_menu but before admin_init.
+		$admin = new Admin();
+
+		$this->assertNotFalse( has_action( 'admin_menu', [ $admin, 'redirect_legacy_page' ] ) );
+	}
+
 	public function testLegacyUrlTarget() {
 		$this->assertSame(
 			admin_url( 'admin.php?page=dsuite-redirects.php&sub=404s' ),
