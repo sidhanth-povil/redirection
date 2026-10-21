@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useState, type ChangeEvent, type FormEvent } from 'react';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Button, Combobox, Drawer, Field, Segmented, type SegmentedOption } from 'ui';
 import { useGroupDropdown, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
 import { useSettingsStore } from 'stores';
@@ -18,8 +18,10 @@ import {
 	canSave,
 	createState,
 	getTarget,
+	hasSchedule,
 	hasSingleTarget,
 	pickDefaultGroup,
+	scheduleError,
 	setTarget,
 	simpleTypeOf,
 	toPayload,
@@ -95,6 +97,7 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 		} )
 	);
 	const [ touched, setTouched ] = useState( false );
+	const [ scheduleOn, setScheduleOn ] = useState( () => hasSchedule( state ) );
 	const [ advancedOpen, setAdvancedOpen ] = useState( () => readAdvancedOpen() || needsAdvanced( state ) );
 
 	// Groups may arrive after the drawer opens; file a new redirect in the default group.
@@ -129,6 +132,11 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const titleId = useId();
 	const positionId = useId();
 	const queryId = useId();
+	const scheduleId = useId();
+	const startId = useId();
+	const endId = useId();
+	const rangeError = scheduleError( state );
+	const timezone = window.Redirectioni10n?.timezone || 'UTC';
 
 	const saving = create.isPending || update.isPending;
 	const error = ( item ? update.error : create.error )?.message;
@@ -284,6 +292,75 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 						{ __( 'This redirect uses a custom action. Change it under Advanced.', 'dsuite-redirects' ) }
 					</p>
 				) }
+
+				<div className="dsr-schedule">
+					<label className="dsr-switch" htmlFor={ scheduleId }>
+						<input
+							id={ scheduleId }
+							type="checkbox"
+							role="switch"
+							className="dsr-switch__input"
+							checked={ scheduleOn }
+							onChange={ ( event ) => {
+								const on = event.target.checked;
+								setScheduleOn( on );
+
+								if ( ! on ) {
+									change( ( prev ) => ( { ...prev, start_at: '', end_at: '' } ) );
+								}
+							} }
+						/>
+						<span className="dsr-switch__track" aria-hidden="true" />
+						{ __( 'Only active between dates', 'dsuite-redirects' ) }
+					</label>
+
+					{ scheduleOn && (
+						<>
+							<div className="dsr-schedule__dates">
+								<Field label={ __( 'Starts', 'dsuite-redirects' ) } htmlFor={ startId }>
+									<input
+										id={ startId }
+										type="datetime-local"
+										className="dsr-input"
+										value={ state.start_at }
+										onChange={ ( event ) => {
+											const start_at = event.target.value;
+											change( ( prev ) => ( { ...prev, start_at } ) );
+										} }
+									/>
+								</Field>
+								<Field label={ __( 'Ends', 'dsuite-redirects' ) } htmlFor={ endId }>
+									<input
+										id={ endId }
+										type="datetime-local"
+										className="dsr-input"
+										value={ state.end_at }
+										onChange={ ( event ) => {
+											const end_at = event.target.value;
+											change( ( prev ) => ( { ...prev, end_at } ) );
+										} }
+									/>
+								</Field>
+							</div>
+							{ rangeError ? (
+								<p className="dsr-field-error" role="alert">
+									{ rangeError }
+								</p>
+							) : (
+								<p className="dsr-hint">
+									{ sprintf(
+										/* translators: %s: site timezone, e.g. Europe/London */
+										__(
+											'Times are in the site timezone (%s). Leave a date empty for no limit. The redirect switches on and off by itself.',
+											'dsuite-redirects'
+										),
+										timezone
+									) }
+								</p>
+							) }
+						</>
+					) }
+				</div>
 
 				{ warnings.length > 0 && (
 					<div className="dsr-notice dsr-notice--warning">

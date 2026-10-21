@@ -36,6 +36,10 @@ export const RedirectSchema = z.object( {
 	last_access: z.string().optional(), // Formatted date string or '-'
 	enabled: z.boolean().optional(),
 	hits: z.number().int().nonnegative().optional(),
+	// ISO 8601 in site time; null = no limit.
+	start_at: z.string().nullish(),
+	end_at: z.string().nullish(),
+	schedule_state: z.enum( [ 'none', 'scheduled', 'live', 'expired' ] ).optional(),
 } );
 
 export type Redirect = z.infer< typeof RedirectSchema >;
@@ -54,6 +58,9 @@ export const CreateRedirectInputSchema = z.object( {
 	group_id: z.number().int().positive(),
 	position: z.number().int().nonnegative().default( 0 ),
 	enabled: z.boolean().optional(),
+	// `YYYY-MM-DDTHH:mm` in site time; null clears.
+	start_at: z.string().nullable().optional(),
+	end_at: z.string().nullable().optional(),
 } );
 
 export type CreateRedirectInput = z.infer< typeof CreateRedirectInputSchema >;

@@ -69,3 +69,36 @@ export function typeBadge( row: Redirect ): { tone: BadgeTone; label: string; co
 
 	return { tone: 'neutral', label: String( code ), code };
 }
+
+// Read the calendar date in the ISO string's own (site) time, so it never shifts with the browser's timezone.
+function shortDate( iso: string ): string {
+	const [ year, month, day ] = iso.slice( 0, 10 ).split( '-' ).map( Number );
+
+	const locale = window.Redirectioni10n?.locale || 'en-US';
+
+	return new Intl.DateTimeFormat( locale, { month: 'short', day: 'numeric', timeZone: 'UTC' } ).format(
+		new Date( Date.UTC( year ?? 1970, ( month ?? 1 ) - 1, day ?? 1 ) )
+	);
+}
+
+/**
+ * A second badge for redirects with a schedule, or null when there is nothing to say.
+ * @param row
+ */
+export function scheduleBadge( row: Redirect ): { tone: BadgeTone; label: string } | null {
+	if ( row.schedule_state === 'scheduled' && row.start_at ) {
+		/* translators: %s: short date, e.g. "Nov 28" */
+		return { tone: 'warning', label: sprintf( __( 'Starts %s', 'dsuite-redirects' ), shortDate( row.start_at ) ) };
+	}
+
+	if ( row.schedule_state === 'live' && row.end_at ) {
+		/* translators: %s: short date, e.g. "Dec 2" */
+		return { tone: 'warning', label: sprintf( __( 'Until %s', 'dsuite-redirects' ), shortDate( row.end_at ) ) };
+	}
+
+	if ( row.schedule_state === 'expired' ) {
+		return { tone: 'neutral', label: __( 'Expired', 'dsuite-redirects' ) };
+	}
+
+	return null;
+}

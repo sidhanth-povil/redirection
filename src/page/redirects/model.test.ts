@@ -6,6 +6,7 @@ import {
 	getTarget,
 	hasSingleTarget,
 	pickDefaultGroup,
+	scheduleError,
 	setTarget,
 	simpleTypeOf,
 	toPayload,
@@ -120,6 +121,8 @@ describe( 'toPayload', () => {
 			},
 			group_id: 1,
 			position: 0,
+			start_at: null,
+			end_at: null,
 		} );
 	} );
 
@@ -158,5 +161,36 @@ describe( 'pickDefaultGroup', () => {
 
 	it( 'returns 0 when there are no groups yet', () => {
 		expect( pickDefaultGroup( [], 3 ) ).toBe( 0 );
+	} );
+} );
+
+describe( 'schedule', () => {
+	const base = setTarget( createState( null, { url: '/a', groupId: 1, flags: FLAGS } ), '/b' );
+
+	it( 'reads the site-time part of the API dates for the date inputs', () => {
+		const state = createState(
+			{ ...urlRedirect, start_at: '2026-11-28T09:00:00+05:30', end_at: null },
+			{ url: '', groupId: 1, flags: FLAGS }
+		);
+
+		expect( state.start_at ).toBe( '2026-11-28T09:00' );
+		expect( state.end_at ).toBe( '' );
+	} );
+
+	it( 'sends empty dates as null and set dates as typed', () => {
+		expect( toPayload( { ...base, start_at: '2026-11-28T09:00', end_at: '' } ) ).toMatchObject( {
+			start_at: '2026-11-28T09:00',
+			end_at: null,
+		} );
+	} );
+
+	it( 'blocks an end that is not after the start', () => {
+		const backwards = { ...base, start_at: '2026-12-02T09:00', end_at: '2026-11-28T09:00' };
+
+		expect( scheduleError( backwards ) ).toMatch( /after the start/ );
+		expect( canSave( backwards ) ).toBe( false );
+		expect( scheduleError( { ...base, start_at: '2026-11-28T09:00', end_at: '2026-11-28T09:00' } ) ).not.toBeNull();
+		expect( scheduleError( { ...base, start_at: '2026-11-28T09:00', end_at: '' } ) ).toBeNull();
+		expect( canSave( { ...base, start_at: '2026-11-28T09:00', end_at: '2026-12-02T09:00' } ) ).toBe( true );
 	} );
 } );

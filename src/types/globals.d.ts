@@ -36,6 +36,8 @@ interface Redirectioni10n {
 	update_notice: string | false;
 	settings: any;
 	per_page: string;
+	/** Site timezone name, e.g. `Europe/London` or `+05:30`. */
+	timezone?: string;
 }
 
 declare global {

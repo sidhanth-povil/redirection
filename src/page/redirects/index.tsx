@@ -15,7 +15,6 @@ import RedirectDrawer from './redirect-drawer';
 import './style.scss';
 
 type SearchField = 'url' | 'target' | 'title';
-type StatusFilter = '' | 'enabled' | 'disabled';
 type BulkAction = 'enable' | 'disable' | 'delete' | 'export';
 
 const SEARCH_FIELDS: SearchField[] = [ 'url', 'target', 'title' ];
@@ -26,10 +25,18 @@ interface DrawerTarget {
 	url: string;
 }
 
-const getStatusChips = (): Array< { value: StatusFilter; label: string } > => [
-	{ value: '', label: __( 'All', 'dsuite-redirects' ) },
-	{ value: 'enabled', label: __( 'Live', 'dsuite-redirects' ) },
-	{ value: 'disabled', label: __( 'Disabled', 'dsuite-redirects' ) },
+interface StatusChip {
+	label: string;
+	status: string;
+	schedule: string;
+}
+
+const getStatusChips = (): StatusChip[] => [
+	{ label: __( 'All', 'dsuite-redirects' ), status: '', schedule: '' },
+	{ label: __( 'Live', 'dsuite-redirects' ), status: 'enabled', schedule: 'live' },
+	{ label: __( 'Scheduled', 'dsuite-redirects' ), status: '', schedule: 'scheduled' },
+	{ label: __( 'Expired', 'dsuite-redirects' ), status: '', schedule: 'expired' },
+	{ label: __( 'Disabled', 'dsuite-redirects' ), status: 'disabled', schedule: '' },
 ];
 
 export default function Redirects() {
@@ -41,7 +48,7 @@ export default function Redirects() {
 		table,
 		setTable: setRedirectsTable,
 		allowedOrder: [ 'id', 'url', 'last_access', 'last_count', 'position' ],
-		allowedFilters: [ 'url', 'target', 'title', 'group', 'status' ],
+		allowedFilters: [ 'url', 'target', 'title', 'group', 'status', 'schedule' ],
 		defaultOrder: 'id',
 		pageName: 'redirect',
 	} );
@@ -81,7 +88,6 @@ export default function Redirects() {
 	}, [ isNew, from, canAdd ] );
 
 	const filterBy: Record< string, string > = table.filterBy ?? {};
-	const status = ( filterBy.status ?? '' ) as StatusFilter;
 	const [ field, setField ] = useState< SearchField >(
 		() => SEARCH_FIELDS.find( ( name ) => filterBy[ name ] ) ?? 'url'
 	);
@@ -218,11 +224,14 @@ export default function Redirects() {
 				<div className="dsr-chips" role="group" aria-label={ __( 'Status', 'dsuite-redirects' ) }>
 					{ getStatusChips().map( ( chip ) => (
 						<button
-							key={ chip.value }
+							key={ chip.label }
 							type="button"
 							className="dsr-chip"
-							aria-pressed={ status === chip.value }
-							onClick={ () => setFilter( { status: chip.value } ) }
+							aria-pressed={
+								( filterBy.status ?? '' ) === chip.status &&
+								( filterBy.schedule ?? '' ) === chip.schedule
+							}
+							onClick={ () => setFilter( { status: chip.status, schedule: chip.schedule } ) }
 						>
 							{ chip.label }
 						</button>

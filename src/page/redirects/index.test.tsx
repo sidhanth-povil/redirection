@@ -66,6 +66,23 @@ const rows = [
 		hits: 0,
 		last_access: '-',
 	},
+	{
+		id: 3,
+		url: '/black-friday',
+		match_type: 'url',
+		action_type: 'url',
+		action_code: 302,
+		action_data: { url: '/sale' },
+		group_id: 1,
+		title: '',
+		position: 0,
+		enabled: true,
+		hits: 0,
+		last_access: '-',
+		start_at: '2026-11-28T00:00:00+05:30',
+		end_at: null,
+		schedule_state: 'scheduled',
+	},
 ];
 
 const remove = { mutate: jest.fn() };
@@ -73,7 +90,7 @@ const bulk = { mutate: jest.fn() };
 
 function setup( caps = ALL_CAPS ) {
 	window.Redirectioni10n = { per_page: '25', caps: { capabilities: caps, pages: [ 'redirect' ] } } as any;
-	( useRedirectList as jest.Mock ).mockReturnValue( { data: { items: rows, total: 2 }, isLoading: false } );
+	( useRedirectList as jest.Mock ).mockReturnValue( { data: { items: rows, total: 3 }, isLoading: false } );
 	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
 	( useRedirectDelete as jest.Mock ).mockReturnValue( remove );
 	( useRedirectBulkAction as jest.Mock ).mockReturnValue( bulk );
@@ -154,5 +171,29 @@ describe( 'Redirects page', () => {
 		expect( within( first ).queryByRole( 'button', { name: 'Edit' } ) ).toBeNull();
 		expect( within( first ).queryByRole( 'button', { name: 'Disable' } ) ).toBeNull();
 		expect( within( first ).queryByRole( 'button', { name: 'Delete' } ) ).toBeNull();
+	} );
+
+	it( 'shows when a scheduled redirect starts', () => {
+		setup();
+
+		const row = screen.getByText( '/black-friday' ).closest( 'tr' ) as HTMLElement;
+		expect( within( row ).getByText( 'Starts Nov 28' ) ).toBeInTheDocument();
+	} );
+
+	it( 'filters by schedule with the chips', () => {
+		setup();
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Scheduled' } ) );
+		expect( useTableStore.getState().redirects.filterBy ).toEqual( { schedule: 'scheduled' } );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Live' } ) );
+		expect( useTableStore.getState().redirects.filterBy ).toEqual( { status: 'enabled', schedule: 'live' } );
+		expect( screen.getByRole( 'button', { name: 'Live' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Expired' } ) );
+		expect( useTableStore.getState().redirects.filterBy ).toEqual( { schedule: 'expired' } );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'All' } ) );
+		expect( useTableStore.getState().redirects.filterBy ).toEqual( {} );
 	} );
 } );

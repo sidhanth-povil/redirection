@@ -1,5 +1,5 @@
 import type { Redirect } from 'types';
-import { describeTarget, typeBadge } from './describe';
+import { describeTarget, scheduleBadge, typeBadge } from './describe';
 
 const row = ( overrides: Partial< Redirect > ): Redirect => ( {
 	id: 1,
@@ -46,5 +46,23 @@ describe( 'typeBadge', () => {
 			code: 410,
 		} );
 		expect( typeBadge( row( { action_code: 307 } ) ) ).toEqual( { tone: 'neutral', label: '307', code: 307 } );
+	} );
+} );
+
+describe( 'scheduleBadge', () => {
+	it( 'says when a schedule starts or ends', () => {
+		expect( scheduleBadge( row( {} ) ) ).toBeNull();
+		expect(
+			scheduleBadge( row( { schedule_state: 'scheduled', start_at: '2026-11-28T00:00:00+05:30' } ) )
+		).toEqual( { tone: 'warning', label: 'Starts Nov 28' } );
+		expect( scheduleBadge( row( { schedule_state: 'live', end_at: '2026-12-02T23:59:00+05:30' } ) ) ).toEqual( {
+			tone: 'warning',
+			label: 'Until Dec 2',
+		} );
+		expect( scheduleBadge( row( { schedule_state: 'live', start_at: '2026-01-01T00:00:00Z' } ) ) ).toBeNull();
+		expect( scheduleBadge( row( { schedule_state: 'expired', end_at: '2026-01-01T00:00:00Z' } ) ) ).toEqual( {
+			tone: 'neutral',
+			label: 'Expired',
+		} );
 	} );
 } );

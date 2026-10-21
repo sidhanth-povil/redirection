@@ -187,4 +187,47 @@ describe( 'RedirectDrawer', () => {
 
 		expect( window.localStorage.getItem( 'dsr_advanced_open' ) ).toBeNull();
 	} );
+
+	it( 'schedules a redirect between two dates', () => {
+		render( <RedirectDrawer item={ null } initialUrl="/sale" onClose={ jest.fn() } /> );
+
+		expect( screen.queryByLabelText( 'Starts' ) ).toBeNull();
+
+		fireEvent.change( screen.getByLabelText( 'Send visitors to' ), { target: { value: '/autumn-sale' } } );
+		fireEvent.click( screen.getByRole( 'switch', { name: 'Only active between dates' } ) );
+		fireEvent.change( screen.getByLabelText( 'Starts' ), { target: { value: '2026-12-02T09:00' } } );
+		fireEvent.change( screen.getByLabelText( 'Ends' ), { target: { value: '2026-11-28T09:00' } } );
+
+		expect( screen.getByText( /must be after the start/ ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
+
+		fireEvent.change( screen.getByLabelText( 'Ends' ), { target: { value: '2026-12-09T09:00' } } );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+
+		expect( create.mutate ).toHaveBeenCalledWith(
+			expect.objectContaining( { start_at: '2026-12-02T09:00', end_at: '2026-12-09T09:00' } ),
+			expect.anything()
+		);
+	} );
+
+	it( 'turning the schedule off clears the dates', () => {
+		render(
+			<RedirectDrawer
+				item={ { ...redirect307, action_code: 301, start_at: '2026-11-28T09:00:00+05:30', end_at: null } }
+				onClose={ jest.fn() }
+			/>
+		);
+
+		const toggle = screen.getByRole( 'switch', { name: 'Only active between dates' } );
+		expect( toggle ).toBeChecked();
+		expect( screen.getByLabelText( 'Starts' ) ).toHaveValue( '2026-11-28T09:00' );
+
+		fireEvent.click( toggle );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+
+		expect( update.mutate ).toHaveBeenCalledWith(
+			expect.objectContaining( { start_at: null, end_at: null } ),
+			expect.anything()
+		);
+	} );
 } );

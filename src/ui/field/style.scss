@@ -68,3 +68,57 @@
 	background: var(--dsr-warning-bg);
 	color: var(--dsr-warning-text);
 }
+
+// Checkbox shown as an on/off switch; the input stays focusable and keeps role="switch".
+.dsr-app .dsr-switch {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--dsr-space-2);
+	color: var(--dsr-text);
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.dsr-app .dsr-switch__input[type="checkbox"] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	opacity: 0;
+}
+
+.dsr-app .dsr-switch__track {
+	position: relative;
+	flex-shrink: 0;
+	width: 32px;
+	height: 18px;
+	border-radius: 999px;
+	background: var(--dsr-border-strong);
+	transition: background-color 0.15s;
+
+	&::after {
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: var(--dsr-shadow-sm);
+		content: "";
+		transition: transform 0.15s;
+	}
+}
+
+.dsr-app .dsr-switch__input:checked + .dsr-switch__track {
+	background: var(--dsr-accent);
+
+	&::after {
+		transform: translateX(14px);
+	}
+}
+
+.dsr-app .dsr-switch__input:focus-visible + .dsr-switch__track {
+	box-shadow: var(--dsr-focus-ring);
+}

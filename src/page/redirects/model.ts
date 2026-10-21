@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import {
 	ACTION_ERROR,
 	ACTION_URL,
@@ -28,6 +29,9 @@ export interface DrawerState extends SourceFlags {
 	options: Record< string, unknown >;
 	group_id: number;
 	position: number;
+	/** `YYYY-MM-DDTHH:mm` in site time for the date inputs; '' = no limit. */
+	start_at: string;
+	end_at: string;
 }
 
 interface Defaults {
@@ -53,6 +57,8 @@ export function createState( item: Redirect | null, defaults: Defaults ): Drawer
 			options: {},
 			group_id: defaults.groupId,
 			position: 0,
+			start_at: '',
+			end_at: '',
 		};
 	}
 
@@ -72,7 +78,30 @@ export function createState( item: Redirect | null, defaults: Defaults ): Drawer
 		options: item.match_data?.options ?? {},
 		group_id: item.group_id,
 		position: item.position,
+		start_at: toInputDate( item.start_at ),
+		end_at: toInputDate( item.end_at ),
 	};
+}
+
+// The API's ISO dates are already in site time, so the input value is the first 16 characters.
+function toInputDate( iso: string | null | undefined ): string {
+	return iso ? iso.slice( 0, 16 ) : '';
+}
+
+export function hasSchedule( state: DrawerState ): boolean {
+	return state.start_at !== '' || state.end_at !== '';
+}
+
+/**
+ * Same-format local strings compare chronologically.
+ * @param state
+ */
+export function scheduleError( state: DrawerState ): string | null {
+	if ( state.start_at !== '' && state.end_at !== '' && state.end_at <= state.start_at ) {
+		return __( 'The end date must be after the start date.', 'dsuite-redirects' );
+	}
+
+	return null;
 }
 
 /**
@@ -144,7 +173,7 @@ export function setTarget( state: DrawerState, url: string ): DrawerState {
 }
 
 export function canSave( state: DrawerState ): boolean {
-	if ( state.url.trim() === '' || state.group_id <= 0 ) {
+	if ( state.url.trim() === '' || state.group_id <= 0 || scheduleError( state ) !== null ) {
 		return false;
 	}
 
@@ -178,5 +207,7 @@ export function toPayload( state: DrawerState ): CreateRedirectInput {
 		},
 		group_id: state.group_id,
 		position: state.position,
+		start_at: state.start_at === '' ? null : state.start_at,
+		end_at: state.end_at === '' ? null : state.end_at,
 	};
 }

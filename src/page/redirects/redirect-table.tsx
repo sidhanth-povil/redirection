@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from 'ui';
 import type { Redirect } from 'types';
-import { describeTarget, typeBadge } from './describe';
+import { describeTarget, scheduleBadge, typeBadge } from './describe';
 
 interface RedirectTableProps {
 	rows: Redirect[];
@@ -56,6 +56,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 			<tbody>
 				{ rows.map( ( row ) => {
 					const badge = typeBadge( row );
+					const schedule = scheduleBadge( row );
 					const target = describeTarget( row );
 					const isDisabled = row.enabled === false;
 
@@ -84,6 +85,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 									<Badge tone={ badge.tone } title={ String( badge.code ) }>
 										{ badge.label }
 									</Badge>
+									{ schedule && <Badge tone={ schedule.tone }>{ schedule.label }</Badge> }
 									{ isDisabled && (
 										<Badge tone="neutral">{ __( 'Disabled', 'dsuite-redirects' ) }</Badge>
 									) }
