@@ -1,0 +1,49 @@
+/**
+ * DSuite design tokens. Scoped to the app root so nothing leaks into wp-admin.
+ */
+.dsr-app {
+	--dsr-accent: #4f46e5;
+	--dsr-accent-hover: #4338ca;
+	--dsr-accent-soft: #eef2ff;
+	--dsr-accent-text: #3730a3;
+
+	--dsr-surface: #fff;
+	--dsr-surface-muted: #f7f8fa;
+	--dsr-border: #eceef2;
+	--dsr-border-strong: #d6d9df;
+
+	--dsr-text: #1f2430;
+	--dsr-text-muted: #4b5563;
+	--dsr-text-subtle: #6b7280;
+
+	// Status: 301 = success, 302 = info, scheduled = warning, disabled = neutral, error = danger.
+	--dsr-success-bg: #ecfdf5;
+	--dsr-success-text: #047857;
+	--dsr-info-bg: #eff6ff;
+	--dsr-info-text: #1d4ed8;
+	--dsr-warning-bg: #fff7ed;
+	--dsr-warning-text: #c2410c;
+	--dsr-neutral-bg: #f3f4f6;
+	--dsr-neutral-text: #4b5563;
+	--dsr-danger-bg: #fef2f2;
+	--dsr-danger-text: #b91c1c;
+
+	--dsr-radius-sm: 8px;
+	--dsr-radius-md: 10px;
+	--dsr-radius-lg: 12px;
+
+	--dsr-space-1: 4px;
+	--dsr-space-2: 8px;
+	--dsr-space-3: 12px;
+	--dsr-space-4: 16px;
+	--dsr-space-5: 20px;
+	--dsr-space-6: 24px;
+	--dsr-space-8: 32px;
+
+	--dsr-shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
+	--dsr-shadow-md: 0 6px 16px rgba(17, 24, 39, 0.08);
+	--dsr-focus-ring: 0 0 0 2px #fff, 0 0 0 4px #4f46e5;
+
+	container: dsr / inline-size;
+	color: var(--dsr-text);
+}

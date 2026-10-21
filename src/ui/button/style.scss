@@ -1,0 +1,42 @@
+.dsr-app .dsr-button {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--dsr-space-2);
+	min-height: 32px;
+	padding: 0 var(--dsr-space-4);
+	border: 1px solid transparent;
+	border-radius: var(--dsr-radius-sm);
+	font: inherit;
+	font-weight: 500;
+	line-height: 1;
+	cursor: pointer;
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: var(--dsr-focus-ring);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+.dsr-app .dsr-button--primary {
+	background: var(--dsr-accent);
+	color: #fff;
+
+	&:hover:not(:disabled) {
+		background: var(--dsr-accent-hover);
+	}
+}
+
+.dsr-app .dsr-button--secondary {
+	background: var(--dsr-surface);
+	border-color: var(--dsr-border-strong);
+	color: var(--dsr-text);
+
+	&:hover:not(:disabled) {
+		background: var(--dsr-surface-muted);
+	}
+}

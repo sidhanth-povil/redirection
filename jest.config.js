@@ -16,5 +16,8 @@ module.exports = {
 		'^page/(.*)$': '<rootDir>/src/page/$1',
 		'^stores/(.*)$': '<rootDir>/src/stores/$1',
 		'^types/(.*)$': '<rootDir>/src/types/$1',
+		'^ui$': '<rootDir>/src/ui',
+		'^ui/(.*)$': '<rootDir>/src/ui/$1',
+		'^app/(.*)$': '<rootDir>/src/app/$1',
 	},
 };

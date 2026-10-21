@@ -131,6 +131,7 @@ const modified = {
 			state: path.resolve( __dirname, 'src/state/' ),
 			page: path.resolve( __dirname, 'src/page/' ),
 			app: path.resolve( __dirname, 'src/app/' ),
+			ui: path.resolve( __dirname, 'src/ui/' ),
 			types: path.resolve( __dirname, 'src/types/' ),
 			stores: path.resolve( __dirname, 'src/stores/' ),
 		},

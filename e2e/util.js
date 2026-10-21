@@ -18,7 +18,7 @@ function testItem( source, target ) {
 		}
 
 		if ( target.agent ) {
-			expect( headers.get( 'x-redirect-by' ) ).toBe( 'redirection' );
+			expect( headers.get( 'x-redirect-by' ) ).toBe( 'dsuite-redirects' );
 		}
 
 		if ( target.headers ) {
