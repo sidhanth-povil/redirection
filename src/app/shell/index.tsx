@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { __ } from '@wordpress/i18n';
 import { buildHash, getRouteLabel, type RouteName } from 'app/router';
-import 'ui';
 import './style.scss';
 
 interface ShellProps {

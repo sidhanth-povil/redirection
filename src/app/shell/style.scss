@@ -1,3 +1,6 @@
+// Tokens come in here: wp-scripts only bundles CSS from files named style.scss into redirection.css.
+@use "../../ui/tokens";
+
 .dsr-app .dsr-shell {
 	display: grid;
 	grid-template-columns: 200px minmax(0, 1fr);
