@@ -13,6 +13,8 @@ class OpcacheClearTest extends TestCase {
 				'add_action' => null,
 				'add_filter' => null,
 				'is_admin' => false,
+				'get_option' => [],
+				'is_multisite' => false,
 			]
 		);
 		Functions\when( 'function_exists' )->justReturn( true );

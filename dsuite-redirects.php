@@ -13,6 +13,14 @@ For full license details see license.txt
 ============================================================================================================
 */
 
+require_once __DIR__ . '/includes/core/coexistence.php';
+
+if ( dsr_original_redirection_active( (array) get_option( 'active_plugins', [] ), is_multisite() ? (array) get_site_option( 'active_sitewide_plugins', [] ) : [] ) ) {
+	add_action( 'admin_notices', 'dsr_coexistence_notice' );
+	add_action( 'network_admin_notices', 'dsr_coexistence_notice' );
+	return;
+}
+
 define( 'REDIRECTION_DB_VERSION', '4.2' );     // DB schema version. Only change if DB needs changing
 define( 'REDIRECTION_FILE', __FILE__ );
 define( 'REDIRECTION_VERSION', '5.10.1' );
