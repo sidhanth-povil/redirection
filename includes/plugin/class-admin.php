@@ -56,6 +56,7 @@ class Admin {
 
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'admin_menu' ] );
+		add_action( 'admin_init', [ $this, 'redirect_legacy_page' ] );
 		add_action( 'admin_notices', [ $this, 'update_nag' ] );
 		add_filter( 'plugin_action_links_' . basename( dirname( REDIRECTION_FILE ) ) . '/' . basename( REDIRECTION_FILE ), [ $this, 'plugin_settings' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 4 );
@@ -314,7 +315,7 @@ class Admin {
 	 * @return string
 	 */
 	private function get_plugin_url() {
-		return admin_url( 'tools.php?page=' . basename( REDIRECTION_FILE ) );
+		return admin_url( 'admin.php?page=' . basename( REDIRECTION_FILE ) );
 	}
 
 	/**
@@ -589,8 +590,48 @@ class Admin {
 	 * @return void
 	 */
 	public function admin_menu() {
-		$hook = add_management_page( 'Redirection', 'Redirection', Capabilities::get_plugin_access(), basename( REDIRECTION_FILE ), [ $this, 'admin_screen' ] );
+		$hook = add_menu_page(
+			__( 'DSuite Redirects', 'redirection' ),
+			__( 'Redirects', 'redirection' ),
+			Capabilities::get_plugin_access(),
+			basename( REDIRECTION_FILE ),
+			[ $this, 'admin_screen' ],
+			'dashicons-randomize'
+		);
 		add_action( 'load-' . $hook, [ $this, 'redirection_head' ] );
+	}
+
+	/**
+	 * Map an old Tools → Redirection URL to the new top-level page.
+	 *
+	 * @param string               $pagenow Current admin file, e.g. `tools.php`.
+	 * @param array<string, mixed> $query   Request query vars.
+	 * @return string|null New URL, or null when this is not a legacy request.
+	 */
+	public static function get_legacy_redirect( $pagenow, array $query ) {
+		if ( $pagenow !== 'tools.php' || ( $query['page'] ?? '' ) !== 'redirection.php' ) {
+			return null;
+		}
+
+		$url = 'admin.php?page=' . basename( REDIRECTION_FILE );
+		$sub = isset( $query['sub'] ) ? sanitize_key( (string) $query['sub'] ) : '';
+
+		return admin_url( $sub === '' ? $url : $url . '&sub=' . $sub );
+	}
+
+	/**
+	 * @return void
+	 */
+	public function redirect_legacy_page() {
+		global $pagenow;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only redirect
+		$target = self::get_legacy_redirect( (string) $pagenow, wp_unslash( $_GET ) );
+
+		if ( $target !== null ) {
+			wp_safe_redirect( $target );
+			exit;
+		}
 	}
 
 	/**
