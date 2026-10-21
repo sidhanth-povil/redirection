@@ -19,7 +19,7 @@ function ErrorDetails() {
 						),
 						{
 							// eslint-disable-next-line jsx-a11y/anchor-has-content
-							link: <a href="?page=redirection.php&sub=support" />,
+							link: <a href="?page=dsuite-redirects.php&sub=support" />,
 						}
 					) }
 				</li>

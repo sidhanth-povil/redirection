@@ -105,7 +105,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	// Permalink
 	if ( url.match( /%\w+%/ ) ) {
 		warnings.push(
-			<ExternalLink url="tools.php?page=redirection.php&sub=site">
+			<ExternalLink url="admin.php?page=dsuite-redirects.php&sub=site">
 				{ __(
 					'Please add migrated permalinks to the Site page under the "Permalink Migration" section.',
 					'redirection'

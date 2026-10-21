@@ -154,7 +154,7 @@ class Admin {
 			$message = sprintf( __( 'Redirection\'s database needs to be updated - <a href="%1$1s">click to update</a>.', 'redirection' ), esc_url( $this->get_plugin_url() ) );
 		}
 
-		if ( $message === false || strpos( Request::get_request_url(), 'page=redirection.php' ) !== false ) {
+		if ( $message === false || strpos( Request::get_request_url(), 'page=' . basename( REDIRECTION_FILE ) ) !== false ) {
 			return;
 		}
 
@@ -175,7 +175,7 @@ class Admin {
 	public function flying_solo( $src, $handle ) {
 		$request = Request::get_request_url();
 
-		if ( strpos( $request, 'page=redirection.php' ) !== false ) {
+		if ( strpos( $request, 'page=' . basename( REDIRECTION_FILE ) ) !== false ) {
 			if ( substr( $src, 0, 4 ) === 'http' && $handle !== 'redirection' && strpos( $src, 'plugins' ) !== false ) {
 				if ( $this->ignore_this_plugin( $src ) ) {
 					return false;
@@ -404,7 +404,7 @@ class Admin {
 		$is_new = false;
 		$major_version = implode( '.', array_slice( explode( '.', REDIRECTION_VERSION ), 0, 2 ) );
 
-		if ( $this->get_query( 'page' ) === 'redirection.php' && strpos( REDIRECTION_VERSION, '-beta' ) === false ) {
+		if ( $this->get_query( 'page' ) === basename( REDIRECTION_FILE ) && strpos( REDIRECTION_VERSION, '-beta' ) === false ) {
 			$is_new = version_compare( (string) $options['update_notice'], $major_version ) < 0;
 		}
 
@@ -830,7 +830,7 @@ class Admin {
 		$page = $this->get_query( 'page' );
 		$current_page = $this->get_current_page();
 
-		if ( $page !== null && $current_page !== 'redirect' && $page === 'redirection.php' ) {
+		if ( $page !== null && $current_page !== 'redirect' && $page === basename( REDIRECTION_FILE ) ) {
 			$this->try_export_logs();
 			$this->try_export_redirects();
 			$this->try_export_rss();

@@ -10,7 +10,7 @@
 	<file>./redirection-capabilities.php</file>
 	<file>./redirection-front.php</file>
 	<file>./redirection-settings.php</file>
-	<file>./redirection.php</file>
+	<file>./dsuite-redirects.php</file>
 
     <exclude-pattern>dev/</exclude-pattern>
     <exclude-pattern>vendor/</exclude-pattern>

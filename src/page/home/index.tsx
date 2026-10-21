@@ -187,7 +187,7 @@ export default function Home() {
 						setPage={ setPage }
 						onPageChange={ onPageChange }
 						allowedPages={ ALLOWED_PAGES }
-						baseUrl="?page=redirection.php"
+						baseUrl="?page=dsuite-redirects.php"
 						defaultPage="redirect"
 					>
 						<h1 className="wp-heading-inline">{ titles[ page ] }</h1>

@@ -10,7 +10,7 @@ class ExportDetails {
 	 * @return array{version: string, date: string}
 	 */
 	public static function get() {
-		$version = red_get_plugin_data( dirname( __DIR__, 2 ) . '/redirection.php' );
+		$version = red_get_plugin_data( dirname( __DIR__, 2 ) . '/dsuite-redirects.php' );
 
 		return [
 			'version' => trim( $version['Version'] ),

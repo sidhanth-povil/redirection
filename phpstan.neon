@@ -1,7 +1,7 @@
 parameters:
     level: 8
     paths:
-        - redirection.php
+        - dsuite-redirects.php
         - redirection-admin.php
         - redirection-capabilities.php
         - redirection-cli.php

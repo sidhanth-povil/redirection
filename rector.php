@@ -15,7 +15,7 @@ return RectorConfig::configure()
 			__DIR__ . '/redirection-cli.php',
 			__DIR__ . '/redirection-front.php',
 			__DIR__ . '/redirection-settings.php',
-			__DIR__ . '/redirection.php',
+			__DIR__ . '/dsuite-redirects.php',
 		]
 	)
 	->withPhpSets();

@@ -18,7 +18,7 @@ class OpcacheClearTest extends TestCase {
 		Functions\when( 'function_exists' )->justReturn( true );
 
 		// Load the plugin file to get the real function (must be after stubs are set up)
-		require_once PLUGIN_PATH . '/redirection.php';
+		require_once PLUGIN_PATH . '/dsuite-redirects.php';
 	}
 
 	public function testDoesNotCallOpcacheResetWhenActionIsNotUpdate() {

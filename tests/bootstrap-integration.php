@@ -33,7 +33,7 @@ require_once "{$_tests_dir}/includes/functions.php";
  * @return void
  */
 function _manually_load_plugin() {
-	require PLUGIN_PATH . '/redirection.php';
+	require PLUGIN_PATH . '/dsuite-redirects.php';
 	require PLUGIN_PATH . '/includes/database/schema/class-latest.php';
 
 	$database = new Latest();
