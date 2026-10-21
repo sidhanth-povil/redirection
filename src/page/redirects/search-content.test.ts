@@ -19,4 +19,15 @@ describe( 'searchContent', () => {
 			{ value: '/?p=8', label: '/?p=8', detail: 'post · /?p=8' },
 		] );
 	} );
+
+	it( 'decodes HTML entities in titles', async () => {
+		( getApiRequest as jest.Mock ).mockReturnValue( { url: 'request' } );
+		( apiFetch as unknown as jest.Mock ).mockResolvedValue( [
+			{ id: 9, title: 'Don&#8217;t miss &amp; save', url: 'http://example.test/deal/', subtype: 'page' },
+		] );
+
+		const [ result ] = await searchContent( 'deal' );
+
+		expect( result?.label ).toBe( 'Don\u2019t miss & save' );
+	} );
 } );

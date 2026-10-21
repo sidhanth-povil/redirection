@@ -10,6 +10,15 @@
 	}
 }
 
+.dsr-app .dsr-segmented:disabled .dsr-segmented__options {
+	opacity: 0.55;
+
+	.dsr-segmented__option,
+	.dsr-segmented__input[type="radio"] {
+		cursor: not-allowed;
+	}
+}
+
 .dsr-app .dsr-segmented__options {
 	display: flex;
 	overflow: hidden;

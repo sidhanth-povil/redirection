@@ -78,8 +78,9 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const settings = useSettingsStore( ( store ) => store.values );
 	// Not in the typed settings schema, but the server includes it in the preloaded settings.
 	const lastGroupId = Number( ( settings as { last_group_id?: number } | null )?.last_group_id ?? 0 );
-	const create = useRedirectCreate();
-	const update = useRedirectUpdate();
+	// Errors are shown inside the drawer; the no-op stops the hooks also raising the page-wide error panel.
+	const create = useRedirectCreate( { onError: () => {} } );
+	const update = useRedirectUpdate( { onError: () => {} } );
 
 	const [ state, setState ] = useState< DrawerState >( () =>
 		createState( item, {
@@ -104,10 +105,22 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 		}
 	}, [ state.group_id, defaultGroupId ] );
 
-	const change = useCallback( ( next: ( prev: DrawerState ) => DrawerState ) => {
-		setTouched( true );
-		setState( next );
-	}, [] );
+	const hasError = Boolean( create.error || update.error );
+	const { reset: resetCreate } = create;
+	const { reset: resetUpdate } = update;
+	const change = useCallback(
+		( next: ( prev: DrawerState ) => DrawerState ) => {
+			setTouched( true );
+			setState( next );
+
+			// A save error describes the values that were sent; once they change it no longer applies.
+			if ( hasError ) {
+				resetCreate();
+				resetUpdate();
+			}
+		},
+		[ hasError, resetCreate, resetUpdate ]
+	);
 
 	const formId = useId();
 	const sourceId = useId();
@@ -260,7 +273,11 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 					label={ __( 'Type', 'dsuite-redirects' ) }
 					options={ getTypeOptions() }
 					value={ simpleType }
-					onChange={ ( type ) => change( ( prev ) => applySimpleType( prev, type ) ) }
+					// Plain types only describe plain URL matches; conditional redirects change type under Advanced.
+					disabled={ state.match_type !== MATCH_URL }
+					onChange={ ( type ) =>
+						state.match_type === MATCH_URL && change( ( prev ) => applySimpleType( prev, type ) )
+					}
 				/>
 				{ simpleType === null && (
 					<p className="dsr-hint">
@@ -281,6 +298,12 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 					open={ advancedOpen }
 					onToggle={ ( event ) => {
 						const open = event.currentTarget.open;
+
+						// Browsers also fire toggle for the initial open attribute; only remember user changes.
+						if ( open === advancedOpen ) {
+							return;
+						}
+
 						setAdvancedOpen( open );
 						writeAdvancedOpen( open );
 					} }

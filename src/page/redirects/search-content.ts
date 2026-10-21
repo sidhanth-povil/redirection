@@ -21,6 +21,11 @@ function toPath( url: string ): string {
 	}
 }
 
+// Core search returns rendered titles ("Don&#8217;t"); DOMParser decodes without running markup.
+function decodeEntities( text: string ): string {
+	return new DOMParser().parseFromString( text, 'text/html' ).documentElement.textContent ?? text;
+}
+
 /**
  * Posts, pages and public CPTs by title via core REST `/wp/v2/search`.
  * Picking a result fills in its path, so the link survives a domain move.
@@ -37,7 +42,7 @@ export async function searchContent( query: string ): Promise< ComboboxOptionIte
 
 		return {
 			value: path,
-			label: result.title || path,
+			label: decodeEntities( result.title ) || path,
 			detail: `${ result.subtype } · ${ path }`,
 		};
 	} );

@@ -12,6 +12,7 @@ interface SegmentedProps< T extends string > {
 	options: SegmentedOption< T >[];
 	value: T | null;
 	onChange: ( value: T ) => void;
+	disabled?: boolean;
 }
 
 /**
@@ -21,12 +22,19 @@ interface SegmentedProps< T extends string > {
  * @param root0.options
  * @param root0.value
  * @param root0.onChange
+ * @param root0.disabled
  */
-export function Segmented< T extends string >( { label, options, value, onChange }: SegmentedProps< T > ) {
+export function Segmented< T extends string >( {
+	label,
+	options,
+	value,
+	onChange,
+	disabled = false,
+}: SegmentedProps< T > ) {
 	const name = useId();
 
 	return (
-		<fieldset className="dsr-segmented">
+		<fieldset className="dsr-segmented" disabled={ disabled }>
 			<legend className="dsr-label">{ label }</legend>
 			<div className="dsr-segmented__options">
 				{ options.map( ( option ) => (

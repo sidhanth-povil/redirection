@@ -17,8 +17,8 @@ global.ResizeObserver = class {
 	disconnect() {}
 } as any;
 
-const create = { mutate: jest.fn(), isPending: false, error: null as Error | null };
-const update = { mutate: jest.fn(), isPending: false, error: null as Error | null };
+const create = { mutate: jest.fn(), reset: jest.fn(), isPending: false, error: null as Error | null };
+const update = { mutate: jest.fn(), reset: jest.fn(), isPending: false, error: null as Error | null };
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -141,5 +141,50 @@ describe( 'RedirectDrawer', () => {
 		fireEvent( details, new Event( 'toggle' ) );
 
 		expect( window.localStorage.getItem( 'dsr_advanced_open' ) ).toBe( '1' );
+	} );
+
+	it( 'locks the plain types on conditional redirects', () => {
+		const login: Redirect = {
+			...redirect307,
+			match_type: 'login',
+			action_code: 302,
+			action_data: { logged_in: '/members', logged_out: '/login' },
+		};
+		render( <RedirectDrawer item={ login } onClose={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'group', { name: 'Type' } ) ).toBeDisabled();
+		fireEvent.click( screen.getByRole( 'radio', { name: /Gone/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+
+		expect( update.mutate ).toHaveBeenCalledWith(
+			expect.objectContaining( { match_type: 'login', action_type: 'url', action_code: 302 } ),
+			expect.anything()
+		);
+	} );
+
+	it( 'shows save errors only in the drawer and clears them once the user edits', () => {
+		create.error = new Error( 'Source URL already exists' );
+		render( <RedirectDrawer item={ null } initialUrl="/dup" onClose={ jest.fn() } /> );
+
+		// The upstream hooks also push errors to the page-wide panel unless onError is overridden.
+		expect( useRedirectCreate ).toHaveBeenCalledWith(
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
+		expect( useRedirectUpdate ).toHaveBeenCalledWith(
+			expect.objectContaining( { onError: expect.any( Function ) } )
+		);
+
+		fireEvent.change( screen.getByLabelText( 'Old URL' ), { target: { value: '/dup-2' } } );
+
+		expect( create.reset ).toHaveBeenCalled();
+	} );
+
+	it( 'does not remember Advanced as open when it opened itself', () => {
+		render( <RedirectDrawer item={ redirect307 } onClose={ jest.fn() } /> );
+
+		const details = document.querySelector( 'details.dsr-advanced' ) as HTMLDetailsElement;
+		fireEvent( details, new Event( 'toggle' ) );
+
+		expect( window.localStorage.getItem( 'dsr_advanced_open' ) ).toBeNull();
 	} );
 } );
