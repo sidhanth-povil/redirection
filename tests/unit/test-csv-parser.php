@@ -83,4 +83,15 @@ class CsvParserTest extends TestCase {
 
 		$this->assertFalse( $parser->parse_row( [ 'Source URL', 'Target URL' ] ) );
 	}
+
+	public function testReadsOptionalScheduleColumns() {
+		$parser = new CsvParser();
+		$row = [ '/source', '/target', '0', '301', 'url', '0', 'title', 'active', '2030-11-28T09:00:00+05:30', '' ];
+
+		$item = $parser->parse_row( $row );
+
+		$this->assertSame( '2030-11-28T09:00:00+05:30', $item['start_at'] );
+		$this->assertArrayNotHasKey( 'end_at', $item );
+		$this->assertArrayNotHasKey( 'start_at', $parser->parse_row( array_slice( $row, 0, 8 ) ) );
+	}
 }

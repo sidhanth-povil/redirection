@@ -387,8 +387,14 @@ class Sanitize {
 	private function get_schedule( array $details ) {
 		$schedule = [];
 
-		// Before dsr_db_version 1 the columns don't exist yet.
+		// Before dsr_db_version 1 the columns don't exist yet: refuse dates rather than drop them and go live early.
 		if ( ! Schedule::columns_ready() ) {
+			foreach ( [ 'start_at', 'end_at' ] as $key ) {
+				if ( isset( $details[ $key ] ) && $details[ $key ] !== '' ) {
+					return new WP_Error( 'redirect_schedule', __( 'Scheduling is still being set up. Reload the page and try again.', 'dsuite-redirects' ) );
+				}
+			}
+
 			return $schedule;
 		}
 

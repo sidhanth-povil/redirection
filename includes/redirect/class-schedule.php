@@ -108,11 +108,23 @@ class Schedule {
 	}
 
 	/**
-	 * Whether the DSuite schedule columns exist (dsr_db_version 1+).
+	 * Whether the DSuite schedule columns exist (dsr_db_version 1+), repairing a stale version option.
 	 *
 	 * @return bool
 	 */
 	public static function columns_ready() {
-		return intval( get_option( self::VERSION_OPTION, 0 ), 10 ) >= 1;
+		global $wpdb;
+
+		if ( intval( get_option( self::VERSION_OPTION, 0 ), 10 ) < 1 ) {
+			return false;
+		}
+
+		// Only saves and filtered lists ask, never front-end matching, so this check is cheap enough.
+		if ( $wpdb->get_var( "SHOW COLUMNS FROM `{$wpdb->prefix}redirection_items` LIKE 'end_at'" ) !== null ) {
+			return true;
+		}
+
+		// The option claims columns a recreated table lacks: add them back now.
+		return \Redirection\Database\DsrUpgrader::run();
 	}
 }

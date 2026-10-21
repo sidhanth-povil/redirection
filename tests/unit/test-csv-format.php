@@ -68,6 +68,10 @@ class CsvFormatTest extends TestCase {
 				return $this->args['regex'] ?? false;
 			}
 
+			public function to_json() {
+				return [ 'start_at' => null, 'end_at' => null ];
+			}
+
 			public function is_enabled() {
 				return $this->enabled;
 			}
@@ -86,7 +90,7 @@ class CsvFormatTest extends TestCase {
 			]
 		);
 
-		$this->assertEquals( '"/source","/target",0,301,"url",0,"","active"', $csv->item_as_csv( $item ) );
+		$this->assertEquals( '"/source","/target",0,301,"url",0,"","active","",""', $csv->item_as_csv( $item ) );
 	}
 
 	public function testItemAsCsvEscapesFormulaValues() {
@@ -101,7 +105,7 @@ class CsvFormatTest extends TestCase {
 			]
 		);
 
-		$this->assertEquals( '"[FORMULA] =/source","/target",0,301,"url",0,"","active"', $csv->item_as_csv( $item ) );
+		$this->assertEquals( '"[FORMULA] =/source","/target",0,301,"url",0,"","active","",""', $csv->item_as_csv( $item ) );
 	}
 
 	public function testItemAsCsvEscapesFormulaTarget() {
@@ -116,7 +120,7 @@ class CsvFormatTest extends TestCase {
 			]
 		);
 
-		$this->assertEquals( '"/source","[FORMULA] =cmd",0,301,"url",0,"","active"', $csv->item_as_csv( $item ) );
+		$this->assertEquals( '"/source","[FORMULA] =cmd",0,301,"url",0,"","active","",""', $csv->item_as_csv( $item ) );
 	}
 
 	public function testItemAsCsvForRegexRedirect() {
@@ -131,7 +135,7 @@ class CsvFormatTest extends TestCase {
 			]
 		);
 
-		$this->assertEquals( '"/source","/target",1,301,"url",0,"","active"', $csv->item_as_csv( $item ) );
+		$this->assertEquals( '"/source","/target",1,301,"url",0,"","active","",""', $csv->item_as_csv( $item ) );
 	}
 
 	public function testItemAsCsvFallsBackToUnknownForNonUrlMatchData() {
@@ -150,7 +154,7 @@ class CsvFormatTest extends TestCase {
 			]
 		);
 
-		$this->assertEquals( '"/source1","/unknown",0,301,"url",0,"","active"', $csv->item_as_csv( $item ) );
+		$this->assertEquals( '"/source1","/unknown",0,301,"url",0,"","active","",""', $csv->item_as_csv( $item ) );
 	}
 
 	public function testItemAsCsvUsesDisabledStatus() {
@@ -164,7 +168,7 @@ class CsvFormatTest extends TestCase {
 			]
 		);
 
-		$this->assertEquals( '"/source","/target",0,301,"url",0,"","disabled"', $csv->item_as_csv( $item ) );
+		$this->assertEquals( '"/source","/target",0,301,"url",0,"","disabled","",""', $csv->item_as_csv( $item ) );
 	}
 
 	public function testEscapeCsvHandlesEmptyAndQuote() {
@@ -201,9 +205,9 @@ class CsvFormatTest extends TestCase {
 		$result = $csv->get_data( [ $item1, $item2 ], [] );
 		$lines = array_filter( explode( PHP_EOL, $result ) );
 
-		$this->assertEquals( 'source,target,regex,code,type,hits,title,status', $lines[0] );
-		$this->assertEquals( '"/source1","/target",0,301,"url",0,"","active"', $lines[1] );
-		$this->assertEquals( '"/source2","/target",0,301,"url",0,"","active"', $lines[2] );
+		$this->assertEquals( 'source,target,regex,code,type,hits,title,status,start_at,end_at', $lines[0] );
+		$this->assertEquals( '"/source1","/target",0,301,"url",0,"","active","",""', $lines[1] );
+		$this->assertEquals( '"/source2","/target",0,301,"url",0,"","active","",""', $lines[2] );
 	}
 
 	public function testLoadClosesFileHandle() {

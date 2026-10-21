@@ -63,6 +63,10 @@ class RedirectsFileFormatTest extends TestCase {
 			public function is_enabled() {
 				return $this->args['enabled'] ?? true;
 			}
+
+			public function has_schedule() {
+				return $this->args['scheduled'] ?? false;
+			}
 		};
 	}
 

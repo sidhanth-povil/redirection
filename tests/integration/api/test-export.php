@@ -159,8 +159,8 @@ class ImportExportCsvTest extends Redirection_Api_Test {
 	// }
 
 	public function testExportCSV() {
-		$expected = 'source,target,regex,code,type,hits,title,status
-"/1","/unknown",0,301,"url",0,"","active"';
+		$expected = 'source,target,regex,code,type,hits,title,status,start_at,end_at
+"/1","/unknown",0,301,"url",0,"","active","",""';
 
 		$group1 = Red_Group::create( 'group1', 1 );
 		Red_Item::create( [ 'url' => '/1', 'match_type' => 'url', 'action_type' => 'url', 'group_id' => $group1->get_id() ] );

@@ -1,7 +1,9 @@
 <?php
 
 use Redirection\ImportExport\Format\Apache;
+use Redirection\ImportExport\Format\Csv;
 use Redirection\ImportExport\Format\Nginx;
+use Redirection\ImportExport\Format\RedirectsFile;
 use Redirection\Redirect\Cache;
 
 class ScheduleRedirectsTest extends Redirection_Api_Test {
@@ -195,11 +197,34 @@ class ScheduleRedirectsTest extends Redirection_Api_Test {
 		$this->create( '/server-scheduled', [ 'start_at' => $this->utc( DAY_IN_SECONDS ) ] );
 		$items = [ Red_Item::get_by_id( intval( $this->row( '/server-plain' )->id ) ), Red_Item::get_by_id( intval( $this->row( '/server-scheduled' )->id ) ) ];
 
-		foreach ( [ new Apache(), new Nginx() ] as $format ) {
+		foreach ( [ new Apache(), new Nginx(), new RedirectsFile() ] as $format ) {
 			$output = $format->get_data( $items, [] );
 
 			$this->assertStringContainsString( 'server-plain', $output );
 			$this->assertStringNotContainsString( 'server-scheduled', $output );
 		}
+	}
+
+	public function testRefusesDatesItCannotStore() {
+		// Columns not added yet (e.g. right after the welcome wizard): saving must not drop the dates silently.
+		delete_option( \Redirection\Redirect\Schedule::VERSION_OPTION );
+
+		$result = $this->create( '/too-early', [ 'start_at' => $this->utc( DAY_IN_SECONDS ) ] );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'redirect_schedule', $result->get_error_code() );
+		$this->assertInstanceOf( Red_Item::class, $this->create( '/no-dates', [ 'start_at' => '', 'end_at' => null ] ) );
+	}
+
+	public function testCsvExportCarriesTheSchedule() {
+		$this->create( '/csv-campaign', [ 'start_at' => '2030-11-28T09:00', 'end_at' => '2030-12-02T09:00' ] );
+		$this->create( '/csv-plain' );
+		$items = [ Red_Item::get_by_id( intval( $this->row( '/csv-campaign' )->id ) ), Red_Item::get_by_id( intval( $this->row( '/csv-plain' )->id ) ) ];
+
+		$lines = explode( PHP_EOL, trim( ( new Csv() )->get_data( $items, [] ) ) );
+
+		$this->assertStringEndsWith( ',title,status,start_at,end_at', $lines[0] );
+		$this->assertStringEndsWith( ',"2030-11-28T09:00:00+05:30","2030-12-02T09:00:00+05:30"', $lines[1] );
+		$this->assertStringEndsWith( ',"",""', $lines[2] );
 	}
 }

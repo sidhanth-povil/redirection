@@ -77,7 +77,9 @@ class RedirectsFile extends FormatHandler {
 		];
 
 		foreach ( $items as $item ) {
-			if ( ! $item->is_enabled() ) {
+			// A _redirects file can't switch rules on and off by date, so scheduled redirects stay in WordPress.
+			// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+			if ( ! $item->is_enabled() || $item->has_schedule() ) {
 				continue;
 			}
 

@@ -65,7 +65,7 @@ class Csv extends FormatHandler {
 	 * @return string
 	 */
 	public function get_data( array $items, array $groups ) {
-		$lines = [ implode( ',', [ 'source', 'target', 'regex', 'code', 'type', 'hits', 'title', 'status' ] ) ];
+		$lines = [ implode( ',', [ 'source', 'target', 'regex', 'code', 'type', 'hits', 'title', 'status', 'start_at', 'end_at' ] ) ];
 
 		foreach ( $items as $line ) {
 			$lines[] = $this->item_as_csv( $line );
@@ -105,6 +105,11 @@ class Csv extends FormatHandler {
 			$item->get_title(),
 			$item->is_enabled() ? 'active' : 'disabled',
 		];
+
+		// Schedule as ISO 8601 with the site offset, so it imports correctly on a site in another timezone.
+		$json = $item->to_json();
+		$csv[] = $json['start_at'] ?? '';
+		$csv[] = $json['end_at'] ?? '';
 
 		$csv = array_map( [ $this, 'escape_csv' ], $csv );
 		return implode( ',', $csv );

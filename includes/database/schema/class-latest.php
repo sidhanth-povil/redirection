@@ -46,6 +46,11 @@ class Latest extends Upgrader {
 		}
 
 		\red_set_options( array( 'database' => REDIRECTION_DB_VERSION ) );
+
+		// Every path that (re)creates tables (welcome wizard, CLI, Fixer, Status) also gets DSuite's columns,
+		// so dsr_db_version can never claim columns that a recreated table lacks.
+		\Redirection\Database\DsrUpgrader::run();
+
 		return true;
 	}
 

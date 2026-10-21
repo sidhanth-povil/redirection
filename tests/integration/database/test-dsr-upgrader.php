@@ -81,4 +81,26 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 
 		$this->assertContains( 'start_at', $this->columns() );
 	}
+
+	public function testInstallAlwaysLeavesScheduleColumnsInPlace() {
+		// The Fixer and Status recreate missing tables via install() while dsr_db_version may still say 1.
+		update_option( Schedule::VERSION_OPTION, 1 );
+		$options = get_option( 'redirection_options' );
+
+		( new \Redirection\Database\Schema\Latest() )->install();
+
+		// install() rewrites settings, and the DDL here commits past the test transaction.
+		update_option( 'redirection_options', $options );
+
+		$this->assertContains( 'start_at', $this->columns() );
+		$this->assertTrue( $this->has_schedule_key() );
+	}
+
+	public function testColumnsReadyRepairsAStaleVersionOption() {
+		// The option says 1 but the table was recreated without DSuite's columns.
+		update_option( Schedule::VERSION_OPTION, 1 );
+
+		$this->assertTrue( Schedule::columns_ready() );
+		$this->assertContains( 'start_at', $this->columns() );
+	}
 }

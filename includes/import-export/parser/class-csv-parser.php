@@ -15,7 +15,9 @@ use Redirection\ImportExport\Sanitizer\CsvSanitizer;
  *     match_type: 'url',
  *     action_type: 'url'|'error',
  *     action_code: int,
- *     status?: 'enabled'|'disabled'
+ *     status?: 'enabled'|'disabled',
+ *     start_at?: string,
+ *     end_at?: string
  * }
  */
 class CsvParser {
@@ -23,6 +25,8 @@ class CsvParser {
 	const CSV_TARGET = 1;
 	const CSV_REGEX = 2;
 	const CSV_CODE = 3;
+	const CSV_START_AT = 8;
+	const CSV_END_AT = 9;
 
 	/**
 	 * @var CsvSanitizer
@@ -55,7 +59,7 @@ class CsvParser {
 		$source = $this->normalize_import_value( $csv[ self::CSV_SOURCE ] );
 		$target = $this->normalize_import_value( $csv[ self::CSV_TARGET ] );
 
-		return [
+		$item = [
 			'url' => $source,
 			'action_data' => [ 'url' => $target ],
 			'regex' => isset( $csv[ self::CSV_REGEX ] ) ? $this->parse_regex( $csv[ self::CSV_REGEX ] ) : $this->is_regex( $source ),
@@ -64,6 +68,17 @@ class CsvParser {
 			'action_type' => $this->get_action_type( $code ),
 			'action_code' => $code,
 		];
+
+		// Optional trailing schedule columns from DSuite exports; older CSVs simply lack them.
+		foreach ( [ 'start_at' => self::CSV_START_AT, 'end_at' => self::CSV_END_AT ] as $key => $column ) {
+			$value = isset( $csv[ $column ] ) ? $this->normalize_import_value( $csv[ $column ] ) : '';
+
+			if ( $value !== '' ) {
+				$item[ $key ] = $value;
+			}
+		}
+
+		return $item;
 	}
 
 	/**
