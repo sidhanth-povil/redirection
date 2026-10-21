@@ -144,8 +144,24 @@ function subscribe( onChange: () => void ): () => void {
 	return () => window.removeEventListener( 'hashchange', onChange );
 }
 
+let lastRouteHash = '';
+
+/**
+ * Only `#/…` hashes are routes. In-page anchors such as WordPress's "Skip to main content"
+ * (`#wpbody-content`) keep the current route instead of falling back to the default page.
+ */
+function getRouteHash(): string {
+	const hash = window.location.hash;
+
+	if ( hash === '' || hash.startsWith( '#/' ) ) {
+		lastRouteHash = hash;
+	}
+
+	return lastRouteHash;
+}
+
 export function useRoute(): Route {
-	const hash = useSyncExternalStore( subscribe, () => window.location.hash );
+	const hash = useSyncExternalStore( subscribe, getRouteHash );
 
 	return useMemo( () => parseHash( hash ), [ hash ] );
 }

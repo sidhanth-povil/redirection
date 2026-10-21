@@ -14,7 +14,7 @@ interface ShellProps {
 
 export default function Shell( { routes, current, title, actions, onNavigate, children }: ShellProps ) {
 	return (
-		<div className="dsr-shell notranslate" translate="no">
+		<div className="dsr-shell">
 			<nav className="dsr-nav" aria-label={ __( 'DSuite Redirects', 'dsuite-redirects' ) }>
 				<ul className="dsr-nav__list">
 					{ routes.map( ( name ) => (

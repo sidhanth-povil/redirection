@@ -785,7 +785,8 @@ class Admin {
 		?>
 	<div id="react-modal"></div>
 	<div class="wrap">
-	<div id="dsr-app" class="dsr-app">
+	<hr class="wp-header-end">
+	<div id="dsr-app" class="dsr-app notranslate" translate="no">
 		<div class="react-loading">
 			<h1><?php esc_html_e( 'Loading, please wait...', 'dsuite-redirects' ); ?></h1>
 

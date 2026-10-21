@@ -1,3 +1,4 @@
+import { act, renderHook } from '@testing-library/react';
 import {
 	allowedRoutes,
 	buildHash,
@@ -6,6 +7,7 @@ import {
 	parseHash,
 	resolveRoute,
 	routeForPage,
+	useRoute,
 } from 'app/router';
 
 const ADMIN = 'http://example.test/wp-admin/admin.php';
@@ -91,5 +93,30 @@ describe( 'legacyUrlToHashUrl', () => {
 
 	it( 'ignores server-only subs', () => {
 		expect( legacyUrlToHashUrl( ADMIN + '?page=dsuite-redirects.php&sub=rss&module=1&token=abc' ) ).toBeNull();
+	} );
+} );
+
+describe( 'useRoute', () => {
+	afterEach( () => {
+		window.location.hash = '';
+	} );
+
+	it( 'ignores in-page anchors such as WordPress skip links', () => {
+		window.location.hash = '#/settings';
+		const { result } = renderHook( () => useRoute() );
+
+		act( () => {
+			window.location.hash = '#wpbody-content';
+			window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
+		} );
+
+		expect( result.current.name ).toBe( 'settings' );
+
+		act( () => {
+			window.location.hash = '#/logs';
+			window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
+		} );
+
+		expect( result.current.name ).toBe( 'logs' );
 	} );
 } );

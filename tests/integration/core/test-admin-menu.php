@@ -81,7 +81,8 @@ class AdminMenuTest extends WP_UnitTestCase {
 		( new Admin() )->admin_screen();
 		$html = (string) ob_get_clean();
 
-		$this->assertMatchesRegularExpression( '/<div class="wrap">\s*<div id="dsr-app" class="dsr-app">/', $html );
+		// The header-end marker keeps WP's notice mover from injecting notices into the React tree.
+		$this->assertMatchesRegularExpression( '/<div class="wrap">\s*<hr class="wp-header-end">\s*<div id="dsr-app" class="dsr-app notranslate" translate="no">/', $html );
 		$this->assertStringNotContainsString( 'id="react-ui"', $html );
 	}
 }
