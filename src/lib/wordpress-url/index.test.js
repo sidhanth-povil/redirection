@@ -1,4 +1,4 @@
-import { getServerUrl, getOrigin } from 'lib/wordpress-url';
+import { getServerUrl, getOrigin, isRedirection } from 'lib/wordpress-url';
 
 // jsdom sets document.location.origin to 'http://localhost' by default
 const ORIGIN = 'http://localhost';
@@ -100,5 +100,15 @@ describe( 'getServerUrl + getOrigin combined', () => {
 
 	test( 'does not double-slash when domain has trailing slash', () => {
 		expect( getServerUrl( getOrigin( 'https://example.com/' ), '/page' ) ).toBe( 'https://example.com/page' );
+	} );
+} );
+
+describe( 'isRedirection', () => {
+	it( 'recognises our X-Redirect-By header', () => {
+		expect( isRedirection( [ { name: 'x-redirect-by', value: 'DSuite-Redirects' } ] ) ).toBeDefined();
+	} );
+
+	it( 'ignores other agents', () => {
+		expect( isRedirection( [ { name: 'x-redirect-by', value: 'WordPress' } ] ) ).toBeUndefined();
 	} );
 } );

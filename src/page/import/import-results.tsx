@@ -19,10 +19,10 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 	if ( lastImport.created === 0 && lastImport.updated === 0 && lastImport.ignored > 0 ) {
 		details = [
 			{
-				label: __( 'Status', 'redirection' ),
+				label: __( 'Status', 'dsuite-redirects' ),
 				value: isPreview
-					? __( 'All matching redirects would be ignored.', 'redirection' )
-					: __( 'All matching redirects were ignored.', 'redirection' ),
+					? __( 'All matching redirects would be ignored.', 'dsuite-redirects' )
+					: __( 'All matching redirects were ignored.', 'dsuite-redirects' ),
 			},
 		];
 	} else if (
@@ -37,10 +37,10 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 	) {
 		details = [
 			{
-				label: __( 'Status', 'redirection' ),
+				label: __( 'Status', 'dsuite-redirects' ),
 				value: isPreview
-					? __( 'No redirects were found to preview.', 'redirection' )
-					: __( 'No redirects were imported.', 'redirection' ),
+					? __( 'No redirects were found to preview.', 'dsuite-redirects' )
+					: __( 'No redirects were imported.', 'dsuite-redirects' ),
 			},
 		];
 	}
@@ -48,47 +48,47 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 	if ( isPreview ) {
 		details = details.concat( [
 			{
-				label: __( 'Mode', 'redirection' ),
-				value: __( 'Preview only. No changes have been made.', 'redirection' ),
+				label: __( 'Mode', 'dsuite-redirects' ),
+				value: __( 'Preview only. No changes have been made.', 'dsuite-redirects' ),
 			},
 		] );
 	}
 
 	const stats: CardStatItem[] = [
 		{
-			label: _n( 'Redirect created', 'Redirects created', lastImport.created, 'redirection' ),
+			label: _n( 'Redirect created', 'Redirects created', lastImport.created, 'dsuite-redirects' ),
 			value: lastImport.created,
 		},
 		{
-			label: _n( 'Redirect updated', 'Redirects updated', lastImport.updated, 'redirection' ),
+			label: _n( 'Redirect updated', 'Redirects updated', lastImport.updated, 'dsuite-redirects' ),
 			value: lastImport.updated,
 		},
 		{
-			label: _n( 'Redirect ignored', 'Redirects ignored', lastImport.ignored, 'redirection' ),
+			label: _n( 'Redirect ignored', 'Redirects ignored', lastImport.ignored, 'dsuite-redirects' ),
 			value: lastImport.ignored,
 		},
 		{
-			label: _n( 'Group created', 'Groups created', lastImport.groups_created, 'redirection' ),
+			label: _n( 'Group created', 'Groups created', lastImport.groups_created, 'dsuite-redirects' ),
 			value: lastImport.groups_created,
 		},
 		{
-			label: _n( 'Group updated', 'Groups updated', lastImport.groups_updated, 'redirection' ),
+			label: _n( 'Group updated', 'Groups updated', lastImport.groups_updated, 'dsuite-redirects' ),
 			value: lastImport.groups_updated,
 		},
 		{
-			label: _n( 'Group ignored', 'Groups ignored', lastImport.groups_ignored, 'redirection' ),
+			label: _n( 'Group ignored', 'Groups ignored', lastImport.groups_ignored, 'dsuite-redirects' ),
 			value: lastImport.groups_ignored,
 		},
 		{
-			label: _n( 'Log imported', 'Logs imported', lastImport.logs_imported, 'redirection' ),
+			label: _n( 'Log imported', 'Logs imported', lastImport.logs_imported, 'dsuite-redirects' ),
 			value: lastImport.logs_imported,
 		},
 		{
-			label: _n( '404 log imported', '404 logs imported', lastImport.errors_imported, 'redirection' ),
+			label: _n( '404 log imported', '404 logs imported', lastImport.errors_imported, 'dsuite-redirects' ),
 			value: lastImport.errors_imported,
 		},
 		{
-			label: _n( 'Setting imported', 'Settings imported', lastImport.settings_imported, 'redirection' ),
+			label: _n( 'Setting imported', 'Settings imported', lastImport.settings_imported, 'dsuite-redirects' ),
 			value: lastImport.settings_imported,
 		},
 	];
@@ -112,8 +112,10 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 	return (
 		<div className="file-sniff">
 			<IoCard
-				title={ isPreview ? __( 'Preview results', 'redirection' ) : __( 'Import results', 'redirection' ) }
-				badge={ __( 'Success', 'redirection' ) }
+				title={
+					isPreview ? __( 'Preview results', 'dsuite-redirects' ) : __( 'Import results', 'dsuite-redirects' )
+				}
+				badge={ __( 'Success', 'dsuite-redirects' ) }
 				meta={ details }
 				stats={ stats }
 				variant="success"
@@ -123,11 +125,11 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 						<table className="wp-list-table widefat fixed striped items table-auto inline-edit-row">
 							<thead>
 								<tr>
-									<th>{ __( 'Source', 'redirection' ) }</th>
-									<th>{ __( 'Target', 'redirection' ) }</th>
-									<th className="io-preview-table__code">{ __( 'HTTP', 'redirection' ) }</th>
-									<th className="io-preview-table__regex">{ __( 'Regex', 'redirection' ) }</th>
-									<th>{ __( 'Group', 'redirection' ) }</th>
+									<th>{ __( 'Source', 'dsuite-redirects' ) }</th>
+									<th>{ __( 'Target', 'dsuite-redirects' ) }</th>
+									<th className="io-preview-table__code">{ __( 'HTTP', 'dsuite-redirects' ) }</th>
+									<th className="io-preview-table__regex">{ __( 'Regex', 'dsuite-redirects' ) }</th>
+									<th>{ __( 'Group', 'dsuite-redirects' ) }</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -142,7 +144,9 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 										<td>{ row.target || ' ' }</td>
 										<td className="io-preview-table__code">{ row.code || '' }</td>
 										<td className="io-preview-table__regex">
-											{ row.regex ? __( 'Yes', 'redirection' ) : __( 'No', 'redirection' ) }
+											{ row.regex
+												? __( 'Yes', 'dsuite-redirects' )
+												: __( 'No', 'dsuite-redirects' ) }
 										</td>
 										<td>{ row.group || '' }</td>
 									</tr>

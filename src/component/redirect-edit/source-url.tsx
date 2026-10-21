@@ -30,7 +30,7 @@ const RedirectSourceUrl = ( { url, flags, onFlagChange, onChange, autoFocus = fa
 
 	if ( Array.isArray( url ) ) {
 		return (
-			<TableRow title={ __( 'Source URL', 'redirection' ) } className="top">
+			<TableRow title={ __( 'Source URL', 'dsuite-redirects' ) } className="top">
 				<textarea value={ url.join( '\n' ) } readOnly />
 			</TableRow>
 		);
@@ -46,7 +46,7 @@ const RedirectSourceUrl = ( { url, flags, onFlagChange, onChange, autoFocus = fa
 	}
 
 	return (
-		<TableRow title={ __( 'Source URL', 'redirection' ) } className="redirect-edit__source">
+		<TableRow title={ __( 'Source URL', 'dsuite-redirects' ) } className="redirect-edit__source">
 			<input
 				type="text"
 				name="url"
@@ -56,14 +56,14 @@ const RedirectSourceUrl = ( { url, flags, onFlagChange, onChange, autoFocus = fa
 				// eslint-disable-next-line jsx-a11y/no-autofocus
 				autoFocus={ autoFocus }
 				className="regular-text"
-				placeholder={ __( 'The relative URL you want to redirect from', 'redirection' ) }
+				placeholder={ __( 'The relative URL you want to redirect from', 'dsuite-redirects' ) }
 			/>
 
 			<MultiOptionDropdown
 				options={ flagOptions }
 				selected={ getUrlFlags( flags ) }
 				onChange={ changeFlag as any }
-				title={ __( 'URL options / Regex', 'redirection' ) }
+				title={ __( 'URL options / Regex', 'dsuite-redirects' ) }
 				badges
 				multiple
 				hideTitle

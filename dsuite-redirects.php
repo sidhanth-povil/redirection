@@ -5,7 +5,7 @@ Plugin URI: https://redirection.me/
 Description: Manage all your 301 redirects and monitor 404 errors
 Version: 5.10.1
 Author: John Godley
-Text Domain: redirection
+Text Domain: dsuite-redirects
 Requires PHP: 7.4
 Requires at least: 6.7
 ============================================================================================================
@@ -40,7 +40,7 @@ if ( version_compare( phpversion(), '7.4' ) < 0 ) {
 	 */
 	function red_deprecated_php( array $links ): array {
 		/* translators: 1: server PHP version. 2: required PHP version. */
-		array_unshift( $links, '<a href="https://redirection.me/support/problems/php-version/" style="color: red; text-decoration: underline">' . sprintf( __( 'Disabled! Detected PHP %1$s, need PHP %2$s+', 'redirection' ), phpversion(), '7.4' ) . '</a>' );
+		array_unshift( $links, '<a href="https://redirection.me/support/problems/php-version/" style="color: red; text-decoration: underline">' . sprintf( __( 'Disabled! Detected PHP %1$s, need PHP %2$s+', 'dsuite-redirects' ), phpversion(), '7.4' ) . '</a>' );
 		return $links;
 	}
 
@@ -221,7 +221,7 @@ function red_start_rest() {
  * @return void
  */
 function redirection_locale() {
-	load_plugin_textdomain( 'redirection', false, dirname( plugin_basename( REDIRECTION_FILE ) ) . '/locale/' );
+	load_plugin_textdomain( 'dsuite-redirects', false, dirname( plugin_basename( REDIRECTION_FILE ) ) . '/locale/' );
 }
 
 if ( red_is_refactor_enabled() ) {

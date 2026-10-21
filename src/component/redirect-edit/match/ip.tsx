@@ -15,11 +15,11 @@ const MatchIp = ( { data, onChange }: MatchIpProps ) => {
 	};
 
 	return (
-		<TableRow title={ __( 'IP', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'IP', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<textarea
 				value={ ip.join( '\n' ) }
 				name="ip"
-				placeholder={ __( 'Enter IP addresses (one per line)', 'redirection' ) }
+				placeholder={ __( 'Enter IP addresses (one per line)', 'dsuite-redirects' ) }
 				onChange={ changer }
 			/>
 		</TableRow>

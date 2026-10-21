@@ -32,7 +32,7 @@ const ActionCode = ( { actionType, actionCode, onChange }: ActionCodeProps ) => 
 	if ( codes ) {
 		return (
 			<>
-				<strong className="small-flex">{ __( 'with HTTP code', 'redirection' ) }</strong>
+				<strong className="small-flex">{ __( 'with HTTP code', 'dsuite-redirects' ) }</strong>
 
 				<Select name="action_code" value={ String( actionCode ) } items={ codes } onChange={ onChange } />
 			</>

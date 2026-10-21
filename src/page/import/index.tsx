@@ -103,7 +103,7 @@ function ImportPage() {
 				<p>
 					{ __(
 						'Import redirects from a file or another plugin. You can also drag and drop a file anywhere on this page.',
-						'redirection'
+						'dsuite-redirects'
 					) }
 				</p>
 
@@ -112,7 +112,7 @@ function ImportPage() {
 						{ createInterpolateElement(
 							__(
 								'{{strong}}CSV file format{{/strong}}: {{code}}source URL, target URL{{/code}} - and can be optionally followed with {{code}}regex, http code{{/code}} ({{code}}regex{{/code}} - 0 for no, 1 for yes).',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{
 								code: <code />,
@@ -123,7 +123,7 @@ function ImportPage() {
 					<p>
 						{ __(
 							'CSV files need a recognised header otherwise they are assumed to be redirects. Use JSON for full data support.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</p>
 				</div>
@@ -178,7 +178,7 @@ function ImportPage() {
 				<div className="import-actions">
 					{ state.hasCompletedImport ? (
 						<button className="button-secondary" onClick={ onCancel }>
-							{ __( 'OK', 'redirection' ) }
+							{ __( 'OK', 'dsuite-redirects' ) }
 						</button>
 					) : (
 						<>
@@ -199,7 +199,7 @@ function ImportPage() {
 											activeFileInfo.valid === false ) )
 								}
 							>
-								{ __( 'Preview', 'redirection' ) }
+								{ __( 'Preview', 'dsuite-redirects' ) }
 							</button>{ ' ' }
 							<button
 								className="button-primary"
@@ -217,7 +217,7 @@ function ImportPage() {
 											activeFileInfo.valid === false ) )
 								}
 							>
-								{ __( 'Import', 'redirection' ) }
+								{ __( 'Import', 'dsuite-redirects' ) }
 							</button>
 						</>
 					) }

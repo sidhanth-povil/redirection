@@ -50,8 +50,8 @@ class YoastSeo extends Plugin {
 			return array(
 				'id' => 'yoast-seo',
 				'name' => 'Yoast SEO Premium',
-				'description' => __( 'Redirects created by Yoast SEO Premium.', 'redirection' ),
-				'source' => __( 'Plugin settings', 'redirection' ),
+				'description' => __( 'Redirects created by Yoast SEO Premium.', 'dsuite-redirects' ),
+				'source' => __( 'Plugin settings', 'dsuite-redirects' ),
 				'total' => count( $data ),
 			);
 		}

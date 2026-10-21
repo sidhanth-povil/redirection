@@ -3,22 +3,22 @@ import type { ExportFormat, ExportType, RedirectModule, RedirectScopeType } from
 
 function getExportTypeLabel( exportType: ExportType ) {
 	if ( exportType === 'redirect' ) {
-		return __( 'Redirects', 'redirection' );
+		return __( 'Redirects', 'dsuite-redirects' );
 	}
 
 	if ( exportType === 'log' ) {
-		return __( 'Redirect logs', 'redirection' );
+		return __( 'Redirect logs', 'dsuite-redirects' );
 	}
 
 	if ( exportType === '404' ) {
-		return __( '404 logs', 'redirection' );
+		return __( '404 logs', 'dsuite-redirects' );
 	}
 
 	if ( exportType === 'group' ) {
-		return __( 'Groups', 'redirection' );
+		return __( 'Groups', 'dsuite-redirects' );
 	}
 
-	return __( 'Settings', 'redirection' );
+	return __( 'Settings', 'dsuite-redirects' );
 }
 
 function getExportTypesLabel( exportTypes: ExportType[] ) {
@@ -27,55 +27,55 @@ function getExportTypesLabel( exportTypes: ExportType[] ) {
 
 function getRedirectModuleLabel( redirectModule: RedirectModule ) {
 	if ( redirectModule === '1' ) {
-		return __( 'WordPress redirects', 'redirection' );
+		return __( 'WordPress redirects', 'dsuite-redirects' );
 	}
 
 	if ( redirectModule === '2' ) {
-		return __( 'Apache redirects', 'redirection' );
+		return __( 'Apache redirects', 'dsuite-redirects' );
 	}
 
 	if ( redirectModule === '3' ) {
-		return __( 'Nginx redirects', 'redirection' );
+		return __( 'Nginx redirects', 'dsuite-redirects' );
 	}
 
-	return __( 'Everything', 'redirection' );
+	return __( 'Everything', 'dsuite-redirects' );
 }
 
 function getRedirectScopeLabel( scopeType: RedirectScopeType, groupName: string ) {
 	if ( scopeType === 'module' ) {
-		return __( 'Module', 'redirection' );
+		return __( 'Module', 'dsuite-redirects' );
 	}
 
 	if ( scopeType === 'group' ) {
 		return groupName;
 	}
 
-	return __( 'Everything', 'redirection' );
+	return __( 'Everything', 'dsuite-redirects' );
 }
 
 function getExportFormatLabel( format: ExportFormat ) {
 	if ( format === 'json' ) {
-		return __( 'JSON', 'redirection' );
+		return __( 'JSON', 'dsuite-redirects' );
 	}
 
 	if ( format === 'csv' ) {
-		return __( 'CSV', 'redirection' );
+		return __( 'CSV', 'dsuite-redirects' );
 	}
 
 	if ( format === 'apache' ) {
-		return __( 'Apache .htaccess', 'redirection' );
+		return __( 'Apache .htaccess', 'dsuite-redirects' );
 	}
 
 	if ( format === 'redirects-file' ) {
-		return __( '_redirects (Netlify/Cloudflare)', 'redirection' );
+		return __( '_redirects (Netlify/Cloudflare)', 'dsuite-redirects' );
 	}
 
-	return __( 'Nginx rewrite rules', 'redirection' );
+	return __( 'Nginx rewrite rules', 'dsuite-redirects' );
 }
 
 function getExportFormatOptionLabel( format: ExportFormat ) {
 	if ( format === 'json' ) {
-		return __( 'JSON (complete data)', 'redirection' );
+		return __( 'JSON (complete data)', 'dsuite-redirects' );
 	}
 
 	return getExportFormatLabel( format );

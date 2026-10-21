@@ -36,7 +36,7 @@ class Login extends Compare {
 	public $logged_out = '';
 
 	public function name() {
-		return __( 'URL and login status', 'redirection' );
+		return __( 'URL and login status', 'dsuite-redirects' );
 	}
 
 	/**

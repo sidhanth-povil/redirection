@@ -18,9 +18,12 @@ interface HttpCheckResponseProps {
 function HttpError( { error }: HttpErrorProps ) {
 	return (
 		<div className="wpl-modal_error">
-			<h2>{ __( 'Error', 'redirection' ) }</h2>
+			<h2>{ __( 'Error', 'dsuite-redirects' ) }</h2>
 			<p>
-				{ __( 'Something went wrong obtaining this information. It may work in the future.', 'redirection' ) }
+				{ __(
+					'Something went wrong obtaining this information. It may work in the future.',
+					'dsuite-redirects'
+				) }
 			</p>
 			<p>
 				<code>{ error }</code>
@@ -54,7 +57,7 @@ export default function HttpCheckResponse( { url, desiredCode = 0, desiredTarget
 						{ createInterpolateElement(
 							sprintf(
 								// translators: %s is the URL being checked
-								__( 'Check redirect for: {{code}}%s{{/code}}', 'redirection' ),
+								__( 'Check redirect for: {{code}}%s{{/code}}', 'dsuite-redirects' ),
 								url
 							),
 							{

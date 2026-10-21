@@ -13,7 +13,7 @@ function ExportFormatSelector( { format, availableFormats, disabled, onChange }:
 	return (
 		<div className="export-options__field">
 			<label className="export-options__label" htmlFor="export-format">
-				{ __( 'Format', 'redirection' ) }
+				{ __( 'Format', 'dsuite-redirects' ) }
 			</label>
 			<select
 				id="export-format"

@@ -15,7 +15,7 @@ const ApiResultPass = ( { methods }: ApiResultPassProps ) => {
 				</span>
 			) ) }
 
-			{ __( 'Working!', 'redirection' ) }
+			{ __( 'Working!', 'dsuite-redirects' ) }
 		</p>
 	);
 };

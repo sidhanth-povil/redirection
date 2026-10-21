@@ -10,7 +10,7 @@ interface MatchTypeProps {
 
 const MatchType = ( { matchType, onChange }: MatchTypeProps ) => {
 	return (
-		<TableRow title={ __( 'Match', 'redirection' ) }>
+		<TableRow title={ __( 'Match', 'dsuite-redirects' ) }>
 			<Select name="match_type" value={ matchType } items={ getMatches() } onChange={ onChange } />
 		</TableRow>
 	);

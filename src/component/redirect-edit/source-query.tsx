@@ -22,7 +22,7 @@ const RedirectSourceQuery = ( { query, regex, onChange, url }: RedirectSourceQue
 			: getSourceQuery();
 
 	return (
-		<TableRow title={ __( 'Query Parameters', 'redirection' ) } className="redirect-edit__sourcequery">
+		<TableRow title={ __( 'Query Parameters', 'dsuite-redirects' ) } className="redirect-edit__sourcequery">
 			<Select name="flag_query" items={ items } value={ query } onChange={ onChange } />
 		</TableRow>
 	);

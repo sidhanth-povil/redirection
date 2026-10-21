@@ -49,7 +49,7 @@ function getGroups( groups: any[] ) {
 	return [
 		{
 			value: '0',
-			label: __( 'All groups', 'redirection' ),
+			label: __( 'All groups', 'dsuite-redirects' ),
 		},
 	].concat( nestedGroups( groups ) as any );
 }
@@ -123,8 +123,8 @@ function Redirects() {
 
 		if ( action === 'delete' ) {
 			const message = table.selectAll
-				? __( 'Are you sure you want to delete all items?', 'redirection' )
-				: __( 'Are you sure you want to delete the selected items?', 'redirection' );
+				? __( 'Are you sure you want to delete all items?', 'dsuite-redirects' )
+				: __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' );
 
 			if ( ! window.confirm( message ) ) {
 				return;
@@ -151,7 +151,9 @@ function Redirects() {
 				download: ! isCopy,
 				copy: isCopy,
 				completionNotice: {
-					message: isCopy ? __( 'Export copied', 'redirection' ) : __( 'Export downloaded', 'redirection' ),
+					message: isCopy
+						? __( 'Export copied', 'dsuite-redirects' )
+						: __( 'Export downloaded', 'dsuite-redirects' ),
 				},
 				params,
 			};

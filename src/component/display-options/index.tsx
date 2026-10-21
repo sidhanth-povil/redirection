@@ -32,7 +32,7 @@ interface DisplayOptionsProps {
 
 function getPlaceholder( currentDisplayType: string, groups: GroupedOption[] ): string {
 	if ( currentDisplayType === 'custom' ) {
-		return __( 'Custom Display', 'redirection' );
+		return __( 'Custom Display', 'dsuite-redirects' );
 	}
 
 	for ( let index = 0; index < groups.length; index++ ) {
@@ -50,12 +50,12 @@ function DisplayOptions( props: DisplayOptionsProps ) {
 	const { displayType, displaySelected } = table;
 	const groupedOptions: GroupedOption[] = [
 		{
-			label: __( 'Pre-defined', 'redirection' ),
+			label: __( 'Pre-defined', 'dsuite-redirects' ),
 			value: 'pre',
 			options: predefinedGroups,
 		},
 		{
-			label: __( 'Custom', 'redirection' ),
+			label: __( 'Custom', 'dsuite-redirects' ),
 			value: 'custom',
 			options: customOptions,
 		},

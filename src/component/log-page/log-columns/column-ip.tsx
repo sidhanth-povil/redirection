@@ -41,7 +41,7 @@ export default function ColumnIp( props: ColumnIpProps ) {
 					{ ...( isSaving !== undefined ? { disabled: isSaving } : {} ) }
 					actions={ [
 						<RowAction key="filter-ip" onClick={ () => onFilter( { ip } ) }>
-							{ __( 'Filter by IP', 'redirection' ) }
+							{ __( 'Filter by IP', 'dsuite-redirects' ) }
 						</RowAction>,
 					] }
 				/>

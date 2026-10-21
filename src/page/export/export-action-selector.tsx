@@ -10,10 +10,10 @@ function ExportActionSelector( { disabled, onView, onDownload }: ExportActionSel
 	return (
 		<div className="import-actions">
 			<button type="button" className="button-secondary" onClick={ onView } disabled={ disabled }>
-				{ __( 'View', 'redirection' ) }
+				{ __( 'View', 'dsuite-redirects' ) }
 			</button>{ ' ' }
 			<button type="button" className="button-primary" onClick={ onDownload } disabled={ disabled }>
-				{ __( 'Download', 'redirection' ) }
+				{ __( 'Download', 'dsuite-redirects' ) }
 			</button>
 		</div>
 	);

@@ -19,12 +19,12 @@ function CreateRedirect( props: CreateRedirectProps ) {
 
 	return (
 		<>
-			{ ! addTop && has_capability( CAP_REDIRECT_ADD ) && <h2>{ __( 'Add redirect', 'redirection' ) }</h2> }
+			{ ! addTop && has_capability( CAP_REDIRECT_ADD ) && <h2>{ __( 'Add redirect', 'dsuite-redirects' ) }</h2> }
 
 			<div className={ classes }>
 				<EditRedirect
 					item={ getDefaultItem( '', 0, props.defaultFlags ) }
-					saveButton={ __( 'Add redirect', 'redirection' ) }
+					saveButton={ __( 'Add redirect', 'dsuite-redirects' ) }
 					// Auto-focus is intentional when adding via the header shortcut.
 					// eslint-disable-next-line jsx-a11y/no-autofocus
 					autoFocus={ !! addTop }

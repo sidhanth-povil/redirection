@@ -35,17 +35,17 @@ function ExportTypeSelector( {
 					<IoCard
 						key={ exportType.id }
 						title={ exportType.name }
-						badge={ __( 'Export', 'redirection' ) }
+						badge={ __( 'Export', 'dsuite-redirects' ) }
 						meta={ [
 							{
-								label: __( 'Export type', 'redirection' ),
+								label: __( 'Export type', 'dsuite-redirects' ),
 								value: exportType.description,
 								fullWidth: true,
 							},
 						] }
 						stats={ [
 							{
-								label: _n( 'Format', 'Formats', exportType.formats.length, 'redirection' ),
+								label: _n( 'Format', 'Formats', exportType.formats.length, 'dsuite-redirects' ),
 								value: exportType.formats.length,
 							},
 						] }
@@ -58,7 +58,7 @@ function ExportTypeSelector( {
 									onChange={ () => onToggle( exportType.id ) }
 									disabled={ isExporting }
 								/>
-								<span>{ __( 'Include in export', 'redirection' ) }</span>
+								<span>{ __( 'Include in export', 'dsuite-redirects' ) }</span>
 							</label>
 						}
 						className={ clsx( 'import-source-card', {
@@ -68,7 +68,7 @@ function ExportTypeSelector( {
 						{ exportType.id === 'redirect' && isActive && (
 							<div className="import-source-card__options">
 								<div className="groups__row">
-									<div className="groups__label">{ __( 'Scope', 'redirection' ) }</div>
+									<div className="groups__label">{ __( 'Scope', 'dsuite-redirects' ) }</div>
 									<div className="groups__control">
 										<select
 											value={ redirectScopeType }
@@ -77,16 +77,16 @@ function ExportTypeSelector( {
 												onChange( 'redirectScopeType', event.target.value )
 											}
 										>
-											<option value="all">{ __( 'Everything', 'redirection' ) }</option>
-											<option value="module">{ __( 'Module', 'redirection' ) }</option>
-											<option value="group">{ __( 'Group', 'redirection' ) }</option>
+											<option value="all">{ __( 'Everything', 'dsuite-redirects' ) }</option>
+											<option value="module">{ __( 'Module', 'dsuite-redirects' ) }</option>
+											<option value="group">{ __( 'Group', 'dsuite-redirects' ) }</option>
 										</select>
 									</div>
 								</div>
 
 								{ redirectScopeType === 'module' && (
 									<div className="groups__row">
-										<div className="groups__label">{ __( 'Module', 'redirection' ) }</div>
+										<div className="groups__label">{ __( 'Module', 'dsuite-redirects' ) }</div>
 										<div className="groups__control">
 											<select
 												value={ redirectModule }
@@ -96,10 +96,14 @@ function ExportTypeSelector( {
 												}
 											>
 												<option value="1">
-													{ __( 'WordPress redirects', 'redirection' ) }
+													{ __( 'WordPress redirects', 'dsuite-redirects' ) }
 												</option>
-												<option value="2">{ __( 'Apache redirects', 'redirection' ) }</option>
-												<option value="3">{ __( 'Nginx redirects', 'redirection' ) }</option>
+												<option value="2">
+													{ __( 'Apache redirects', 'dsuite-redirects' ) }
+												</option>
+												<option value="3">
+													{ __( 'Nginx redirects', 'dsuite-redirects' ) }
+												</option>
 											</select>
 										</div>
 									</div>
@@ -107,7 +111,7 @@ function ExportTypeSelector( {
 
 								{ redirectScopeType === 'group' && (
 									<div className="groups__row">
-										<div className="groups__label">{ __( 'Group', 'redirection' ) }</div>
+										<div className="groups__label">{ __( 'Group', 'dsuite-redirects' ) }</div>
 										<div className="groups__control">
 											<select
 												value={ String( redirectGroup ) }

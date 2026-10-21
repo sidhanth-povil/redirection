@@ -35,12 +35,15 @@ function BrowserExtensionWarning() {
 			<p>
 				{ __(
 					'This error may be caused by a browser extension modifying the page. Please try disabling browser extensions for this page.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
 			<p>
-				{ __( 'You can also try using a different browser, or using private/incognito mode.', 'redirection' ) }
+				{ __(
+					'You can also try using a different browser, or using private/incognito mode.',
+					'dsuite-redirects'
+				) }
 			</p>
 		</>
 	);
@@ -52,12 +55,12 @@ function DefaultCrashMessage() {
 			<p>
 				{ __(
 					'Redirection is not working. Try clearing your browser cache and reloading this page.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 				&nbsp;
 				{ __(
 					'If you are using a page caching plugin or service (CloudFlare, OVH, etc) then you can also try clearing that cache.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
@@ -65,7 +68,7 @@ function DefaultCrashMessage() {
 				{ createInterpolateElement(
 					__(
 						"If that doesn't help, open your browser's error console and create a {{link}}new issue{{/link}} with the details.",
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						link: <ExternalLink url="https://github.com/johngodley/redirection/issues" />,

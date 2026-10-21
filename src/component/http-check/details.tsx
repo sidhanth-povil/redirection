@@ -72,7 +72,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 			return <>{ statusMessage }</>;
 		}
 
-		return <>{ __( 'An unknown error', 'redirection' ) }</>;
+		return <>{ __( 'An unknown error', 'dsuite-redirects' ) }</>;
 	}
 
 	if ( status >= 500 ) {
@@ -80,7 +80,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 			<>
 				{ __(
 					'Something is wrong with the server. This is not a problem with Redirection and you will need to resolve the error yourself.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</>
 		);
@@ -92,7 +92,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 				{ createInterpolateElement(
 					__(
 						'An error page was returned. This is unlikely to be a problem with Redirection. {{support}}What does this mean?{{/support}}.',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						support: <ExternalLink url="https://redirection.me/support/problems/redirect-returning-404/" />,
@@ -106,9 +106,10 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 		if ( isMatching ) {
 			return (
 				<>
-					{ __( 'Redirected by Redirection.', 'redirection' ) }{ ' ' }
+					{ __( 'Redirected by Redirection.', 'dsuite-redirects' ) }{ ' ' }
 					<span className="redirection-httpstep__match">
-						{ __( 'Matches your redirect', 'redirection' ) } <span className="dashicons dashicons-yes" />
+						{ __( 'Matches your redirect', 'dsuite-redirects' ) }{ ' ' }
+						<span className="dashicons dashicons-yes" />
 					</span>
 				</>
 			);
@@ -118,8 +119,8 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 			headers.find( ( item ) => item.name === 'x-redirect-agent' || item.name === 'x-redirect-by' ) || null;
 
 		if ( agent ) {
-			if ( agent.value.toLowerCase() === 'redirection' ) {
-				return <>{ __( 'Redirected by Redirection.', 'redirection' ) }</>;
+			if ( agent.value.toLowerCase() === 'dsuite-redirects' ) {
+				return <>{ __( 'Redirected by Redirection.', 'dsuite-redirects' ) }</>;
 			}
 
 			return (
@@ -127,7 +128,10 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 					{ createInterpolateElement(
 						sprintf(
 							// translators: %1$s is the name of the agent that performed the redirect
-							__( 'Redirected by %1$s. {{support}}What does this mean?{{/support}}.', 'redirection' ),
+							__(
+								'Redirected by %1$s. {{support}}What does this mean?{{/support}}.',
+								'dsuite-redirects'
+							),
 							agent.value
 						),
 						{
@@ -143,7 +147,10 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 		return (
 			<>
 				{ createInterpolateElement(
-					__( 'Redirected by an unknown agent. {{support}}What does this mean?{{/support}}.', 'redirection' ),
+					__(
+						'Redirected by an unknown agent. {{support}}What does this mean?{{/support}}.',
+						'dsuite-redirects'
+					),
 					{
 						support: (
 							<ExternalLink url="https://redirection.me/support/problems/redirected-by-another-agent/" />
@@ -155,7 +162,7 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 	}
 
 	if ( status >= 200 && status < 300 ) {
-		return <>{ __( 'Page was loaded.', 'redirection' ) }</>;
+		return <>{ __( 'Page was loaded.', 'dsuite-redirects' ) }</>;
 	}
 
 	return null;
@@ -232,7 +239,7 @@ function isMatch(
 	if ( agent && location ) {
 		if ( typeof desiredTarget === 'object' && desiredTarget.url_from === undefined ) {
 			return (
-				agent.value.toLowerCase() === 'redirection' &&
+				agent.value.toLowerCase() === 'dsuite-redirects' &&
 				desiredCode === status &&
 				getAbsolute( location.value ) === getTarget( desiredTarget )
 			);
@@ -240,7 +247,7 @@ function isMatch(
 
 		if ( typeof desiredTarget === 'object' ) {
 			return (
-				agent.value.toLowerCase() === 'redirection' &&
+				agent.value.toLowerCase() === 'dsuite-redirects' &&
 				desiredCode === status &&
 				getAbsolute( location.value, desiredTarget.server ) === getTarget( desiredTarget )
 			);
@@ -254,7 +261,7 @@ function HttpDetails( { desiredTarget, desiredCode, http, url }: HttpDetailsProp
 	const { steps } = http;
 
 	if ( http && ( http.status === 'error' || http.status === 'fail' ) && steps.length === 0 ) {
-		return <div>{ __( 'Unable to check that URL. It may not be valid or accessible.', 'redirection' ) }</div>;
+		return <div>{ __( 'Unable to check that URL. It may not be valid or accessible.', 'dsuite-redirects' ) }</div>;
 	}
 
 	return (
@@ -275,7 +282,7 @@ function HttpDetails( { desiredTarget, desiredCode, http, url }: HttpDetailsProp
 						{ createInterpolateElement(
 							__(
 								'If this is not expected then this {{support}}support page{{/support}} may help.',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{
 								support: (
@@ -288,12 +295,12 @@ function HttpDetails( { desiredTarget, desiredCode, http, url }: HttpDetailsProp
 
 				{ __(
 					'If your browser is behaving differently then you should clear your browser cache.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 			<p>
 				<ExternalLink url={ `https://redirect.li/http/?url=${ encodeURIComponent( url ) }` } className="button">
-					{ __( 'View full redirect.li results.', 'redirection' ) }
+					{ __( 'View full redirect.li results.', 'dsuite-redirects' ) }
 				</ExternalLink>
 			</p>
 		</div>

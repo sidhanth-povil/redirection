@@ -4,7 +4,7 @@ import './style.scss';
 
 const PoweredBy = () => (
 	<div className="redirection-poweredby">
-		{ createInterpolateElement( __( 'Powered by {{link}}redirect.li{{/link}}', 'redirection' ), {
+		{ createInterpolateElement( __( 'Powered by {{link}}redirect.li{{/link}}', 'dsuite-redirects' ), {
 			link: <ExternalLink url="https://redirect.li" />,
 		} ) }
 	</div>

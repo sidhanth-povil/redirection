@@ -50,11 +50,11 @@ const HeaderMultiChoice = ( { headerValue, options, onChange }: HeaderMultiChoic
 	return (
 		<MultiOptionDropdown
 			options={
-				wildCard ? choices.concat( [ { value: wildCard, label: __( 'All', 'redirection' ) } ] ) : choices
+				wildCard ? choices.concat( [ { value: wildCard, label: __( 'All', 'dsuite-redirects' ) } ] ) : choices
 			}
 			selected={ selected }
 			onChange={ applyItem }
-			title={ __( 'Values', 'redirection' ) }
+			title={ __( 'Values', 'dsuite-redirects' ) }
 			hideTitle
 			multiple
 			badges

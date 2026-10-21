@@ -33,14 +33,14 @@ function MatchHeader( { onChange, data }: MatchHeaderProps ) {
 
 	return (
 		<>
-			<TableRow title={ __( 'HTTP Header', 'redirection' ) } className="redirect-edit__match">
+			<TableRow title={ __( 'HTTP Header', 'dsuite-redirects' ) } className="redirect-edit__match">
 				<input
 					type="text"
 					name="name"
 					value={ name }
 					onChange={ onChange }
 					className="regular-text"
-					placeholder={ __( 'Header name', 'redirection' ) }
+					placeholder={ __( 'Header name', 'dsuite-redirects' ) }
 				/>
 				<input
 					type="text"
@@ -48,12 +48,12 @@ function MatchHeader( { onChange, data }: MatchHeaderProps ) {
 					value={ value }
 					onChange={ onChange }
 					className="regular-text"
-					placeholder={ __( 'Header value', 'redirection' ) }
+					placeholder={ __( 'Header value', 'dsuite-redirects' ) }
 				/>
 
 				<select name="agent_dropdown" onChange={ onDropdown } value={ dropdown } className="medium">
-					<option value="">{ __( 'Custom', 'redirection' ) }</option>
-					<option value="accept">{ __( 'Accept Language', 'redirection' ) }</option>
+					<option value="">{ __( 'Custom', 'dsuite-redirects' ) }</option>
+					<option value="accept">{ __( 'Accept Language', 'dsuite-redirects' ) }</option>
 				</select>
 
 				<input
@@ -64,7 +64,7 @@ function MatchHeader( { onChange, data }: MatchHeaderProps ) {
 					onChange={ onChange }
 				/>
 				<label className="redirect-edit-regex" htmlFor="redirect-header-regex">
-					{ __( 'Regex', 'redirection' ) }{ ' ' }
+					{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
 					<sup>
 						<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">
 							?
@@ -76,7 +76,7 @@ function MatchHeader( { onChange, data }: MatchHeaderProps ) {
 			<TableRow>
 				{ __(
 					'Note it is your responsibility to pass HTTP headers to PHP. Please contact your hosting provider for support about this.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</TableRow>
 		</>

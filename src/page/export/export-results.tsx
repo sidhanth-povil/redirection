@@ -36,22 +36,22 @@ function ExportResults( { lastResult }: ExportResultsProps ) {
 
 	const details: CardMetaItem[] = [
 		{
-			label: __( 'Action', 'redirection' ),
+			label: __( 'Action', 'dsuite-redirects' ),
 			value:
 				lastResult.action === 'view'
-					? __( 'Viewed in browser', 'redirection' )
-					: __( 'Downloaded', 'redirection' ),
+					? __( 'Viewed in browser', 'dsuite-redirects' )
+					: __( 'Downloaded', 'dsuite-redirects' ),
 		},
 		{
-			label: __( 'Format', 'redirection' ),
+			label: __( 'Format', 'dsuite-redirects' ),
 			value: getExportFormatLabel( lastResult.format ),
 		},
 		{
-			label: __( 'Export', 'redirection' ),
+			label: __( 'Export', 'dsuite-redirects' ),
 			value: getExportTypesLabel( lastResult.types ),
 		},
 		{
-			label: __( 'File size', 'redirection' ),
+			label: __( 'File size', 'dsuite-redirects' ),
 			value: formatFileSize( getFileSize( lastResult.data ) ),
 		},
 	];
@@ -61,14 +61,14 @@ function ExportResults( { lastResult }: ExportResultsProps ) {
 		const exportedCount = lastResult.exported ?? lastResult.total - ( lastResult.skipped ?? 0 );
 
 		stats.push( {
-			label: __( 'Items exported', 'redirection' ),
+			label: __( 'Items exported', 'dsuite-redirects' ),
 			value: formatNumber( exportedCount ),
 		} );
 	}
 
 	if ( lastResult.skipped ) {
 		stats.push( {
-			label: __( 'Skipped (unsupported for this format)', 'redirection' ),
+			label: __( 'Skipped (unsupported for this format)', 'dsuite-redirects' ),
 			value: formatNumber( lastResult.skipped ),
 		} );
 	}
@@ -78,10 +78,10 @@ function ExportResults( { lastResult }: ExportResultsProps ) {
 			<IoCard
 				title={
 					lastResult.action === 'view'
-						? __( 'View results', 'redirection' )
-						: __( 'Download ready', 'redirection' )
+						? __( 'View results', 'dsuite-redirects' )
+						: __( 'Download ready', 'dsuite-redirects' )
 				}
-				badge={ __( 'Success', 'redirection' ) }
+				badge={ __( 'Success', 'dsuite-redirects' ) }
 				meta={ details }
 				stats={ stats }
 				variant="success"

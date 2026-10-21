@@ -38,16 +38,16 @@ interface UrlOptionsProps {
 }
 
 export const queryMatch = (): Option[] => [
-	{ value: 'exact', label: __( 'Exact match in any order', 'redirection' ) },
-	{ value: 'ignore', label: __( 'Ignore all query parameters', 'redirection' ) },
-	{ value: 'pass', label: __( 'Ignore and pass all query parameters', 'redirection' ) },
+	{ value: 'exact', label: __( 'Exact match in any order', 'dsuite-redirects' ) },
+	{ value: 'ignore', label: __( 'Ignore all query parameters', 'dsuite-redirects' ) },
+	{ value: 'pass', label: __( 'Ignore and pass all query parameters', 'dsuite-redirects' ) },
 ];
 const expireTimes = (): Option[] => [
-	{ value: -1, label: __( 'Never cache', 'redirection' ) },
-	{ value: 1, label: __( 'An hour', 'redirection' ) },
-	{ value: 24, label: __( 'A day', 'redirection' ) },
-	{ value: 24 * 7, label: __( 'A week', 'redirection' ) },
-	{ value: 0, label: __( 'Forever', 'redirection' ) },
+	{ value: -1, label: __( 'Never cache', 'dsuite-redirects' ) },
+	{ value: 1, label: __( 'An hour', 'dsuite-redirects' ) },
+	{ value: 24, label: __( 'A day', 'dsuite-redirects' ) },
+	{ value: 24 * 7, label: __( 'A week', 'dsuite-redirects' ) },
+	{ value: 0, label: __( 'Forever', 'dsuite-redirects' ) },
 ];
 
 function UrlOptions( props: UrlOptionsProps ) {
@@ -58,7 +58,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 		<>
 			<tr className="redirect-option__row">
 				<th colSpan={ 2 }>
-					<h2 className="title">{ __( 'URL', 'redirection' ) }</h2>
+					<h2 className="title">{ __( 'URL', 'dsuite-redirects' ) }</h2>
 				</th>
 			</tr>
 			<UrlMonitoring
@@ -69,10 +69,10 @@ function UrlOptions( props: UrlOptionsProps ) {
 				postTypes={ postTypes }
 			/>
 			<TableRow
-				title={ __( 'Default URL settings', 'redirection' ) + ':' }
+				title={ __( 'Default URL settings', 'dsuite-redirects' ) + ':' }
 				url={ getLink( 'options', 'urlsettings' ) }
 			>
-				<p>{ __( 'Applies to all redirections unless you configure them otherwise.', 'redirection' ) }</p>
+				<p>{ __( 'Applies to all redirections unless you configure them otherwise.', 'dsuite-redirects' ) }</p>
 				<p>
 					<input
 						type="checkbox"
@@ -85,7 +85,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 						{ createInterpolateElement(
 							__(
 								'Case insensitive matches (i.e. {{code}}/Exciting-Post{{/code}} will match {{code}}/exciting-post{{/code}})',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{
 								code: <code />,
@@ -106,7 +106,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 						{ createInterpolateElement(
 							__(
 								'Ignore trailing slashes (i.e. {{code}}/exciting-post/{{/code}} will match {{code}}/exciting-post{{/code}})',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{
 								code: <code />,
@@ -116,10 +116,10 @@ function UrlOptions( props: UrlOptionsProps ) {
 				</p>
 			</TableRow>
 			<TableRow
-				title={ __( 'Default query matching', 'redirection' ) + ':' }
+				title={ __( 'Default query matching', 'dsuite-redirects' ) + ':' }
 				url={ getLink( 'options', 'querysettings' ) }
 			>
-				<p>{ __( 'Applies to all redirections unless you configure them otherwise.', 'redirection' ) }</p>
+				<p>{ __( 'Applies to all redirections unless you configure them otherwise.', 'dsuite-redirects' ) }</p>
 				<p>
 					<Select
 						items={ queryMatch() as any }
@@ -132,22 +132,25 @@ function UrlOptions( props: UrlOptionsProps ) {
 					<li>
 						{ __(
 							'Exact - matches the query parameters exactly defined in your source, in any order',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</li>
 					<li>
 						{ __(
 							'Ignore - as exact, but ignores any query parameters not in your source',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</li>
 					<li>
-						{ __( 'Pass - as ignore, but also copies the query parameters to the target', 'redirection' ) }
+						{ __(
+							'Pass - as ignore, but also copies the query parameters to the target',
+							'dsuite-redirects'
+						) }
 					</li>
 				</ul>
 			</TableRow>
 			<TableRow
-				title={ __( 'Auto-generate URL', 'redirection' ) + ':' }
+				title={ __( 'Auto-generate URL', 'dsuite-redirects' ) + ':' }
 				url={ getLink( 'options', 'autogenerate' ) }
 			>
 				<input
@@ -162,7 +165,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 					{ createInterpolateElement(
 						__(
 							'Used to auto-generate a URL if no URL is given. Use the special tags {{code}}$dec${{/code}} or {{code}}$hex${{/code}} to insert a unique ID instead',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							code: <code />,
@@ -171,7 +174,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 				</span>
 			</TableRow>
 
-			<TableRow title={ __( 'HTTP Cache Header', 'redirection' ) } url={ getLink( 'options', 'cache' ) }>
+			<TableRow title={ __( 'HTTP Cache Header', 'dsuite-redirects' ) } url={ getLink( 'options', 'cache' ) }>
 				<Select
 					items={ expireTimes() as any }
 					name="redirect_cache"
@@ -180,10 +183,10 @@ function UrlOptions( props: UrlOptionsProps ) {
 				/>{ ' ' }
 				&nbsp;
 				<span className="sub">
-					{ __( 'How long to cache redirected 301 URLs (via "Expires" HTTP header)', 'redirection' ) }
+					{ __( 'How long to cache redirected 301 URLs (via "Expires" HTTP header)', 'dsuite-redirects' ) }
 				</span>
 			</TableRow>
-			<TableRow title={ __( 'Redirect Caching', 'redirection' ) } url={ getLink( 'options', 'cache' ) }>
+			<TableRow title={ __( 'Redirect Caching', 'dsuite-redirects' ) } url={ getLink( 'options', 'cache' ) }>
 				<input
 					id="url-options-cache-key"
 					type="checkbox"
@@ -196,7 +199,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 					<span className="sub">
 						{ __(
 							'(beta) Enable caching of redirects via WordPress object cache. Can improve performance. Requires an object cache.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</span>
 				</label>

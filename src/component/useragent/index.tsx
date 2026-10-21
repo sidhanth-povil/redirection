@@ -67,8 +67,8 @@ function getType( type: string | undefined, url: string | undefined ): JSX.Eleme
 function UserAgentError( { error }: { error: string } ) {
 	return (
 		<div className="wpl-modal_error">
-			<h2>{ __( 'Useragent Error', 'redirection' ) }</h2>
-			<p>{ __( 'Something went wrong obtaining this information', 'redirection' ) }</p>
+			<h2>{ __( 'Useragent Error', 'dsuite-redirects' ) }</h2>
+			<p>{ __( 'Something went wrong obtaining this information', 'dsuite-redirects' ) }</p>
 			<p>
 				<code>{ error }</code>
 			</p>
@@ -79,7 +79,7 @@ function UserAgentError( { error }: { error: string } ) {
 function UserAgentUnknown( { agent }: { agent: string } ) {
 	return (
 		<div className="redirection-useragent_unknown">
-			<h2>{ __( 'Unknown Useragent', 'redirection' ) }</h2>
+			<h2>{ __( 'Unknown Useragent', 'dsuite-redirects' ) }</h2>
 			<br />
 			<p>{ agent }</p>
 		</div>
@@ -95,30 +95,30 @@ function UserAgentDetails( { agent, detail }: { agent: string; detail: AgentDeta
 	const parts: [ string, string | false ][] = [];
 
 	if ( device ) {
-		parts.push( [ __( 'Device', 'redirection' ), device ] );
+		parts.push( [ __( 'Device', 'dsuite-redirects' ), device ] );
 	}
 
 	if ( os ) {
-		parts.push( [ __( 'Operating System', 'redirection' ), os ] );
+		parts.push( [ __( 'Operating System', 'dsuite-redirects' ), os ] );
 	}
 
 	if ( browser ) {
-		parts.push( [ __( 'Browser', 'redirection' ), browser ] );
+		parts.push( [ __( 'Browser', 'dsuite-redirects' ), browser ] );
 	}
 
 	if ( engine ) {
-		parts.push( [ __( 'Engine', 'redirection' ), engine ] );
+		parts.push( [ __( 'Engine', 'dsuite-redirects' ), engine ] );
 	}
 
 	return (
 		<div>
 			<h2>
-				{ __( 'Useragent', 'redirection' ) }: { type }
+				{ __( 'Useragent', 'dsuite-redirects' ) }: { type }
 			</h2>
 			<table>
 				<tbody>
 					<tr>
-						<th>{ __( 'Agent', 'redirection' ) }</th>
+						<th>{ __( 'Agent', 'dsuite-redirects' ) }</th>
 						<td className="redirection-useragent_agent">{ agent }</td>
 					</tr>
 

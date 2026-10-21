@@ -23,7 +23,7 @@ class Url extends Compare {
 	public $url = '';
 
 	public function name() {
-		return __( 'URL only', 'redirection' );
+		return __( 'URL only', 'dsuite-redirects' );
 	}
 
 	/**

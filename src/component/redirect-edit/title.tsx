@@ -8,13 +8,13 @@ interface RedirectTitleProps {
 
 function RedirectTitle( { title, onChange }: RedirectTitleProps ) {
 	return (
-		<TableRow title={ __( 'Title', 'redirection' ) } className="redirect-edit__title">
+		<TableRow title={ __( 'Title', 'dsuite-redirects' ) } className="redirect-edit__title">
 			<input
 				type="text"
 				name="title"
 				value={ title }
 				onChange={ ( ev ) => onChange( { title: ev.target.value } ) }
-				placeholder={ __( 'Describe the purpose of this redirect (optional)', 'redirection' ) }
+				placeholder={ __( 'Describe the purpose of this redirect (optional)', 'dsuite-redirects' ) }
 			/>
 		</TableRow>
 	);

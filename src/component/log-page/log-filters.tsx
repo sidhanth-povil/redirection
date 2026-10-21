@@ -99,7 +99,7 @@ function LogFilters( props: LogFiltersProps ) {
 						options={ filterOptions }
 						selected={ getSelectedFilters( table.filterBy, filterOptions ) }
 						onChange={ onChange }
-						title={ __( 'Filters', 'redirection' ) }
+						title={ __( 'Filters', 'dsuite-redirects' ) }
 						disabled={ disabled }
 						multiple
 						badges

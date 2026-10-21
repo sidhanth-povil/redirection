@@ -30,7 +30,7 @@ function TableGroup( { selected: initialSelected, options, isEnabled, onGroup }:
 			<Select items={ options } value={ selected } name="filter" onChange={ onChange } disabled={ ! isEnabled } />
 
 			<button className="button" onClick={ onSubmit } disabled={ ! isEnabled }>
-				{ __( 'Apply', 'redirection' ) }
+				{ __( 'Apply', 'dsuite-redirects' ) }
 			</button>
 		</div>
 	);

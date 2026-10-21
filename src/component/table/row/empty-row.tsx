@@ -14,7 +14,7 @@ const EmptyRow = ( props: EmptyRowProps ) => {
 
 	return (
 		<tr>
-			<td colSpan={ headers.length + 1 }>{ __( 'Nothing to display.', 'redirection' ) }</td>
+			<td colSpan={ headers.length + 1 }>{ __( 'Nothing to display.', 'dsuite-redirects' ) }</td>
 		</tr>
 	);
 };

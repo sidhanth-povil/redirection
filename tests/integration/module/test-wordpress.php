@@ -101,7 +101,7 @@ class WordPress_Module_Test extends WP_UnitTestCase {
 		$start = $this->get_log_count();
 
 		$wp = new WordPress_Module();
-		$wp->record_redirect_by( 'redirection' );
+		$wp->record_redirect_by( 'dsuite-redirects' );
 
 		$this->assertEquals( $start, $this->get_log_count() );
 	}

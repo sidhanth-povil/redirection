@@ -26,34 +26,34 @@ import type {
 const EXPORT_TYPES: ExportTypeOption[] = [
 	{
 		id: 'redirect',
-		name: __( 'Redirects', 'redirection' ),
-		description: __( 'Export redirect rules in Redirection.', 'redirection' ),
+		name: __( 'Redirects', 'dsuite-redirects' ),
+		description: __( 'Export redirect rules in Redirection.', 'dsuite-redirects' ),
 		formats: [ 'json', 'csv', 'apache', 'nginx', 'redirects-file' ],
 	},
 	{
 		id: 'log',
-		name: __( 'Redirect logs', 'redirection' ),
-		description: __( 'Export redirect activity logs.', 'redirection' ),
+		name: __( 'Redirect logs', 'dsuite-redirects' ),
+		description: __( 'Export redirect activity logs.', 'dsuite-redirects' ),
 		formats: [ 'json', 'csv' ],
 	},
 	{
 		id: '404',
-		name: __( '404 logs', 'redirection' ),
-		description: __( 'Export 404 request logs.', 'redirection' ),
+		name: __( '404 logs', 'dsuite-redirects' ),
+		description: __( 'Export 404 request logs.', 'dsuite-redirects' ),
 		formats: [ 'json', 'csv' ],
 	},
 	{
 		id: 'group',
-		name: __( 'Groups', 'redirection' ),
-		description: __( 'Export redirect groups and their module assignments.', 'redirection' ),
+		name: __( 'Groups', 'dsuite-redirects' ),
+		description: __( 'Export redirect groups and their module assignments.', 'dsuite-redirects' ),
 		formats: [ 'json', 'csv' ],
 	},
 	{
 		id: 'setting',
-		name: __( 'Settings', 'redirection' ),
+		name: __( 'Settings', 'dsuite-redirects' ),
 		description: __(
 			'Export a portable subset of plugin settings and site-level Redirection options.',
-			'redirection'
+			'dsuite-redirects'
 		),
 		formats: [ 'json' ],
 	},
@@ -142,23 +142,25 @@ function useExportPage(): UseExportPageResult {
 			: previewQuery.data.estimatedSize;
 	const summaryMeta: CardMetaItem[] = [
 		{
-			label: __( 'Export', 'redirection' ),
-			value: hasSelectedTypes ? getExportTypesLabel( selectedTypes ) : __( 'No export selected', 'redirection' ),
+			label: __( 'Export', 'dsuite-redirects' ),
+			value: hasSelectedTypes
+				? getExportTypesLabel( selectedTypes )
+				: __( 'No export selected', 'dsuite-redirects' ),
 		},
 	];
 
 	if ( hasRedirectExport ) {
 		summaryMeta.push( {
-			label: __( 'Scope', 'redirection' ),
+			label: __( 'Scope', 'dsuite-redirects' ),
 			value: getRedirectScopeLabel(
 				redirectScopeType,
-				activeGroup ? activeGroup.name : __( 'Group', 'redirection' )
+				activeGroup ? activeGroup.name : __( 'Group', 'dsuite-redirects' )
 			),
 		} );
 
 		if ( redirectScopeType === 'module' ) {
 			summaryMeta.push( {
-				label: __( 'Module', 'redirection' ),
+				label: __( 'Module', 'dsuite-redirects' ),
 				value: getRedirectModuleLabel( redirectModule ),
 			} );
 		}
@@ -166,7 +168,7 @@ function useExportPage(): UseExportPageResult {
 
 	if ( hasSelectedTypes ) {
 		summaryMeta.push( {
-			label: __( 'Format', 'redirection' ),
+			label: __( 'Format', 'dsuite-redirects' ),
 			value: getExportFormatLabel( format ),
 		} );
 	}
@@ -268,7 +270,9 @@ function useExportPage(): UseExportPageResult {
 
 		const completionNotice: Message = {
 			message:
-				action === 'download' ? __( 'Export downloaded', 'redirection' ) : __( 'Export viewed', 'redirection' ),
+				action === 'download'
+					? __( 'Export downloaded', 'dsuite-redirects' )
+					: __( 'Export viewed', 'dsuite-redirects' ),
 		};
 		const request: ExportRequestVariables = {
 			exportType: primaryExportType,

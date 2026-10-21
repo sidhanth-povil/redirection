@@ -17,7 +17,7 @@ function getUpgradeNotice() {
 	const { current, next } = window.Redirectioni10n.database;
 
 	if ( current === next ) {
-		return <p>{ __( 'A database upgrade is in progress. Please continue to finish.', 'redirection' ) }</p>;
+		return <p>{ __( 'A database upgrade is in progress. Please continue to finish.', 'dsuite-redirects' ) }</p>;
 	}
 
 	return (
@@ -29,7 +29,7 @@ function getUpgradeNotice() {
 						// translators: %(current)s is the current database version, %(latest)s is the latest database version
 						__(
 							'Redirection stores data in your database and sometimes this needs upgrading. Your database is at version {{strong}}%(current)s{{/strong}} and the latest is {{strong}}%(latest)s{{/strong}}.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							current: window.Redirectioni10n.database.current,
@@ -56,13 +56,13 @@ function ManualUpgrade() {
 		return (
 			<>
 				<p>
-					{ __( 'Your site already has the latest SQL.', 'redirection' ) +
+					{ __( 'Your site already has the latest SQL.', 'dsuite-redirects' ) +
 						' ' +
-						__( 'Click "Complete Upgrade" when finished.', 'redirection' ) }
+						__( 'Click "Complete Upgrade" when finished.', 'dsuite-redirects' ) }
 				</p>
 				<p>
 					<button className="button-primary" onClick={ onComplete }>
-						{ __( 'Complete Upgrade', 'redirection' ) }
+						{ __( 'Complete Upgrade', 'dsuite-redirects' ) }
 					</button>
 				</p>
 			</>
@@ -75,7 +75,7 @@ function ManualUpgrade() {
 				{ __(
 					'If your site needs special database permissions, or you would rather do it yourself, you can manually run the following SQL.'
 				) }{ ' ' }
-				{ __( 'Click "Complete Upgrade" when finished.', 'redirection' ) }
+				{ __( 'Click "Complete Upgrade" when finished.', 'dsuite-redirects' ) }
 			</p>
 			<p>
 				<TextareaAutosize
@@ -87,7 +87,7 @@ function ManualUpgrade() {
 			</p>
 			<p>
 				<button className="button-primary" onClick={ onComplete }>
-					{ __( 'Complete Upgrade', 'redirection' ) }
+					{ __( 'Complete Upgrade', 'dsuite-redirects' ) }
 				</button>
 			</p>
 		</>
@@ -101,12 +101,17 @@ interface AutomaticUpgradeProps {
 function AutomaticUpgrade( { onShowUpgrade }: AutomaticUpgradeProps ) {
 	return (
 		<>
-			<p>{ __( 'Click the "Upgrade Database" button to automatically upgrade the database.', 'redirection' ) }</p>
+			<p>
+				{ __(
+					'Click the "Upgrade Database" button to automatically upgrade the database.',
+					'dsuite-redirects'
+				) }
+			</p>
 			<p>
 				<input
 					className="button-primary"
 					type="submit"
-					value={ __( 'Upgrade Database', 'redirection' ) }
+					value={ __( 'Upgrade Database', 'dsuite-redirects' ) }
 					onClick={ onShowUpgrade }
 				/>
 			</p>
@@ -134,7 +139,7 @@ function ShowDatabase() {
 					links={ getErrorLinks() }
 					locale="redirection"
 				>
-					{ __( 'Something went wrong when upgrading Redirection.', 'redirection' ) }
+					{ __( 'Something went wrong when upgrading Redirection.', 'dsuite-redirects' ) }
 				</Error>
 			) }
 
@@ -144,7 +149,7 @@ function ShowDatabase() {
 
 					{ hasFinished( status ) && (
 						<button className="button button-primary" onClick={ onFinish }>
-							{ __( 'Finished! 🎉', 'redirection' ) }
+							{ __( 'Finished! 🎉', 'dsuite-redirects' ) }
 						</button>
 					) }
 				</div>
@@ -179,7 +184,7 @@ function DownloadBackupLink( { children }: DownloadBackupLinkProps ) {
 			redirectGroup: 0,
 			download: true,
 			filename: 'redirection-backup.json',
-			completionNotice: { message: __( 'Backup downloaded', 'redirection' ) },
+			completionNotice: { message: __( 'Backup downloaded', 'dsuite-redirects' ) },
 		} );
 	}
 
@@ -200,10 +205,10 @@ function ShowNotice( { onShowUpgrade }: ShowNoticeProps ) {
 
 	return (
 		<>
-			<h1 className="wp-heading-inline">{ __( 'Upgrade Required', 'redirection' ) }</h1>
+			<h1 className="wp-heading-inline">{ __( 'Upgrade Required', 'dsuite-redirects' ) }</h1>
 
 			<div className="wpl-error">
-				<h3>{ __( 'Redirection database needs upgrading', 'redirection' ) }</h3>
+				<h3>{ __( 'Redirection database needs upgrading', 'dsuite-redirects' ) }</h3>
 
 				{ getUpgradeNotice() }
 
@@ -211,7 +216,7 @@ function ShowNotice( { onShowUpgrade }: ShowNoticeProps ) {
 					{ createInterpolateElement(
 						__(
 							'Please make a backup of your Redirection data: {{download}}downloading a backup{{/download}}. If you experience any issues you can import this back into Redirection.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							download: <DownloadBackupLink />,
@@ -226,12 +231,12 @@ function ShowNotice( { onShowUpgrade }: ShowNoticeProps ) {
 			<div className="database-switch">
 				{ ! isManual && (
 					<button type="button" onClick={ onToggle }>
-						{ __( 'Manual Upgrade', 'redirection' ) }
+						{ __( 'Manual Upgrade', 'dsuite-redirects' ) }
 					</button>
 				) }
 				{ isManual && (
 					<button type="button" onClick={ onToggle }>
-						{ __( 'Automatic Upgrade', 'redirection' ) }
+						{ __( 'Automatic Upgrade', 'dsuite-redirects' ) }
 					</button>
 				) }
 			</div>

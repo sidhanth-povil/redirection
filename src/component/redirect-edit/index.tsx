@@ -100,7 +100,7 @@ function EditRedirect( props: EditRedirectProps ) {
 	const {
 		item,
 		onCancel,
-		saveButton = __( 'Save', 'redirection' ),
+		saveButton = __( 'Save', 'dsuite-redirects' ),
 		childSave,
 		callback,
 		canSave: canSaveCallback,
@@ -298,7 +298,7 @@ function EditRedirect( props: EditRedirectProps ) {
 				addError(
 					__(
 						'Unable to create a redirect because no groups are available. Please reload the page.',
-						'redirection'
+						'dsuite-redirects'
 					)
 				);
 				return;
@@ -496,7 +496,10 @@ function EditRedirect( props: EditRedirectProps ) {
 		warning,
 	} = state;
 	const warningsWithGroups = hasNoGroups
-		? [ __( 'No groups are available. Reload the page before creating a redirect.', 'redirection' ), ...warning ]
+		? [
+				__( 'No groups are available. Reload the page before creating a redirect.', 'dsuite-redirects' ),
+				...warning,
+		  ]
 		: warning;
 
 	const renderOptions = () => {
@@ -513,7 +516,7 @@ function EditRedirect( props: EditRedirectProps ) {
 					checked={ Boolean( options.log_exclude ) }
 					onChange={ onChangeOption }
 				/>
-				<label htmlFor="redirect-log-exclude">{ __( 'Exclude from logs', 'redirection' ) }</label>
+				<label htmlFor="redirect-log-exclude">{ __( 'Exclude from logs', 'dsuite-redirects' ) }</label>
 			</>
 		);
 	};
@@ -547,7 +550,10 @@ function EditRedirect( props: EditRedirectProps ) {
 								onChange={ onChangeActionData as any }
 							/>
 
-							<TableRow title={ __( 'When matched', 'redirection' ) } className="redirect-edit__action">
+							<TableRow
+								title={ __( 'When matched', 'dsuite-redirects' ) }
+								className="redirect-edit__action"
+							>
 								<ActionType
 									actionType={ action_type }
 									matchType={ match_type }
@@ -571,7 +577,7 @@ function EditRedirect( props: EditRedirectProps ) {
 						onChange={ onChangeActionData as any }
 					/>
 
-					<TableRow title={ __( 'Group', 'redirection' ) } className="redirect-edit__group">
+					<TableRow title={ __( 'Group', 'dsuite-redirects' ) } className="redirect-edit__group">
 						<RedirectGroup
 							groups={ groups as any }
 							currentGroup={ group_id }
@@ -588,7 +594,7 @@ function EditRedirect( props: EditRedirectProps ) {
 								{ saveButton }
 							</Button>{ ' ' }
 							&nbsp;
-							{ onCancel && <Button onClick={ onCancel }>{ __( 'Cancel', 'redirection' ) }</Button> }
+							{ onCancel && <Button onClick={ onCancel }>{ __( 'Cancel', 'dsuite-redirects' ) }</Button> }
 							{ addTop && ! onCancel && (
 								<Button
 									onClick={ ( ev ) => {
@@ -596,7 +602,7 @@ function EditRedirect( props: EditRedirectProps ) {
 										setRedirectsAddTop( false );
 									} }
 								>
-									{ __( 'Close', 'redirection' ) }
+									{ __( 'Close', 'dsuite-redirects' ) }
 								</Button>
 							) }
 							&nbsp;
@@ -605,7 +611,7 @@ function EditRedirect( props: EditRedirectProps ) {
 									type="button"
 									onClick={ onToggleAdvanced }
 									className="redirection-edit_advanced"
-									title={ __( 'Show advanced options', 'redirection' ) }
+									title={ __( 'Show advanced options', 'dsuite-redirects' ) }
 								>
 									<svg
 										aria-hidden="true"

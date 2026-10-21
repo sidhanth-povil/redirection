@@ -39,7 +39,7 @@ class Server extends Compare {
 	 * @return string
 	 */
 	public function name() {
-		return __( 'URL and server', 'redirection' );
+		return __( 'URL and server', 'dsuite-redirects' );
 	}
 
 	/**

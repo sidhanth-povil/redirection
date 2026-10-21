@@ -78,8 +78,8 @@ class SeoRedirection extends Plugin {
 			return array(
 				'id' => 'seo-redirection',
 				'name' => 'SEO Redirection',
-				'description' => __( 'Redirects created by SEO Redirection.', 'redirection' ),
-				'source' => __( 'Database tables', 'redirection' ),
+				'description' => __( 'Redirects created by SEO Redirection.', 'dsuite-redirects' ),
+				'source' => __( 'Database tables', 'dsuite-redirects' ),
 				'total' => $total,
 			);
 		}

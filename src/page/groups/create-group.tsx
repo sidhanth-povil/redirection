@@ -22,11 +22,11 @@ function CreateGroup( props: CreateGroupProps ) {
 
 	return (
 		<>
-			<h2>{ __( 'Add Group', 'redirection' ) }</h2>
+			<h2>{ __( 'Add Group', 'dsuite-redirects' ) }</h2>
 			<p>
 				{ __(
 					'Use groups to organise your redirects. Groups are assigned to a module, which affects how the redirects in that group work. If you are unsure then stick to the WordPress module.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
@@ -34,7 +34,7 @@ function CreateGroup( props: CreateGroupProps ) {
 				<table className="form-table redirect-groups inline-edit-row">
 					<tbody>
 						<tr>
-							<th>{ __( 'Name', 'redirection' ) }</th>
+							<th>{ __( 'Name', 'dsuite-redirects' ) }</th>
 							<td>
 								<input
 									size={ 30 }
@@ -63,7 +63,7 @@ function CreateGroup( props: CreateGroupProps ) {
 										isSubmit
 										disabled={ disabled || name === '' }
 									>
-										{ __( 'Add', 'redirection' ) }
+										{ __( 'Add', 'dsuite-redirects' ) }
 									</Button>
 								</span>
 							</td>
@@ -75,7 +75,7 @@ function CreateGroup( props: CreateGroupProps ) {
 					<p>
 						{ __(
 							'Note that you will need to set the Apache module path in your Redirection options.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</p>
 				) }

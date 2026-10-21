@@ -93,8 +93,8 @@ function Groups() {
 
 		if ( action === 'delete' ) {
 			const message = table.selectAll
-				? __( 'Are you sure you want to delete all items?', 'redirection' )
-				: __( 'Are you sure you want to delete the selected items?', 'redirection' );
+				? __( 'Are you sure you want to delete all items?', 'dsuite-redirects' )
+				: __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' );
 
 			if ( ! window.confirm( message ) ) {
 				return;

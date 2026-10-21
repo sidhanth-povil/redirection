@@ -34,7 +34,7 @@ function EditColumn( props: EditColumnProps ) {
 			<table className="edit-groups inline-edit-row">
 				<tbody>
 					<tr>
-						<th>{ __( 'Name', 'redirection' ) }</th>
+						<th>{ __( 'Name', 'dsuite-redirects' ) }</th>
 						<td>
 							<input
 								type="text"
@@ -46,7 +46,7 @@ function EditColumn( props: EditColumnProps ) {
 						</td>
 					</tr>
 					<tr>
-						<th>{ __( 'Module', 'redirection' ) }</th>
+						<th>{ __( 'Module', 'dsuite-redirects' ) }</th>
 						<td>
 							<Select
 								name="module_id"
@@ -61,10 +61,10 @@ function EditColumn( props: EditColumnProps ) {
 						<td>
 							<div className="table-actions">
 								<Button isPrimary isSecondary={ false } isSubmit>
-									{ __( 'Save', 'redirection' ) }
+									{ __( 'Save', 'dsuite-redirects' ) }
 								</Button>
 								&nbsp;
-								<Button onClick={ onCancel }>{ __( 'Cancel', 'redirection' ) }</Button>
+								<Button onClick={ onCancel }>{ __( 'Cancel', 'dsuite-redirects' ) }</Button>
 							</div>
 
 							{ moduleId === 2 && (
@@ -72,7 +72,7 @@ function EditColumn( props: EditColumnProps ) {
 									<br />
 									{ __(
 										'Note that you will need to set the Apache module path in your Redirection options.',
-										'redirection'
+										'dsuite-redirects'
 									) }
 								</p>
 							) }

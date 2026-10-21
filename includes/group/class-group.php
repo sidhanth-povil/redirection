@@ -303,7 +303,7 @@ class Group {
 			$wpdb->insert(
 				$wpdb->prefix . 'redirection_groups',
 				[
-					'name' => __( 'Redirections', 'redirection' ),
+					'name' => __( 'Redirections', 'dsuite-redirects' ),
 					'module_id' => 1,
 					'position' => 0,
 				]

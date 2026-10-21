@@ -197,7 +197,7 @@ class Plugin extends BaseRoute {
 
 			$groups = intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_groups" ), 10 );
 			if ( $groups === 0 ) {
-				$group = \Red_Group::create( __( 'Redirections', 'redirection' ), 1 );
+				$group = \Red_Group::create( __( 'Redirections', 'dsuite-redirects' ), 1 );
 
 				if ( $group === false ) {
 					return $this->add_error_details( new WP_Error( 'redirect_group_create_failed', 'Unable to create group' ), __LINE__ );
@@ -269,7 +269,7 @@ class Plugin extends BaseRoute {
 		// Check upgrade
 		if ( ! $status->needs_updating() && ! $status->needs_installing() ) {
 			/* translators: version number */
-			$status->set_error( sprintf( __( 'Your database does not need updating to %s.', 'redirection' ), REDIRECTION_DB_VERSION ) );
+			$status->set_error( sprintf( __( 'Your database does not need updating to %s.', 'dsuite-redirects' ), REDIRECTION_DB_VERSION ) );
 
 			return $status->get_json();
 		}

@@ -102,12 +102,12 @@ function WelcomeWizard() {
 					links={ getErrorLinks() }
 					locale="redirection"
 				>
-					{ __( 'Something went wrong when installing Redirection.', 'redirection' ) }
+					{ __( 'Something went wrong when installing Redirection.', 'dsuite-redirects' ) }
 				</Error>
 			) }
 
 			<div className="wizard-wrapper">
-				{ step !== 0 && step !== 3 && <h1>{ __( 'Redirection', 'redirection' ) }</h1> }
+				{ step !== 0 && step !== 3 && <h1>{ __( 'Redirection', 'dsuite-redirects' ) }</h1> }
 
 				<div className="wizard">
 					<Content
@@ -121,7 +121,7 @@ function WelcomeWizard() {
 
 			<div className="wizard-support">
 				<ExternalLink url="https://redirection.me/contact/">
-					{ __( 'I need support!', 'redirection' ) }
+					{ __( 'I need support!', 'dsuite-redirects' ) }
 				</ExternalLink>
 			</div>
 		</>

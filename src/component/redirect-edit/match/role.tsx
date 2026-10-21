@@ -13,13 +13,13 @@ const MatchRole = ( { data, onChange }: MatchRoleProps ) => {
 	const { role } = data;
 
 	return (
-		<TableRow title={ __( 'Role', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'Role', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				className="regular-text"
 				value={ role }
 				name="role"
-				placeholder={ __( 'Enter role or capability value', 'redirection' ) }
+				placeholder={ __( 'Enter role or capability value', 'dsuite-redirects' ) }
 				onChange={ onChange }
 			/>
 		</TableRow>

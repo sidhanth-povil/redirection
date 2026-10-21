@@ -13,14 +13,14 @@ const MatchCustom = ( { data, onChange }: MatchCustomProps ) => {
 	const { filter } = data;
 
 	return (
-		<TableRow title={ __( 'Filter Name', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'Filter Name', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				name="filter"
 				value={ filter }
 				onChange={ onChange }
 				className="regular-text"
-				placeholder={ __( 'WordPress filter name', 'redirection' ) }
+				placeholder={ __( 'WordPress filter name', 'dsuite-redirects' ) }
 			/>
 		</TableRow>
 	);

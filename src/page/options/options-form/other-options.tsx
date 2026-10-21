@@ -23,9 +23,9 @@ interface OtherOptionsProps {
 }
 
 export const restApi = (): Option[] => [
-	{ value: 0, label: __( 'Default REST API', 'redirection' ) },
-	{ value: 1, label: __( 'Raw REST API', 'redirection' ) },
-	{ value: 3, label: __( 'Relative REST API', 'redirection' ) },
+	{ value: 0, label: __( 'Default REST API', 'dsuite-redirects' ) },
+	{ value: 1, label: __( 'Raw REST API', 'dsuite-redirects' ) },
+	{ value: 3, label: __( 'Relative REST API', 'dsuite-redirects' ) },
 ];
 
 function getPluginUpdateOptions(): Option[] {
@@ -33,12 +33,12 @@ function getPluginUpdateOptions(): Option[] {
 		{
 			value: 'prompt',
 			// translators: Upgrade manually when prompted
-			label: __( 'Upgrade manually when prompted', 'redirection' ),
+			label: __( 'Upgrade manually when prompted', 'dsuite-redirects' ),
 		},
 		{
 			value: 'admin',
 			// translators: Automatically upgrade on admin pages
-			label: __( 'Automatically upgrade on admin pages', 'redirection' ),
+			label: __( 'Automatically upgrade on admin pages', 'dsuite-redirects' ),
 		},
 	];
 }
@@ -51,23 +51,23 @@ function OtherOptions( props: OtherOptionsProps ) {
 		<>
 			<tr className="redirect-option__row">
 				<th colSpan={ 2 }>
-					<h2 className="title">{ __( 'Advanced', 'redirection' ) }</h2>
+					<h2 className="title">{ __( 'Advanced', 'dsuite-redirects' ) }</h2>
 				</th>
 			</tr>
-			<TableRow title={ __( 'RSS Token', 'redirection' ) + ':' } url={ getLink( 'options', 'rsstoken' ) }>
+			<TableRow title={ __( 'RSS Token', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'rsstoken' ) }>
 				<input className="regular-text" type="text" value={ token } name="token" onChange={ onChange } />
 				<br />
 				<span className="sub">
 					{ __(
 						'A unique token allowing feed readers access to Redirection log RSS (leave blank to auto-generate)',
-						'redirection'
+						'dsuite-redirects'
 					) }
 				</span>
 			</TableRow>
-			<TableRow title={ __( 'Apache .htaccess', 'redirection' ) } url={ getLink( 'options', 'apache' ) }>
+			<TableRow title={ __( 'Apache .htaccess', 'dsuite-redirects' ) } url={ getLink( 'options', 'apache' ) }>
 				<p>
 					<label className="screen-reader-text" htmlFor="apache-htaccess-location">
-						{ __( 'Apache .htaccess location', 'redirection' ) }
+						{ __( 'Apache .htaccess location', 'dsuite-redirects' ) }
 					</label>
 					<input
 						id="apache-htaccess-location"
@@ -86,7 +86,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 							// translators: %(installed)s is the path where WordPress is installed
 							__(
 								'Redirects added to an Apache group can be saved to an {{code}}.htaccess{{/code}} file by adding the full path here. For reference, your WordPress is installed to {{code}}%(installed)s{{/code}}.',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{ installed }
 						),
@@ -98,11 +98,11 @@ function OtherOptions( props: OtherOptionsProps ) {
 
 				{ warning && (
 					<p className="inline-notice">
-						{ __( 'Unable to save .htaccess file', 'redirection' ) } <code>{ warning }</code>
+						{ __( 'Unable to save .htaccess file', 'dsuite-redirects' ) } <code>{ warning }</code>
 					</p>
 				) }
 			</TableRow>
-			<TableRow title={ __( 'REST API', 'redirection' ) } url={ getLink( 'options', 'restapi' ) }>
+			<TableRow title={ __( 'REST API', 'dsuite-redirects' ) } url={ getLink( 'options', 'restapi' ) }>
 				<Select
 					items={ restApi() as any }
 					name="rest_api"
@@ -111,10 +111,10 @@ function OtherOptions( props: OtherOptionsProps ) {
 				/>{ ' ' }
 				&nbsp;
 				<span className="sub">
-					{ __( "How Redirection uses the REST API - don't change unless necessary", 'redirection' ) }
+					{ __( "How Redirection uses the REST API - don't change unless necessary", 'dsuite-redirects' ) }
 				</span>
 			</TableRow>
-			<TableRow title={ __( 'Data Upgrade', 'redirection' ) }>
+			<TableRow title={ __( 'Data Upgrade', 'dsuite-redirects' ) }>
 				<Select
 					items={ getPluginUpdateOptions() as any }
 					name="plugin_update"
@@ -123,7 +123,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 				/>{ ' ' }
 				&nbsp;
 				<span className="sub">
-					{ __( 'Decide how Redirection updates itself, if needed.', 'redirection' ) }
+					{ __( 'Decide how Redirection updates itself, if needed.', 'dsuite-redirects' ) }
 				</span>
 			</TableRow>
 		</>

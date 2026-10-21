@@ -72,7 +72,7 @@ function CreateRedirect( props: CreateRedirectProps ) {
 			<div className="add-new">
 				<EditRedirect
 					item={ item }
-					saveButton={ __( 'Add Redirect', 'redirection' ) }
+					saveButton={ __( 'Add Redirect', 'dsuite-redirects' ) }
 					onCancel={ onClose }
 					childSave={ () =>
 						deleteLog && handleDelete( Array.isArray( uniqueUrls ) ? uniqueUrls : [ uniqueUrls as string ] )
@@ -82,8 +82,8 @@ function CreateRedirect( props: CreateRedirectProps ) {
 							// eslint-disable-next-line no-alert
 							confirm(
 								multi
-									? __( 'Are you sure you want to delete the selected items?', 'redirection' )
-									: __( 'Are you sure you want to delete this item?', 'redirection' )
+									? __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' )
+									: __( 'Are you sure you want to delete this item?', 'dsuite-redirects' )
 							) ) ||
 						! deleteLog
 					}
@@ -93,7 +93,7 @@ function CreateRedirect( props: CreateRedirectProps ) {
 				>
 					{ has_capability( CAP_404_DELETE ) && (
 						<tr>
-							<th>{ __( 'Delete Log Entries', 'redirection' ) }</th>
+							<th>{ __( 'Delete Log Entries', 'dsuite-redirects' ) }</th>
 							<td className="edit-left" style={ { padding: '7px 0px' } }>
 								<input
 									id="create-redirect-delete-log"
@@ -104,8 +104,8 @@ function CreateRedirect( props: CreateRedirectProps ) {
 								<label htmlFor="create-redirect-delete-log">
 									{ ( Array.isArray( uniqueUrls ) && uniqueUrls.length <= 1 ) ||
 									! Array.isArray( uniqueUrls )
-										? __( 'Delete logs for this entry', 'redirection' )
-										: __( 'Delete logs for these entries', 'redirection' ) }
+										? __( 'Delete logs for this entry', 'dsuite-redirects' )
+										: __( 'Delete logs for these entries', 'dsuite-redirects' ) }
 								</label>
 							</td>
 						</tr>

@@ -34,7 +34,7 @@ export default function StepDatabase( { step, setStep, options, setOptions }: St
 		<Database>
 			<div className="wizard-buttons">
 				<button className="button-primary button" onClick={ () => setStep( step + 1 ) }>
-					{ __( 'Continue', 'redirection' ) }
+					{ __( 'Continue', 'dsuite-redirects' ) }
 				</button>
 			</div>
 		</Database>

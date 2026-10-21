@@ -166,8 +166,8 @@ class Seopress extends Plugin {
 			return array(
 				'id' => 'seopress',
 				'name' => 'SEOPress',
-				'description' => __( 'Redirects created by SEOPress.', 'redirection' ),
-				'source' => __( 'WordPress posts, terms, and SEOPress 404 entries', 'redirection' ),
+				'description' => __( 'Redirects created by SEOPress.', 'dsuite-redirects' ),
+				'source' => __( 'WordPress posts, terms, and SEOPress 404 entries', 'dsuite-redirects' ),
 				'total' => $total,
 			);
 		}

@@ -13,7 +13,7 @@ const MatchLanguage = ( { data, onChange }: MatchLanguageProps ) => {
 	const { language } = data;
 
 	return (
-		<TableRow title={ __( 'Language', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'Language', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				className="regular-text"
@@ -22,7 +22,7 @@ const MatchLanguage = ( { data, onChange }: MatchLanguageProps ) => {
 				onChange={ onChange }
 				placeholder={ __(
 					'Comma separated list of languages to match against (i.e. da, en-GB)',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			/>
 		</TableRow>

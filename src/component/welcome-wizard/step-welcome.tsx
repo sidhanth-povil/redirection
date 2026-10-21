@@ -20,14 +20,14 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 
 	return (
 		<>
-			<h2>{ __( 'Welcome to Redirection 🚀🎉', 'redirection' ) }</h2>
+			<h2>{ __( 'Welcome to Redirection 🚀🎉', 'dsuite-redirects' ) }</h2>
 
 			<p>
 				{ sprintf(
 					// translators: %(version)s is the plugin version number
 					__(
 						'Thank you for installing and using Redirection v%(version)s. This plugin will allow you to manage 301 redirections, keep track of 404 errors, and improve your site, with no knowledge of Apache or Nginx needed.',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						version: window.Redirectioni10n.version,
@@ -37,16 +37,16 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 			<p>
 				{ __(
 					'Redirection is designed to be used on sites with a few redirects to sites with thousands of redirects.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
-			<h3>{ __( 'How do I use this plugin?', 'redirection' ) }</h3>
+			<h3>{ __( 'How do I use this plugin?', 'dsuite-redirects' ) }</h3>
 			<p>
 				{ createInterpolateElement(
 					__(
 						"A simple redirect involves setting a {{strong}}source URL{{/strong}} (the old URL) and a {{strong}}target URL{{/strong}} (the new URL). Here's an example:",
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						strong: <strong />,
@@ -57,24 +57,27 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 			<table className="redirect-edit">
 				<tbody>
 					<tr>
-						<th>{ __( 'Source URL', 'redirection' ) }:</th>
+						<th>{ __( 'Source URL', 'dsuite-redirects' ) }:</th>
 						<td>
 							<input
 								type="text"
 								className="regular-text"
 								readOnly
-								value={ __( '(Example) The source URL is your old or original URL', 'redirection' ) }
+								value={ __(
+									'(Example) The source URL is your old or original URL',
+									'dsuite-redirects'
+								) }
 							/>
 						</td>
 					</tr>
 					<tr>
-						<th>{ __( 'Target URL', 'redirection' ) }:</th>
+						<th>{ __( 'Target URL', 'dsuite-redirects' ) }:</th>
 						<td>
 							<input
 								type="text"
 								className="regular-text"
 								readOnly
-								value={ __( '(Example) The target URL is the new URL', 'redirection' ) }
+								value={ __( '(Example) The target URL is the new URL', 'dsuite-redirects' ) }
 							/>
 						</td>
 					</tr>
@@ -84,26 +87,29 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 			<p>
 				{ __(
 					"That's all there is to it - you are now redirecting! Note that the above is just an example.",
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 			<p>
 				{ createInterpolateElement(
-					__( 'Full documentation can be found on the {{link}}Redirection website.{{/link}}', 'redirection' ),
+					__(
+						'Full documentation can be found on the {{link}}Redirection website.{{/link}}',
+						'dsuite-redirects'
+					),
 					{
 						link: <ExternalLink url="https://redirection.me/support/" />,
 					}
 				) }
 			</p>
 
-			<h3>{ __( 'Some features you may find useful are', 'redirection' ) }:</h3>
+			<h3>{ __( 'Some features you may find useful are', 'dsuite-redirects' ) }:</h3>
 
 			<ul>
 				<li>
 					{ createInterpolateElement(
 						__(
 							'{{link}}Monitor 404 errors{{/link}}, get detailed information about the visitor, and fix any problems',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							link: <ExternalLink url="https://redirection.me/support/tracking-404-errors/" />,
@@ -114,7 +120,7 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 					{ createInterpolateElement(
 						__(
 							'{{link}}Import{{/link}} from .htaccess, CSV, and a variety of other plugins',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							link: <ExternalLink url="https://redirection.me/support/import-export-redirects/" />,
@@ -125,7 +131,7 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 					{ createInterpolateElement(
 						__(
 							'More powerful URL matching, including {{regular}}regular expressions{{/regular}}, and {{other}}other conditions{{/other}}',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							regular: (
@@ -135,23 +141,23 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 						}
 					) }
 				</li>
-				<li>{ __( 'Check a URL is being redirected', 'redirection' ) }</li>
+				<li>{ __( 'Check a URL is being redirected', 'dsuite-redirects' ) }</li>
 			</ul>
 
-			<h3>{ __( "What's next?", 'redirection' ) }</h3>
+			<h3>{ __( "What's next?", 'dsuite-redirects' ) }</h3>
 			<p>
 				{ __(
 					'First you will be asked a few questions, and then Redirection will set up your database.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
 			<div className="wizard-buttons">
 				<button className="button-primary button" onClick={ startAutomatic }>
-					{ __( 'Start Setup', 'redirection' ) }
+					{ __( 'Start Setup', 'dsuite-redirects' ) }
 				</button>{ ' ' }
 				<button className="button-secondary button" onClick={ startManual }>
-					{ __( 'Manual Setup', 'redirection' ) }
+					{ __( 'Manual Setup', 'dsuite-redirects' ) }
 				</button>
 			</div>
 		</>

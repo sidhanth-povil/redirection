@@ -57,11 +57,11 @@ export default function StepImporting( { step, setStep, options }: StepImporting
 
 	return (
 		<div>
-			<h2>{ __( 'Import Existing Redirects', 'redirection' ) }</h2>
+			<h2>{ __( 'Import Existing Redirects', 'dsuite-redirects' ) }</h2>
 
 			{ importingStatus === 'loading' && (
 				<>
-					<p>{ __( 'Please wait, importing.', 'redirection' ) }</p>
+					<p>{ __( 'Please wait, importing.', 'dsuite-redirects' ) }</p>
 
 					<div className="loader-wrapper loader-textarea">
 						<div className="wpl-placeholder__loading" />
@@ -73,19 +73,19 @@ export default function StepImporting( { step, setStep, options }: StepImporting
 				<>
 					<p>
 						{ importingStatus === 'success'
-							? __( 'Import finished.', 'redirection' )
-							: __( 'Importing failed.', 'redirection' ) }
+							? __( 'Import finished.', 'dsuite-redirects' )
+							: __( 'Importing failed.', 'dsuite-redirects' ) }
 					</p>
 
 					<div className="wizard-buttons">
 						{ importingStatus === 'error' && (
 							<button className="button-secondary button" onClick={ doImport }>
-								{ __( 'Retry', 'redirection' ) }
+								{ __( 'Retry', 'dsuite-redirects' ) }
 							</button>
 						) }
 
 						<button className="button-primary button" onClick={ () => setStep( step + 1 ) }>
-							{ __( 'Continue', 'redirection' ) }
+							{ __( 'Continue', 'dsuite-redirects' ) }
 						</button>
 					</div>
 				</>

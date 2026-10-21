@@ -19,7 +19,7 @@ const getWWW = ( site: string ): WWWOption[] => [
 		label: createInterpolateElement(
 			sprintf(
 				// translators: %(site)s is the site domain
-				__( "Don't set a preferred domain - {{code}}%(site)s{{/code}}", 'redirection' ),
+				__( "Don't set a preferred domain - {{code}}%(site)s{{/code}}", 'dsuite-redirects' ),
 				{ site }
 			),
 			{
@@ -35,7 +35,7 @@ const getWWW = ( site: string ): WWWOption[] => [
 				// translators: %(site)s is the site domain without www, %(siteWWW)s is the site domain with www
 				__(
 					'Remove www from domain - {{code}}%(siteWWW)s{{/code}} ⇒ {{code}}%(site)s{{/code}}',
-					'redirection'
+					'dsuite-redirects'
 				),
 				{
 					site: site.replace( 'www.', '' ),
@@ -53,7 +53,10 @@ const getWWW = ( site: string ): WWWOption[] => [
 		label: createInterpolateElement(
 			sprintf(
 				// translators: %(site)s is the site domain without www, %(siteWWW)s is the site domain with www
-				__( 'Add www to domain - {{code}}%(site)s{{/code}} ⇒ {{code}}%(siteWWW)s{{/code}}', 'redirection' ),
+				__(
+					'Add www to domain - {{code}}%(site)s{{/code}} ⇒ {{code}}%(siteWWW)s{{/code}}',
+					'dsuite-redirects'
+				),
 				{
 					site: site.replace( 'www.', '' ),
 					siteWWW: site.replace( 'www.', '' ).replace( '://', '://www.' ),
@@ -106,7 +109,7 @@ function CanonicalSettings( { https, preferredDomain, siteDomain, onChange }: Ca
 
 	return (
 		<>
-			<h3>{ __( 'Canonical Settings', 'redirection' ) }</h3>
+			<h3>{ __( 'Canonical Settings', 'dsuite-redirects' ) }</h3>
 			<p>
 				<input id="canonical-https" type="checkbox" name="https" onChange={ changeHttps } checked={ https } />
 				&nbsp;
@@ -116,7 +119,7 @@ function CanonicalSettings( { https, preferredDomain, siteDomain, onChange }: Ca
 							// translators: %(site)s is HTTP site URL, %(siteHTTPS)s is HTTPS site URL
 							__(
 								'Force a redirect from HTTP to HTTPS - {{code}}%(site)s{{/code}} ⇒ {{code}}%(siteHTTPS)s{{/code}}',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{
 								site: siteDomain.replace( 'https', 'http' ),
@@ -137,7 +140,7 @@ function CanonicalSettings( { https, preferredDomain, siteDomain, onChange }: Ca
 							// translators: %(strong)s is the warning title
 							__(
 								'{{strong}}Warning{{/strong}}: ensure your HTTPS is working before forcing a redirect.',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{
 								strong: <strong />,
@@ -147,7 +150,7 @@ function CanonicalSettings( { https, preferredDomain, siteDomain, onChange }: Ca
 				</div>
 			) }
 
-			<p>{ __( 'Preferred domain', 'redirection' ) }:</p>
+			<p>{ __( 'Preferred domain', 'dsuite-redirects' ) }:</p>
 			{ getWWW( siteDomain ).map( ( preferred ) => {
 				const inputId = `canonical-preferred-${ preferred.value || 'none' }`;
 
@@ -175,7 +178,7 @@ function CanonicalSettings( { https, preferredDomain, siteDomain, onChange }: Ca
 								// translators: %(current)s is current site URL, %(site)s is recommended canonical URL
 								__(
 									'You should update your site URL to match your canonical settings: {{code}}%(current)s{{/code}} ⇒ {{code}}%(site)s{{/code}}',
-									'redirection'
+									'dsuite-redirects'
 								),
 								{
 									current: siteDomain,

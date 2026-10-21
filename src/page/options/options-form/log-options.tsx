@@ -26,17 +26,17 @@ interface LogOptionsProps {
 }
 
 const timeToKeep = (): Option[] => [
-	{ value: -1, label: __( 'No logs', 'redirection' ) },
-	{ value: 1, label: __( 'A day', 'redirection' ) },
-	{ value: 7, label: __( 'A week', 'redirection' ) },
-	{ value: 30, label: __( 'A month', 'redirection' ) },
-	{ value: 60, label: __( 'Two months', 'redirection' ) },
-	{ value: 0, label: __( 'Forever', 'redirection' ) },
+	{ value: -1, label: __( 'No logs', 'dsuite-redirects' ) },
+	{ value: 1, label: __( 'A day', 'dsuite-redirects' ) },
+	{ value: 7, label: __( 'A week', 'dsuite-redirects' ) },
+	{ value: 30, label: __( 'A month', 'dsuite-redirects' ) },
+	{ value: 60, label: __( 'Two months', 'dsuite-redirects' ) },
+	{ value: 0, label: __( 'Forever', 'dsuite-redirects' ) },
 ];
 const ipLogging = (): Option[] => [
-	{ value: 0, label: __( 'No IP logging', 'redirection' ) },
-	{ value: 1, label: __( 'Full IP logging', 'redirection' ) },
-	{ value: 2, label: __( 'Anonymize IP (mask last part)', 'redirection' ) },
+	{ value: 0, label: __( 'No IP logging', 'dsuite-redirects' ) },
+	{ value: 1, label: __( 'Full IP logging', 'dsuite-redirects' ) },
+	{ value: 2, label: __( 'Anonymize IP (mask last part)', 'dsuite-redirects' ) },
 ];
 const ipAddress = (): Option[] => [
 	{ value: 'HTTP_CF_CONNECTING_IP', label: 'HTTP_CF_CONNECTING_IP' },
@@ -66,37 +66,37 @@ function LogOptions( props: LogOptionsProps ) {
 		<>
 			<tr className="redirect-option__row">
 				<th colSpan={ 2 }>
-					<h2 className="title">{ __( 'Logs', 'redirection' ) }</h2>
+					<h2 className="title">{ __( 'Logs', 'dsuite-redirects' ) }</h2>
 				</th>
 			</tr>
-			<TableRow title={ __( 'Redirect Logs', 'redirection' ) + ':' } url={ getLink( 'logs' ) }>
+			<TableRow title={ __( 'Redirect Logs', 'dsuite-redirects' ) + ':' } url={ getLink( 'logs' ) }>
 				<Select
 					items={ timeToKeep() as any }
 					name="expire_redirect"
 					value={ String( expire_redirect ) }
 					onChange={ onChange as any }
 				/>{ ' ' }
-				{ __( '(time to keep logs for)', 'redirection' ) }
+				{ __( '(time to keep logs for)', 'dsuite-redirects' ) }
 			</TableRow>
-			<TableRow title={ __( '404 Logs', 'redirection' ) + ':' } url={ getLink( 'tracking-404-errors' ) }>
+			<TableRow title={ __( '404 Logs', 'dsuite-redirects' ) + ':' } url={ getLink( 'tracking-404-errors' ) }>
 				<Select
 					items={ timeToKeep() as any }
 					name="expire_404"
 					value={ String( expire_404 ) }
 					onChange={ onChange as any }
 				/>{ ' ' }
-				{ __( '(time to keep logs for)', 'redirection' ) }
+				{ __( '(time to keep logs for)', 'dsuite-redirects' ) }
 			</TableRow>
-			<TableRow title={ __( 'IP Logging', 'redirection' ) + ':' } url={ getLink( 'options', 'iplogging' ) }>
+			<TableRow title={ __( 'IP Logging', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'iplogging' ) }>
 				<Select
 					items={ ipLogging() as any }
 					name="ip_logging"
 					value={ String( ip_logging ) }
 					onChange={ onChange as any }
 				/>{ ' ' }
-				{ __( '(IP logging level)', 'redirection' ) }
+				{ __( '(IP logging level)', 'dsuite-redirects' ) }
 			</TableRow>
-			<TableRow title={ __( 'IP Address', 'redirection' ) + ':' } url={ getLink( 'options', 'ipaddress' ) }>
+			<TableRow title={ __( 'IP Address', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'ipaddress' ) }>
 				<MultiOptionDropdown
 					options={ ipAddress() as any }
 					selected={ ip_headers }
@@ -104,14 +104,14 @@ function LogOptions( props: LogOptionsProps ) {
 					badges={ ip_headers.length > 0 }
 					hideTitle={ ip_headers.length > 0 }
 					onChange={ ( options: any ) => onChange( { ip_headers: options } ) }
-					title={ ip_headers.length === 0 ? __( 'REMOTE_ADDR', 'redirection' ) : '' }
+					title={ ip_headers.length === 0 ? __( 'REMOTE_ADDR', 'dsuite-redirects' ) : '' }
 				/>
 
 				<p>
 					{ createInterpolateElement(
 						__(
 							'Only set custom IP headers if your server does not use <code>REMOTE_ADDR</code> to store the client IP address.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{ code: <code /> }
 					) }
@@ -122,7 +122,7 @@ function LogOptions( props: LogOptionsProps ) {
 							{ createInterpolateElement(
 								__(
 									'Please ensure you trust the data in these headers. If using a proxy then set its address below. Incorrect configuration may allow browser-controlled data to be used as the client IP address.',
-									'redirection'
+									'dsuite-redirects'
 								),
 								{ code: <code /> }
 							) }
@@ -131,7 +131,10 @@ function LogOptions( props: LogOptionsProps ) {
 				) }
 			</TableRow>
 			{ ip_headers.length > 0 && (
-				<TableRow title={ __( 'Proxy Address', 'redirection' ) + ':' } url={ getLink( 'options', 'proxy' ) }>
+				<TableRow
+					title={ __( 'Proxy Address', 'dsuite-redirects' ) + ':' }
+					url={ getLink( 'options', 'proxy' ) }
+				>
 					<TextareaAutosize
 						minRows={ 3 }
 						value={ ip_proxy.join( '\n' ) }
@@ -141,12 +144,12 @@ function LogOptions( props: LogOptionsProps ) {
 					<p>
 						{ __(
 							'If using a proxy then add any IP addresses here to only trust IP headers from those addresses.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</p>
 				</TableRow>
 			) }
-			<TableRow title={ __( 'Logging', 'redirection' ) + ':' } url={ getLink( 'options', 'iplogging' ) }>
+			<TableRow title={ __( 'Logging', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'iplogging' ) }>
 				<p>
 					<input
 						id="log-options-log-external"
@@ -159,7 +162,7 @@ function LogOptions( props: LogOptionsProps ) {
 					<label htmlFor="log-options-log-external">
 						{ __(
 							'Log "external" redirects - those not from Redirection. This can increase your log size and contains no user information.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</label>
 				</p>
@@ -174,7 +177,7 @@ function LogOptions( props: LogOptionsProps ) {
 					<label htmlFor="log-options-track-hits">
 						{ __(
 							'Track redirect hits and date of last access. Contains no user information.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</label>
 				</p>
@@ -189,7 +192,7 @@ function LogOptions( props: LogOptionsProps ) {
 					<label htmlFor="log-options-log-header">
 						{ __(
 							'Capture HTTP header information with logs (except cookies). It may include user information, and could increase your log size.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</label>
 				</p>
@@ -200,7 +203,7 @@ function LogOptions( props: LogOptionsProps ) {
 					{ createInterpolateElement(
 						__(
 							'Redirection stores no user identifiable information other than what is configured above. It is your responsibility to ensure your site meets any applicable {{link}}privacy requirements{{/link}}.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							link: <ExternalLink url={ getLink( 'privacy-gdpr' ) } />,

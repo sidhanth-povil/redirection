@@ -31,7 +31,7 @@ export default function StepFinish( { options }: StepFinishProps ) {
 
 	function onFinish() {
 		if ( ! canFinish ) {
-			addError( __( 'You need at least one working REST API to finish setup.', 'redirection' ) );
+			addError( __( 'You need at least one working REST API to finish setup.', 'dsuite-redirects' ) );
 			return;
 		}
 
@@ -55,15 +55,15 @@ export default function StepFinish( { options }: StepFinishProps ) {
 
 	return (
 		<div>
-			<h2>{ __( 'Installation Complete', 'redirection' ) }</h2>
+			<h2>{ __( 'Installation Complete', 'dsuite-redirects' ) }</h2>
 
-			<p>{ __( 'Redirection is now installed!', 'redirection' ) }</p>
+			<p>{ __( 'Redirection is now installed!', 'dsuite-redirects' ) }</p>
 
 			<p>
 				{ createInterpolateElement(
 					__(
 						'Please take a moment to consult the {{support}}support site{{/support}} for information about how to use Redirection.',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						support: <ExternalLink url="https://redirection.me" />,
@@ -72,7 +72,7 @@ export default function StepFinish( { options }: StepFinishProps ) {
 			</p>
 
 			<button className="button button-primary" onClick={ onFinish } type="button" disabled={ ! canFinish }>
-				{ __( 'Ready to begin! 🎉', 'redirection' ) }
+				{ __( 'Ready to begin! 🎉', 'dsuite-redirects' ) }
 			</button>
 		</div>
 	);

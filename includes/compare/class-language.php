@@ -36,7 +36,7 @@ class Language extends Compare {
 	public $language = '';
 
 	public function name() {
-		return __( 'URL and language', 'redirection' );
+		return __( 'URL and language', 'dsuite-redirects' );
 	}
 
 	/**

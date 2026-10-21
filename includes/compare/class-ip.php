@@ -36,7 +36,7 @@ class Ip extends Compare {
 	public $ip = [];
 
 	public function name() {
-		return __( 'URL and IP', 'redirection' );
+		return __( 'URL and IP', 'dsuite-redirects' );
 	}
 
 	/**

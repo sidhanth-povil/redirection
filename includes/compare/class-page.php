@@ -31,7 +31,7 @@ class Page extends Compare {
 	public $page = '404';
 
 	public function name() {
-		return __( 'URL and WordPress page type', 'redirection' );
+		return __( 'URL and WordPress page type', 'dsuite-redirects' );
 	}
 
 	/**

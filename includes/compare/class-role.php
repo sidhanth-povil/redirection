@@ -34,7 +34,7 @@ class Role extends Compare {
 	public $role = '';
 
 	public function name() {
-		return __( 'URL and role/capability', 'redirection' );
+		return __( 'URL and role/capability', 'dsuite-redirects' );
 	}
 
 	/**

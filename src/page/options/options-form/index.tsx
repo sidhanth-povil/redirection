@@ -91,7 +91,7 @@ function OptionsForm() {
 			</FormTable>
 
 			<Button isPrimary isSubmit disabled={ saveStatus }>
-				{ __( 'Update', 'redirection' ) }
+				{ __( 'Update', 'dsuite-redirects' ) }
 			</Button>
 		</form>
 	);

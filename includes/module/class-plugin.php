@@ -328,7 +328,7 @@ class Plugin extends Module {
 
 		if ( $target !== false ) {
 			// phpcs:ignore
-			wp_redirect( $target, 301, 'redirection' );
+			wp_redirect( $target, 301, 'dsuite-redirects' );
 			die();
 		}
 	}
@@ -498,7 +498,7 @@ class Plugin extends Module {
 	 */
 	public function record_redirect_by( $agent ) {
 		// Have we already redirected with Redirection?
-		if ( $this->matched !== false || $agent === 'redirection' ) {
+		if ( $this->matched !== false || $agent === 'dsuite-redirects' ) {
 			return $agent;
 		}
 

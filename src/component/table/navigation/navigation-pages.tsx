@@ -35,7 +35,7 @@ function NavigationPages( props: NavigationPagesProps ) {
 				{ ( selected === 0 || ( ! isEverything && ( selected < rowCount || total <= perPage ) ) ) &&
 					sprintf(
 						// translators: %s is the number of items
-						_n( '%s item', '%s items', total, 'redirection' ),
+						_n( '%s item', '%s items', total, 'dsuite-redirects' ),
 						new Intl.NumberFormat( window.Redirectioni10n.locale ).format( total )
 					) }
 				{ /* translators: 1: number of selected items, 2: total number of items */ }
@@ -46,7 +46,7 @@ function NavigationPages( props: NavigationPagesProps ) {
 					createInterpolateElement(
 						sprintf(
 							// translators: 1: number of selected items, 2: total number of items
-							__( '%1$d of %2$d selected. {{all}}Select All.{{/all}}', 'redirection' ),
+							__( '%1$d of %2$d selected. {{all}}Select All.{{/all}}', 'dsuite-redirects' ),
 							selected,
 							total
 						),
@@ -59,7 +59,7 @@ function NavigationPages( props: NavigationPagesProps ) {
 					createInterpolateElement(
 						sprintf(
 							// translators: 1: number of selected items, 2: total number of items
-							__( '%1$d of %2$d selected. {{all}}Clear All.{{/all}}', 'redirection' ),
+							__( '%1$d of %2$d selected. {{all}}Clear All.{{/all}}', 'dsuite-redirects' ),
 							selected,
 							total
 						),

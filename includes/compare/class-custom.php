@@ -38,7 +38,7 @@ class Custom extends Compare {
 	 * @return string
 	 */
 	public function name() {
-		return __( 'URL and custom filter', 'redirection' );
+		return __( 'URL and custom filter', 'dsuite-redirects' );
 	}
 
 	/**

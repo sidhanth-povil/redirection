@@ -156,7 +156,7 @@ export function useApiCheck(
 			const createCorsError = ( testUrl: string, testOrigin: string, currentOrigin: string ) => ( {
 				message: __(
 					'This REST API URL uses a different origin and cannot be tested from the current admin page. Check your WordPress URL/Site URL or proxy configuration.',
-					'redirection'
+					'dsuite-redirects'
 				),
 				code: 'rest_api_cors_mismatch',
 				data: {

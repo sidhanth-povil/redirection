@@ -73,6 +73,6 @@ class Error extends Action {
 	 * @return string
 	 */
 	public function name() {
-		return __( 'Error (404)', 'redirection' );
+		return __( 'Error (404)', 'dsuite-redirects' );
 	}
 }

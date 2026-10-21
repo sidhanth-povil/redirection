@@ -44,24 +44,24 @@ function PermalinkSettings( props: PermalinkSettingsProps ) {
 
 	return (
 		<>
-			<h3>{ __( 'Permalink Migration', 'redirection' ) }</h3>
+			<h3>{ __( 'Permalink Migration', 'dsuite-redirects' ) }</h3>
 			<p>
 				{ __(
 					'Enter old permalinks structures to automatically migrate them to your current one.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 			<p>
 				{ __(
 					'Note: this is in beta and will only migrate posts. Certain permalinks will not work. If yours does not work then you will need to wait until it is out of beta.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
 			<table className="wp-list-table widefat fixed striped items redirect-aliases table-auto inline-edit-row">
 				<thead>
 					<tr>
-						<th>{ __( 'Permalinks', 'redirection' ) }</th>
+						<th>{ __( 'Permalinks', 'dsuite-redirects' ) }</th>
 						<th className="redirect-alias__delete" />
 					</tr>
 				</thead>
@@ -77,7 +77,7 @@ function PermalinkSettings( props: PermalinkSettingsProps ) {
 					) ) }
 					{ permalinks.length === 0 && (
 						<tr>
-							<td colSpan={ 2 }>{ __( 'No migrated permalinks', 'redirection' ) }</td>
+							<td colSpan={ 2 }>{ __( 'No migrated permalinks', 'dsuite-redirects' ) }</td>
 						</tr>
 					) }
 				</tbody>
@@ -85,7 +85,7 @@ function PermalinkSettings( props: PermalinkSettingsProps ) {
 
 			<p>
 				<button className="button-secondary" onClick={ ( ev ) => addPermalink( permalinks, onChange, ev ) }>
-					{ __( 'Add Permalink', 'redirection' ) }
+					{ __( 'Add Permalink', 'dsuite-redirects' ) }
 				</button>
 			</p>
 		</>

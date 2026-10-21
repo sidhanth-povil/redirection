@@ -14,7 +14,7 @@ function ExtraDataAction( props: ExtraDataActionProps ) {
 
 	return (
 		<>
-			<RowAction onClick={ () => setShowModal( true ) }>{ __( 'View Data', 'redirection' ) }</RowAction>
+			<RowAction onClick={ () => setShowModal( true ) }>{ __( 'View Data', 'dsuite-redirects' ) }</RowAction>
 
 			{ showModal && (
 				<Modal onClose={ () => setShowModal( false ) }>

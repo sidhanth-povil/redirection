@@ -244,7 +244,7 @@ class Status {
 			$this->debug[] = $wpdb->last_error;
 
 			if ( strpos( $wpdb->last_error, 'command denied to user' ) !== false ) {
-				$this->reason .= ' - ' . __( 'Insufficient database permissions detected. Please give your database user appropriate permissions.', 'redirection' );
+				$this->reason .= ' - ' . __( 'Insufficient database permissions detected. Please give your database user appropriate permissions.', 'dsuite-redirects' );
 			}
 		}
 

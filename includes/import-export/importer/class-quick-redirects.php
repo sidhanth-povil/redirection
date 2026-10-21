@@ -52,8 +52,8 @@ class QuickRedirects extends Plugin {
 			return array(
 				'id' => 'quick-redirects',
 				'name' => 'Quick Page/Post Redirects',
-				'description' => __( 'Redirects created by Quick Page/Post Redirects.', 'redirection' ),
-				'source' => __( 'Plugin settings', 'redirection' ),
+				'description' => __( 'Redirects created by Quick Page/Post Redirects.', 'dsuite-redirects' ),
+				'source' => __( 'Plugin settings', 'dsuite-redirects' ),
 				'total' => count( $data ),
 			);
 		}

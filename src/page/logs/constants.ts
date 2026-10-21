@@ -42,54 +42,54 @@ interface FilterOption {
 export const getHeaders = ( groupBy?: string ): Header[] => {
 	if ( groupBy === 'url' ) {
 		return [
-			{ name: 'url', title: __( 'Source URL', 'redirection' ), primary: true, sortable: false },
-			{ name: 'count', title: __( 'Count', 'redirection' ), sortable: true },
+			{ name: 'url', title: __( 'Source URL', 'dsuite-redirects' ), primary: true, sortable: false },
+			{ name: 'count', title: __( 'Count', 'dsuite-redirects' ), sortable: true },
 		];
 	} else if ( groupBy === 'ip' ) {
 		return [
-			{ name: 'ip', title: __( 'IP', 'redirection' ), primary: true, sortable: false },
-			{ name: 'count', title: __( 'Count', 'redirection' ), sortable: true },
+			{ name: 'ip', title: __( 'IP', 'dsuite-redirects' ), primary: true, sortable: false },
+			{ name: 'count', title: __( 'Count', 'dsuite-redirects' ), sortable: true },
 		];
 	} else if ( groupBy === 'agent' ) {
 		return [
-			{ name: 'agent', title: __( 'User Agent', 'redirection' ), primary: true, sortable: false },
-			{ name: 'count', title: __( 'Count', 'redirection' ), sortable: true },
+			{ name: 'agent', title: __( 'User Agent', 'dsuite-redirects' ), primary: true, sortable: false },
+			{ name: 'count', title: __( 'Count', 'dsuite-redirects' ), sortable: true },
 		];
 	}
 	return [
-		{ name: 'date', title: __( 'Date', 'redirection' ) },
-		{ name: 'method', title: __( 'Method', 'redirection' ), sortable: false },
-		{ name: 'domain', title: __( 'Domain', 'redirection' ), sortable: false },
-		{ name: 'url', title: __( 'Source URL', 'redirection' ), primary: true },
-		{ name: 'target', title: __( 'Target URL', 'redirection' ), sortable: false },
-		{ name: 'redirect_by', title: __( 'Redirect By', 'redirection' ), sortable: false },
-		{ name: 'code', title: __( 'HTTP code', 'redirection' ), sortable: false },
-		{ name: 'referrer', title: __( 'Referrer', 'redirection' ), sortable: false },
-		{ name: 'agent', title: __( 'User Agent', 'redirection' ), sortable: false },
-		{ name: 'ip', title: __( 'IP', 'redirection' ), sortable: false },
+		{ name: 'date', title: __( 'Date', 'dsuite-redirects' ) },
+		{ name: 'method', title: __( 'Method', 'dsuite-redirects' ), sortable: false },
+		{ name: 'domain', title: __( 'Domain', 'dsuite-redirects' ), sortable: false },
+		{ name: 'url', title: __( 'Source URL', 'dsuite-redirects' ), primary: true },
+		{ name: 'target', title: __( 'Target URL', 'dsuite-redirects' ), sortable: false },
+		{ name: 'redirect_by', title: __( 'Redirect By', 'dsuite-redirects' ), sortable: false },
+		{ name: 'code', title: __( 'HTTP code', 'dsuite-redirects' ), sortable: false },
+		{ name: 'referrer', title: __( 'Referrer', 'dsuite-redirects' ), sortable: false },
+		{ name: 'agent', title: __( 'User Agent', 'dsuite-redirects' ), sortable: false },
+		{ name: 'ip', title: __( 'IP', 'dsuite-redirects' ), sortable: false },
 	];
 };
 
 export const getBulk = (): BulkOption[] => [
-	{ id: 'delete', name: __( 'Delete', 'redirection' ) },
-	{ id: 'export-csv', name: __( 'Export as CSV', 'redirection' ) },
-	{ id: 'export-json', name: __( 'Export as JSON', 'redirection' ) },
+	{ id: 'delete', name: __( 'Delete', 'dsuite-redirects' ) },
+	{ id: 'export-csv', name: __( 'Export as CSV', 'dsuite-redirects' ) },
+	{ id: 'export-json', name: __( 'Export as JSON', 'dsuite-redirects' ) },
 ];
 
 export const getDisplayGroups = ( groupBy?: string ): DisplayGroup[] => {
 	if ( groupBy ) {
-		return [ { value: 'group', label: __( 'Group', 'redirection' ), grouping: [ groupBy, 'count' ] } ];
+		return [ { value: 'group', label: __( 'Group', 'dsuite-redirects' ), grouping: [ groupBy, 'count' ] } ];
 	}
 	return [
 		{
 			value: 'standard',
-			label: __( 'Standard Display', 'redirection' ),
+			label: __( 'Standard Display', 'dsuite-redirects' ),
 			grouping: [ 'date', 'url', 'target', 'agent', 'ip' ],
 		},
-		{ value: 'minimal', label: __( 'Compact Display', 'redirection' ), grouping: [ 'date', 'url' ] },
+		{ value: 'minimal', label: __( 'Compact Display', 'dsuite-redirects' ), grouping: [ 'date', 'url' ] },
 		{
 			value: 'all',
-			label: __( 'Display All', 'redirection' ),
+			label: __( 'Display All', 'dsuite-redirects' ),
 			grouping: getDisplayOptions( groupBy ).map( ( item ) => item.value ),
 		},
 	];
@@ -98,55 +98,55 @@ export const getDisplayGroups = ( groupBy?: string ): DisplayGroup[] => {
 export const getDisplayOptions = ( groupBy?: string ): DisplayOption[] => {
 	if ( groupBy === 'url' ) {
 		return [
-			{ value: 'url', label: __( 'URL', 'redirection' ) },
-			{ value: 'count', label: __( 'Count', 'redirection' ) },
+			{ value: 'url', label: __( 'URL', 'dsuite-redirects' ) },
+			{ value: 'count', label: __( 'Count', 'dsuite-redirects' ) },
 		];
 	}
 	if ( groupBy === 'agent' ) {
 		return [
-			{ value: 'agent', label: __( 'User Agent', 'redirection' ) },
-			{ value: 'count', label: __( 'Count', 'redirection' ) },
+			{ value: 'agent', label: __( 'User Agent', 'dsuite-redirects' ) },
+			{ value: 'count', label: __( 'Count', 'dsuite-redirects' ) },
 		];
 	}
 	if ( groupBy === 'ip' ) {
 		return [
-			{ value: 'ip', label: __( 'IP', 'redirection' ) },
-			{ value: 'count', label: __( 'Count', 'redirection' ) },
+			{ value: 'ip', label: __( 'IP', 'dsuite-redirects' ) },
+			{ value: 'count', label: __( 'Count', 'dsuite-redirects' ) },
 		];
 	}
 	return [
-		{ value: 'date', label: __( 'Date', 'redirection' ) },
-		{ value: 'method', label: __( 'Method', 'redirection' ) },
-		{ value: 'domain', label: __( 'Domain', 'redirection' ) },
-		{ value: 'url', label: __( 'URL', 'redirection' ) },
-		{ value: 'redirect_by', label: __( 'Redirect By', 'redirection' ) },
-		{ value: 'code', label: __( 'HTTP code', 'redirection' ) },
-		{ value: 'referrer', label: __( 'Referrer', 'redirection' ) },
-		{ value: 'agent', label: __( 'User Agent', 'redirection' ) },
-		{ value: 'target', label: __( 'Target', 'redirection' ) },
-		{ value: 'ip', label: __( 'IP', 'redirection' ) },
+		{ value: 'date', label: __( 'Date', 'dsuite-redirects' ) },
+		{ value: 'method', label: __( 'Method', 'dsuite-redirects' ) },
+		{ value: 'domain', label: __( 'Domain', 'dsuite-redirects' ) },
+		{ value: 'url', label: __( 'URL', 'dsuite-redirects' ) },
+		{ value: 'redirect_by', label: __( 'Redirect By', 'dsuite-redirects' ) },
+		{ value: 'code', label: __( 'HTTP code', 'dsuite-redirects' ) },
+		{ value: 'referrer', label: __( 'Referrer', 'dsuite-redirects' ) },
+		{ value: 'agent', label: __( 'User Agent', 'dsuite-redirects' ) },
+		{ value: 'target', label: __( 'Target', 'dsuite-redirects' ) },
+		{ value: 'ip', label: __( 'IP', 'dsuite-redirects' ) },
 	];
 };
 
 export const getSearchOptions = (): SearchOption[] => [
-	{ name: 'url', title: __( 'Search URL', 'redirection' ) },
-	{ name: 'url-exact', title: __( 'Search exact URL', 'redirection' ) },
-	{ name: 'referrer', title: __( 'Search referrer', 'redirection' ) },
-	{ name: 'agent', title: __( 'Search user agent', 'redirection' ) },
-	{ name: 'ip', title: __( 'Search IP', 'redirection' ) },
-	{ name: 'target', title: __( 'Search target URL', 'redirection' ) },
-	{ name: 'domain', title: __( 'Search domain', 'redirection' ) },
+	{ name: 'url', title: __( 'Search URL', 'dsuite-redirects' ) },
+	{ name: 'url-exact', title: __( 'Search exact URL', 'dsuite-redirects' ) },
+	{ name: 'referrer', title: __( 'Search referrer', 'dsuite-redirects' ) },
+	{ name: 'agent', title: __( 'Search user agent', 'dsuite-redirects' ) },
+	{ name: 'ip', title: __( 'Search IP', 'dsuite-redirects' ) },
+	{ name: 'target', title: __( 'Search target URL', 'dsuite-redirects' ) },
+	{ name: 'domain', title: __( 'Search domain', 'dsuite-redirects' ) },
 ];
 
 export const getGroupBy = ( ipLogging: number ): GroupByOption[] => {
 	const values: GroupByOption[] = [
-		{ value: '', label: __( 'No grouping', 'redirection' ) },
-		{ value: 'url', label: __( 'Group by URL', 'redirection' ) },
-		{ value: 'agent', label: __( 'Group by user agent', 'redirection' ) },
+		{ value: '', label: __( 'No grouping', 'dsuite-redirects' ) },
+		{ value: 'url', label: __( 'Group by URL', 'dsuite-redirects' ) },
+		{ value: 'agent', label: __( 'Group by user agent', 'dsuite-redirects' ) },
 	];
 
 	if ( ipLogging > 0 ) {
-		values.push( { value: 'ip', label: __( 'Group by IP', 'redirection' ) } );
+		values.push( { value: 'ip', label: __( 'Group by IP', 'dsuite-redirects' ) } );
 	}
 
 	return values;
@@ -154,7 +154,7 @@ export const getGroupBy = ( ipLogging: number ): GroupByOption[] => {
 
 export const getFilterOptions = (): FilterOption[] => [
 	{
-		label: __( 'Method', 'redirection' ),
+		label: __( 'Method', 'dsuite-redirects' ),
 		value: 'method',
 		options: [
 			{ label: 'GET', value: 'get' },
@@ -163,11 +163,11 @@ export const getFilterOptions = (): FilterOption[] => [
 		],
 	},
 	{
-		label: __( 'Redirect By', 'redirection' ),
+		label: __( 'Redirect By', 'dsuite-redirects' ),
 		value: 'redirect_by',
 		options: [
-			{ label: __( 'WordPress', 'redirection' ), value: 'wordpress' },
-			{ label: __( 'Redirection', 'redirection' ), value: 'redirection' },
+			{ label: __( 'WordPress', 'dsuite-redirects' ), value: 'wordpress' },
+			{ label: __( 'Redirection', 'dsuite-redirects' ), value: 'redirection' },
 		],
 	},
 ];

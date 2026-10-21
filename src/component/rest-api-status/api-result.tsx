@@ -59,10 +59,10 @@ const ApiResult = ( { item, result, routes, isCurrent, allowChange }: ApiResultP
 					<input
 						type="submit"
 						className="button button-secondary"
-						value={ __( 'Switch to this API', 'redirection' ) }
+						value={ __( 'Switch to this API', 'dsuite-redirects' ) }
 					/>
 				) }
-				{ allowChange && isCurrent && <span>{ __( 'Current API', 'redirection' ) }</span> }
+				{ allowChange && isCurrent && <span>{ __( 'Current API', 'dsuite-redirects' ) }</span> }
 
 				<input type="hidden" name="rest_api" value={ item.value } />
 				<input type="hidden" name="_wpnonce" value={ apiFetch.nonceMiddleware.nonce } />

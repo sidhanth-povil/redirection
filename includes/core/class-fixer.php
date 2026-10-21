@@ -112,26 +112,26 @@ class Fixer {
 			array_merge(
 				[
 					'id' => 'db',
-					'name' => __( 'Database tables', 'redirection' ),
+					'name' => __( 'Database tables', 'dsuite-redirects' ),
 				],
 				$this->get_database_status( Database::get_latest_database() )
 			),
 			[
-				'name' => __( 'Valid groups', 'redirection' ),
+				'name' => __( 'Valid groups', 'dsuite-redirects' ),
 				'id' => 'groups',
-				'message' => $groups === 0 ? __( 'No valid groups, so you will not be able to create any redirects', 'redirection' ) : __( 'Valid groups detected', 'redirection' ),
+				'message' => $groups === 0 ? __( 'No valid groups, so you will not be able to create any redirects', 'dsuite-redirects' ) : __( 'Valid groups detected', 'dsuite-redirects' ),
 				'status' => $groups === 0 ? 'problem' : 'good',
 			],
 			[
-				'name' => __( 'Valid redirect group', 'redirection' ),
+				'name' => __( 'Valid redirect group', 'dsuite-redirects' ),
 				'id' => 'redirect_groups',
-				'message' => count( $bad_group ) > 0 ? __( 'Redirects with invalid groups detected', 'redirection' ) : __( 'All redirects have a valid group', 'redirection' ),
+				'message' => count( $bad_group ) > 0 ? __( 'Redirects with invalid groups detected', 'dsuite-redirects' ) : __( 'All redirects have a valid group', 'dsuite-redirects' ),
 				'status' => count( $bad_group ) > 0 ? 'problem' : 'good',
 			],
 			[
-				'name' => __( 'Post monitor group', 'redirection' ),
+				'name' => __( 'Post monitor group', 'dsuite-redirects' ),
 				'id' => 'monitor',
-				'message' => $valid_monitor === false ? __( 'Post monitor group is invalid', 'redirection' ) : __( 'Post monitor group is valid', 'redirection' ),
+				'message' => $valid_monitor === false ? __( 'Post monitor group is invalid', 'dsuite-redirects' ) : __( 'Post monitor group is valid', 'dsuite-redirects' ),
 				'status' => $valid_monitor === false ? 'problem' : 'good',
 			],
 			$this->get_http_settings(),
@@ -140,9 +140,9 @@ class Fixer {
 		$regex_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_items WHERE regex=1" );
 		if ( $regex_count > self::REGEX_LIMIT ) {
 			$status[] = [
-				'name' => __( 'Regular Expressions', 'redirection' ),
+				'name' => __( 'Regular Expressions', 'dsuite-redirects' ),
 				'id' => 'regex',
-				'message' => __( 'Too many regular expressions may impact site performance', 'redirection' ),
+				'message' => __( 'Too many regular expressions may impact site performance', 'dsuite-redirects' ),
 				'status' => 'problem',
 			];
 		}
@@ -161,7 +161,7 @@ class Fixer {
 
 		return [
 			'status' => count( $missing ) === 0 ? 'good' : 'error',
-			'message' => count( $missing ) === 0 ? __( 'All tables present', 'redirection' ) : __( 'The following tables are missing:', 'redirection' ) . ' ' . join( ',', $missing ),
+			'message' => count( $missing ) === 0 ? __( 'All tables present', 'dsuite-redirects' ) : __( 'The following tables are missing:', 'dsuite-redirects' ) . ' ' . join( ',', $missing ),
 		];
 	}
 
@@ -174,14 +174,14 @@ class Fixer {
 		$site = wp_parse_url( get_site_url(), PHP_URL_SCHEME );
 		$home = wp_parse_url( get_home_url(), PHP_URL_SCHEME );
 
-		$message = __( 'Site and home are consistent', 'redirection' );
+		$message = __( 'Site and home are consistent', 'dsuite-redirects' );
 		if ( $site !== $home ) {
 			/* translators: 1: Site URL, 2: Home URL */
-			$message = sprintf( __( 'Site and home URL are inconsistent. Please correct from your Settings > General page: %1$1s is not %2$2s', 'redirection' ), get_site_url(), get_home_url() );
+			$message = sprintf( __( 'Site and home URL are inconsistent. Please correct from your Settings > General page: %1$1s is not %2$2s', 'dsuite-redirects' ), get_site_url(), get_home_url() );
 		}
 
 		return [
-			'name' => __( 'Site and home protocol', 'redirection' ),
+			'name' => __( 'Site and home protocol', 'dsuite-redirects' ),
 			'id' => 'redirect_url',
 			'message' => $message,
 			'status' => $site === $home ? 'good' : 'problem',
@@ -241,7 +241,7 @@ class Fixer {
 	 * @return bool|WP_Error
 	 */
 	private function fix_groups() {
-		if ( Group::create( __( 'Redirections', 'redirection' ), 1 ) === false ) {
+		if ( Group::create( __( 'Redirections', 'dsuite-redirects' ), 1 ) === false ) {
 			return new WP_Error( 'redirect_group_create_failed', 'Unable to create group' );
 		}
 
@@ -296,7 +296,7 @@ class Fixer {
 		$groups = Group::get_all();
 
 		if ( count( $groups ) === 0 ) {
-			$group = Group::create( __( 'Redirections', 'redirection' ), 1 );
+			$group = Group::create( __( 'Redirections', 'dsuite-redirects' ), 1 );
 
 			if ( $group !== false ) {
 				return $group->get_id();

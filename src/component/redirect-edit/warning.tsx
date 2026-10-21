@@ -44,7 +44,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	if ( url.includes( '#' ) ) {
 		warnings.push(
 			<ExternalLink url="https://redirection.me/support/faq/#anchor">
-				{ __( 'Anchor values are not sent to the server and cannot be redirected.', 'redirection' ) }
+				{ __( 'Anchor values are not sent to the server and cannot be redirected.', 'dsuite-redirects' ) }
 			</ExternalLink>
 		);
 	}
@@ -60,7 +60,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 							// translators: %(server)s is the domain name
 							__(
 								'This will be converted to a server redirect for the domain {{code}}%(server)s{{/code}}.',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{ server: parsedUrl.hostname }
 						),
@@ -85,7 +85,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	) {
 		warnings.push(
 			createInterpolateElement(
-				__( 'The source URL should probably start with a {{code}}/{{/code}}', 'redirection' ),
+				__( 'The source URL should probably start with a {{code}}/{{/code}}', 'dsuite-redirects' ),
 				{
 					code: <code />,
 				}
@@ -97,7 +97,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	if ( isRegex( url ) && flag_regex === false ) {
 		warnings.push(
 			<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">
-				{ __( 'Remember to enable the "regex" option if this is a regular expression.', 'redirection' ) }
+				{ __( 'Remember to enable the "regex" option if this is a regular expression.', 'dsuite-redirects' ) }
 			</ExternalLink>
 		);
 	}
@@ -108,7 +108,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 			<ExternalLink url="admin.php?page=dsuite-redirects.php&sub=site">
 				{ __(
 					'Please add migrated permalinks to the Site page under the "Permalink Migration" section.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</ExternalLink>
 		);
@@ -123,7 +123,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 					// translators: %(example)s is an example regular expression
 					__(
 						'To prevent a greedy regular expression you can use {{code}}^{{/code}} to anchor it to the start of the URL. For example: {{code}}%(example)s{{/code}}',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{ example: '^' + url }
 				),
@@ -140,7 +140,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 					// translators: %(example)s is an example regular expression with corrected caret position
 					__(
 						'The caret {{code}}^{{/code}} should be at the start. For example: {{code}}%(example)s{{/code}}',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{ example: '^' + url.replace( '^', '' ) }
 				),
@@ -154,7 +154,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	if ( flag_regex && url.match( /[a-zA-Z0-9\/]\?/ ) ) {
 		warnings.push(
 			createInterpolateElement(
-				__( 'To match {{code}}?{{/code}} you need to escape it with {{code}}\\?{{/code}}', 'redirection' ),
+				__( 'To match {{code}}?{{/code}} you need to escape it with {{code}}\\?{{/code}}', 'dsuite-redirects' ),
 				{
 					code: <code />,
 				}
@@ -167,7 +167,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 			createInterpolateElement(
 				__(
 					'Wildcards are not supported. You need to use a {{link}}regular expression{{/link}}.',
-					'redirection'
+					'dsuite-redirects'
 				),
 				{
 					link: <ExternalLink url="https://redirection.me/support/redirect-regular-expressions/" />,
@@ -181,7 +181,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 		warnings.push(
 			__(
 				'If you want to redirect everything please use a site relocation or alias from the Site page.',
-				'redirection'
+				'dsuite-redirects'
 			)
 		);
 	}
@@ -194,7 +194,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 		warnings.push(
 			__(
 				'Your source is the same as a target and this will create a loop. Leave a target blank if you do not want to take action.',
-				'redirection'
+				'dsuite-redirects'
 			)
 		);
 	}
@@ -220,7 +220,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 					// translators: %(url)s is the user's target URL
 					__(
 						'Your target URL should be an absolute URL like {{code}}https://domain.com/%(url)s{{/code}} or start with a slash {{code}}/%(url)s{{/code}}.',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{ url: action_data.url }
 				),
@@ -243,7 +243,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 							// translators: %(invalid)s is an invalid character in the URL
 							__(
 								'Your target URL contains the invalid character {{code}}%(invalid)s{{/code}}',
-								'redirection'
+								'dsuite-redirects'
 							),
 							{ invalid: matches }
 						),
@@ -268,7 +268,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 						// translators: %(relative)s is the relative URL, %(absolute)s is the suggested absolute URL
 						__(
 							'Your URL appears to contain a domain inside the path: {{code}}%(relative)s{{/code}}. Did you mean to use {{code}}%(absolute)s{{/code}} instead?',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{ relative, absolute: 'https://' + relative }
 					),
@@ -286,7 +286,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 			<ExternalLink url="https://redirection.me/support/problems/url-not-redirecting/">
 				{ __(
 					'Some servers may be configured to serve file resources directly, preventing a redirect occurring.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</ExternalLink>
 		);

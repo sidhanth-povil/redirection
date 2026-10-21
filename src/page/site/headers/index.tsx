@@ -5,15 +5,15 @@ import Header from './header';
 
 const getPresets = () => [
 	{
-		label: __( 'Add Header', 'redirection' ),
+		label: __( 'Add Header', 'dsuite-redirects' ),
 		value: 'header',
 	},
 	{
-		label: __( 'Add Security Presets', 'redirection' ),
+		label: __( 'Add Security Presets', 'dsuite-redirects' ),
 		value: 'security',
 	},
 	{
-		label: __( 'Add CORS Presets', 'redirection' ),
+		label: __( 'Add CORS Presets', 'dsuite-redirects' ),
 		value: 'cors',
 	},
 ];
@@ -90,19 +90,19 @@ const HttpHeaders = ( { headers, onChange }: HttpHeadersProps ) => {
 
 	return (
 		<>
-			<h3>{ __( 'HTTP Headers', 'redirection' ) }</h3>
+			<h3>{ __( 'HTTP Headers', 'dsuite-redirects' ) }</h3>
 			<p>
 				{ __(
 					'Site headers are added across your site, including redirects. Redirect headers are only added to redirects.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
 			<table className="wp-list-table widefat fixed striped items redirect-headers table-auto inline-edit-row">
 				<thead>
 					<tr>
-						<th>{ __( 'Location', 'redirection' ) }</th>
-						<th>{ __( 'Header', 'redirection' ) }</th>
+						<th>{ __( 'Location', 'dsuite-redirects' ) }</th>
+						<th>{ __( 'Header', 'dsuite-redirects' ) }</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -119,7 +119,7 @@ const HttpHeaders = ( { headers, onChange }: HttpHeadersProps ) => {
 
 					{ headers.length === 0 && (
 						<tr>
-							<td colSpan={ 3 }>{ __( 'No headers', 'redirection' ) }</td>
+							<td colSpan={ 3 }>{ __( 'No headers', 'dsuite-redirects' ) }</td>
 						</tr>
 					) }
 				</tbody>
@@ -135,7 +135,12 @@ const HttpHeaders = ( { headers, onChange }: HttpHeadersProps ) => {
 				} }
 			/>
 
-			<p>{ __( 'Note that some HTTP headers are set by your server and cannot be changed.', 'redirection' ) }</p>
+			<p>
+				{ __(
+					'Note that some HTTP headers are set by your server and cannot be changed.',
+					'dsuite-redirects'
+				) }
+			</p>
 		</>
 	);
 };

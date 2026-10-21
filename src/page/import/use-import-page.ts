@@ -351,10 +351,10 @@ function useImportPage() {
 		}
 
 		const confirmMessage = isDestructivePluginImport( request )
-			? __( 'This will import the redirects and delete the original data. Are you sure?', 'redirection' )
+			? __( 'This will import the redirects and delete the original data. Are you sure?', 'dsuite-redirects' )
 			: sprintf(
 					// translators: %s is the plugin name
-					__( 'Are you sure you want to import from %s?', 'redirection' ),
+					__( 'Are you sure you want to import from %s?', 'dsuite-redirects' ),
 					pluginName
 			  );
 

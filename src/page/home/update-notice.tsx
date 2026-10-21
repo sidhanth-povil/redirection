@@ -24,7 +24,7 @@ function UpdateNotice() {
 						// translators: %s is the version number
 						__(
 							'Version %s installed! Please read the {{url}}release notes{{/url}} for details.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						update_notice
 					),
@@ -41,7 +41,7 @@ function UpdateNotice() {
 					}
 				) }
 				&nbsp;
-				<Button onClick={ dismiss }>{ __( 'OK', 'redirection' ) }</Button>
+				<Button onClick={ dismiss }>{ __( 'OK', 'dsuite-redirects' ) }</Button>
 			</p>
 		</Notice>
 	);

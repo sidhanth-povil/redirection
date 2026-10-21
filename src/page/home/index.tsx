@@ -36,53 +36,53 @@ interface PageTitles {
 }
 
 const getTitles = (): PageTitles => ( {
-	redirect: __( 'Redirections', 'redirection' ),
-	site: __( 'Site', 'redirection' ),
-	groups: __( 'Groups', 'redirection' ),
-	import: __( 'Import redirects', 'redirection' ),
-	export: __( 'Export redirects', 'redirection' ),
-	log: __( 'Logs', 'redirection' ),
-	'404s': __( '404 errors', 'redirection' ),
-	options: __( 'Options', 'redirection' ),
-	support: __( 'Support', 'redirection' ),
+	redirect: __( 'Redirections', 'dsuite-redirects' ),
+	site: __( 'Site', 'dsuite-redirects' ),
+	groups: __( 'Groups', 'dsuite-redirects' ),
+	import: __( 'Import redirects', 'dsuite-redirects' ),
+	export: __( 'Export redirects', 'dsuite-redirects' ),
+	log: __( 'Logs', 'dsuite-redirects' ),
+	'404s': __( '404 errors', 'dsuite-redirects' ),
+	options: __( 'Options', 'dsuite-redirects' ),
+	support: __( 'Support', 'dsuite-redirects' ),
 } );
 
 const getMenu = (): MenuOption[] =>
 	[
 		{
-			name: __( 'Redirects', 'redirection' ),
+			name: __( 'Redirects', 'dsuite-redirects' ),
 			value: '',
 		},
 		{
-			name: __( 'Groups', 'redirection' ),
+			name: __( 'Groups', 'dsuite-redirects' ),
 			value: 'groups',
 		},
 		{
-			name: __( 'Site', 'redirection' ),
+			name: __( 'Site', 'dsuite-redirects' ),
 			value: 'site',
 		},
 		{
-			name: __( 'Log', 'redirection' ),
+			name: __( 'Log', 'dsuite-redirects' ),
 			value: 'log',
 		},
 		{
-			name: __( '404s', 'redirection' ),
+			name: __( '404s', 'dsuite-redirects' ),
 			value: '404s',
 		},
 		{
-			name: __( 'Import', 'redirection' ),
+			name: __( 'Import', 'dsuite-redirects' ),
 			value: 'import',
 		},
 		{
-			name: __( 'Export', 'redirection' ),
+			name: __( 'Export', 'dsuite-redirects' ),
 			value: 'export',
 		},
 		{
-			name: __( 'Options', 'redirection' ),
+			name: __( 'Options', 'dsuite-redirects' ),
 			value: 'options',
 		},
 		{
-			name: __( 'Support', 'redirection' ),
+			name: __( 'Support', 'dsuite-redirects' ),
 			value: 'support',
 		},
 	].filter(
@@ -198,7 +198,7 @@ export default function Home() {
 								onClick={ () => setRedirectsAddTop( true ) }
 								className="page-title-action"
 							>
-								{ __( 'Add redirect', 'redirection' ) }
+								{ __( 'Add redirect', 'dsuite-redirects' ) }
 							</button>
 						) }
 
@@ -228,7 +228,7 @@ export default function Home() {
 						<Snackbar
 							notices={ notices }
 							onClear={ () => clearNotices() }
-							snackBarViewText={ __( 'View notice', 'redirection' ) }
+							snackBarViewText={ __( 'View notice', 'dsuite-redirects' ) }
 						/>
 					</PageRouter>
 				) }

@@ -28,26 +28,26 @@ function Importer( props: ImporterProps ) {
 	return (
 		<IoCard
 			title={ name }
-			badge={ __( 'Plugin', 'redirection' ) }
+			badge={ __( 'Plugin', 'dsuite-redirects' ) }
 			meta={ [
 				{
-					label: __( 'Import type', 'redirection' ),
+					label: __( 'Import type', 'dsuite-redirects' ),
 					value: description,
 				},
 				{
-					label: __( 'Stored in', 'redirection' ),
+					label: __( 'Stored in', 'dsuite-redirects' ),
 					value: source,
 				},
 			] }
 			stats={ [
 				{
-					label: _n( 'Redirect', 'Redirects', total, 'redirection' ),
+					label: _n( 'Redirect', 'Redirects', total, 'dsuite-redirects' ),
 					value: total,
 				},
 			] }
 			actions={
 				<button type="button" onClick={ clicker } className="button-secondary" disabled={ isImporting }>
-					{ isActive ? __( 'Clear importer', 'redirection' ) : __( 'Use importer', 'redirection' ) }
+					{ isActive ? __( 'Clear importer', 'dsuite-redirects' ) : __( 'Use importer', 'dsuite-redirects' ) }
 				</button>
 			}
 			className={ clsx( 'import-source-card', 'import-source-card--plugin', {

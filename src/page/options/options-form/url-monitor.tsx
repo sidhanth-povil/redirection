@@ -54,7 +54,7 @@ function getPostTypes(
 				<label htmlFor={ 'monitor-type-' + key }>
 					{ sprintf(
 						// translators: %(type)s is the post type name (e.g. post, page)
-						__( 'Monitor changes to %(type)s', 'redirection' ),
+						__( 'Monitor changes to %(type)s', 'dsuite-redirects' ),
 						{ type: label.toLowerCase() }
 					) }
 				</label>
@@ -103,13 +103,13 @@ function UrlMonitoring( props: UrlMonitoringProps ) {
 
 	return (
 		<>
-			<TableRow title={ __( 'URL Monitor', 'redirection' ) + ':' } url={ getLink( 'options', 'monitor' ) }>
+			<TableRow title={ __( 'URL Monitor', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'monitor' ) }>
 				{ getPostTypes( postTypes, monitor_types, onChangeMonitor ) }
 			</TableRow>
 
 			{ canMonitor && (
 				<TableRow
-					title={ __( 'URL Monitor Changes', 'redirection' ) + ':' }
+					title={ __( 'URL Monitor Changes', 'dsuite-redirects' ) + ':' }
 					url={ getLink( 'options', 'monitor' ) }
 				>
 					<Select
@@ -119,18 +119,18 @@ function UrlMonitoring( props: UrlMonitoringProps ) {
 						onChange={ onChange as any }
 					/>
 					&nbsp;
-					{ __( 'Save changes to this group', 'redirection' ) }
+					{ __( 'Save changes to this group', 'dsuite-redirects' ) }
 					<p>
 						<input
 							type="text"
 							className="regular-text"
 							name="associated_redirect"
 							onChange={ onChange as any }
-							placeholder={ __( 'For example "/amp"', 'redirection' ) }
+							placeholder={ __( 'For example "/amp"', 'dsuite-redirects' ) }
 							value={ associated_redirect }
 						/>
 						&nbsp;
-						{ __( 'Create associated redirect (added to end of URL)', 'redirection' ) }
+						{ __( 'Create associated redirect (added to end of URL)', 'dsuite-redirects' ) }
 					</p>
 				</TableRow>
 			) }

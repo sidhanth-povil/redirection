@@ -41,26 +41,26 @@ const updateAlias = (
 const SiteAliases = ( { aliases, siteDomain, onChange }: SiteAliasesProps ) => {
 	return (
 		<Fragment>
-			<h3>{ __( 'Site Aliases', 'redirection' ) }</h3>
+			<h3>{ __( 'Site Aliases', 'dsuite-redirects' ) }</h3>
 
 			<p>
 				{ __(
 					'A site alias is another domain that you want to be redirected to this site. For example, an old domain, or a subdomain. This will redirect all URLs, including WordPress login and admin.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 			<p>
 				{ __(
 					'You will need to configure your system (DNS and server) to pass requests for these domains to this WordPress install.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
 			<table className="wp-list-table widefat fixed striped items redirect-aliases table-auto inline-edit-row">
 				<thead>
 					<tr>
-						<th>{ __( 'Aliased Domain', 'redirection' ) }</th>
-						<th className="redirect-alias__item__asdomain">{ __( 'Alias', 'redirection' ) }</th>
+						<th>{ __( 'Aliased Domain', 'dsuite-redirects' ) }</th>
+						<th className="redirect-alias__item__asdomain">{ __( 'Alias', 'dsuite-redirects' ) }</th>
 						<th className="redirect-alias__delete"></th>
 					</tr>
 				</thead>
@@ -78,7 +78,7 @@ const SiteAliases = ( { aliases, siteDomain, onChange }: SiteAliasesProps ) => {
 					) ) }
 					{ aliases.length === 0 && (
 						<tr>
-							<td colSpan={ 3 }>{ __( 'No aliases', 'redirection' ) }</td>
+							<td colSpan={ 3 }>{ __( 'No aliases', 'dsuite-redirects' ) }</td>
 						</tr>
 					) }
 				</tbody>
@@ -86,7 +86,7 @@ const SiteAliases = ( { aliases, siteDomain, onChange }: SiteAliasesProps ) => {
 
 			<p>
 				<button className="button-secondary" onClick={ ( ev ) => addAlias( aliases, onChange, ev ) }>
-					{ __( 'Add Alias', 'redirection' ) }
+					{ __( 'Add Alias', 'dsuite-redirects' ) }
 				</button>
 			</p>
 		</Fragment>

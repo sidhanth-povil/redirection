@@ -16,7 +16,7 @@ const ActionUrl = ( { onChange, data }: ActionUrlProps ) => {
 	const { url } = data;
 
 	return (
-		<TableRow title={ __( 'Target URL', 'redirection' ) } className="redirect-edit__target">
+		<TableRow title={ __( 'Target URL', 'dsuite-redirects' ) } className="redirect-edit__target">
 			<TargetUrl
 				{ ...( url !== undefined ? { url } : {} ) }
 				onChange={ ( value: string ) => onChange( { target: { name: 'url', value, type: 'input' } } ) }

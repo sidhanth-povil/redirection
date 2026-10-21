@@ -47,7 +47,7 @@ class Agent extends Compare {
 	public $regex = false;
 
 	public function name() {
-		return __( 'URL and user agent', 'redirection' );
+		return __( 'URL and user agent', 'dsuite-redirects' );
 	}
 
 	/**

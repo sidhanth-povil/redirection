@@ -15,19 +15,19 @@ const MatchReferrer = ( { data, onChange }: MatchReferrerProps ) => {
 	const { referrer, regex } = data;
 
 	return (
-		<TableRow title={ __( 'Referrer', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'Referrer', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				className="regular-text"
 				name="referrer"
 				value={ referrer }
 				onChange={ onChange }
-				placeholder={ __( 'Match against this browser referrer text', 'redirection' ) }
+				placeholder={ __( 'Match against this browser referrer text', 'dsuite-redirects' ) }
 			/>
 
 			<input id="redirect-referrer-regex" type="checkbox" name="regex" checked={ regex } onChange={ onChange } />
 			<label className="redirect-edit-regex" htmlFor="redirect-referrer-regex">
-				{ __( 'Regex', 'redirection' ) }{ ' ' }
+				{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
 				<sup>
 					<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">?</ExternalLink>
 				</sup>

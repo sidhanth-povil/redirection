@@ -25,13 +25,13 @@ export default function ManualInstall( { onCancel, onComplete: onCompleteCallbac
 
 	return (
 		<div className="redirection-database">
-			<h1>{ __( 'Manual Install', 'redirection' ) }</h1>
+			<h1>{ __( 'Manual Install', 'dsuite-redirects' ) }</h1>
 			<p>
 				{ __(
 					'If your site needs special database permissions, or you would rather do it yourself, you can manually run the following SQL.',
-					'redirection'
+					'dsuite-redirects'
 				) }{ ' ' }
-				{ __( 'Click "Finished! 🎉" when finished.', 'redirection' ) }
+				{ __( 'Click "Finished! 🎉" when finished.', 'dsuite-redirects' ) }
 			</p>
 			<p>
 				<TextareaAutosize
@@ -43,22 +43,22 @@ export default function ManualInstall( { onCancel, onComplete: onCompleteCallbac
 			</p>
 			{ loadStatus === 'error' && (
 				<div className="redirection-database_error wpl-error">
-					<h3>{ __( 'Database problem', 'redirection' ) }</h3>
+					<h3>{ __( 'Database problem', 'dsuite-redirects' ) }</h3>
 					<p>
 						{ __(
 							'The Redirection database does not appear to exist. Have you run the above SQL?',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</p>
 				</div>
 			) }
 			<button className="button button-primary" onClick={ onComplete } type="button">
-				{ __( 'Finished! 🎉', 'redirection' ) }
+				{ __( 'Finished! 🎉', 'dsuite-redirects' ) }
 			</button>{ ' ' }
 			<button className="button button-secondary" onClick={ onCancel } type="button">
-				{ __( 'Go back', 'redirection' ) }
+				{ __( 'Go back', 'dsuite-redirects' ) }
 			</button>
-			<p>{ __( 'If you do not complete the manual install you will be returned here.', 'redirection' ) }</p>
+			<p>{ __( 'If you do not complete the manual install you will be returned here.', 'dsuite-redirects' ) }</p>
 		</div>
 	);
 }

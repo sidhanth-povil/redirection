@@ -120,7 +120,7 @@ export default function getColumns( row: Error404, rowParams?: RowParams ): Colu
 										rowParams.onFilter?.( { ip } );
 									} }
 								>
-									{ __( 'Filter by IP', 'redirection' ) }
+									{ __( 'Filter by IP', 'dsuite-redirects' ) }
 								</RowAction>,
 							] }
 						/>

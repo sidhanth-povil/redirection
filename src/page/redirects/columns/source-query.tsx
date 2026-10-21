@@ -32,11 +32,11 @@ function SourceQuery( props: SourceQueryProps ) {
 		let name: string;
 
 		if ( source.flag_query === 'ignore' ) {
-			name = __( 'Ignore Query', 'redirection' );
+			name = __( 'Ignore Query', 'dsuite-redirects' );
 		} else if ( source.flag_query === 'pass' ) {
-			name = __( 'Ignore & Pass Query', 'redirection' );
+			name = __( 'Ignore & Pass Query', 'dsuite-redirects' );
 		} else {
-			name = __( 'Exact Query', 'redirection' );
+			name = __( 'Exact Query', 'dsuite-redirects' );
 		}
 
 		return <RedirectFlag name={ name } />;

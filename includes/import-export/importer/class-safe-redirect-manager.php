@@ -141,8 +141,8 @@ class SafeRedirectManager extends Plugin {
 			return array(
 				'id' => 'safe-redirect-manager',
 				'name' => 'Safe Redirect Manager',
-				'description' => __( 'Redirects created by Safe Redirect Manager.', 'redirection' ),
-				'source' => __( 'WordPress posts and post meta', 'redirection' ),
+				'description' => __( 'Redirects created by Safe Redirect Manager.', 'dsuite-redirects' ),
+				'source' => __( 'WordPress posts and post meta', 'dsuite-redirects' ),
 				'total' => intval( $total, 10 ),
 			);
 		}

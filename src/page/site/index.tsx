@@ -92,7 +92,7 @@ export default function Site() {
 					{ createInterpolateElement(
 						__(
 							'Options on this page can cause problems if used incorrectly. You can {{link}}temporarily disable them{{/link}} to make changes.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							link: <ExternalLink url="https://redirection.me/support/disable-redirection/" />,
@@ -121,7 +121,7 @@ export default function Site() {
 				className="button-primary"
 				type="submit"
 				name="update"
-				value={ __( 'Update', 'redirection' ) }
+				value={ __( 'Update', 'dsuite-redirects' ) }
 				disabled={ saveStatus }
 			/>
 		</form>

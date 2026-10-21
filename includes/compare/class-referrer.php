@@ -47,7 +47,7 @@ class Referrer extends Compare {
 	public $regex = false;
 
 	public function name() {
-		return __( 'URL and referrer', 'redirection' );
+		return __( 'URL and referrer', 'dsuite-redirects' );
 	}
 
 	/**

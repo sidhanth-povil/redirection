@@ -15,24 +15,24 @@ const ActionLogin = ( { onChange, data }: ActionLoginProps ) => {
 
 	return (
 		<>
-			<TableRow title={ __( 'Logged In', 'redirection' ) } className="redirect-edit__target__matched">
+			<TableRow title={ __( 'Logged In', 'dsuite-redirects' ) } className="redirect-edit__target__matched">
 				<input
 					type="text"
 					className="regular-text"
 					name="logged_in"
 					value={ logged_in }
 					onChange={ onChange }
-					placeholder={ __( 'Target URL when matched (empty to ignore)', 'redirection' ) }
+					placeholder={ __( 'Target URL when matched (empty to ignore)', 'dsuite-redirects' ) }
 				/>
 			</TableRow>
-			<TableRow title={ __( 'Logged Out', 'redirection' ) } className="redirect-edit__target__unmatched">
+			<TableRow title={ __( 'Logged Out', 'dsuite-redirects' ) } className="redirect-edit__target__unmatched">
 				<input
 					type="text"
 					className="regular-text"
 					name="logged_out"
 					value={ logged_out }
 					onChange={ onChange }
-					placeholder={ __( 'Target URL when not matched (empty to ignore)', 'redirection' ) }
+					placeholder={ __( 'Target URL when not matched (empty to ignore)', 'dsuite-redirects' ) }
 				/>
 			</TableRow>
 		</>

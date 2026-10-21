@@ -77,7 +77,7 @@ function Debug( props: DebugProps ) {
 		<table className="plugin-status">
 			<tbody>
 				<tr>
-					<th>{ __( 'Database version', 'redirection' ) }</th>
+					<th>{ __( 'Database version', 'dsuite-redirects' ) }</th>
 					<td>
 						<Select
 							items={ getVersions() }
@@ -88,17 +88,17 @@ function Debug( props: DebugProps ) {
 						&nbsp;
 						{ version !== database.current && (
 							<>
-								<strong>{ __( 'Do not change unless advised to do so!', 'redirection' ) }</strong>{ ' ' }
+								<strong>{ __( 'Do not change unless advised to do so!', 'dsuite-redirects' ) }</strong>{ ' ' }
 								&nbsp;
 								<button className="button-secondary button" onClick={ handleSave }>
-									{ __( 'Save', 'redirection' ) }
+									{ __( 'Save', 'dsuite-redirects' ) }
 								</button>
 							</>
 						) }
 					</td>
 				</tr>
 				<tr>
-					<th>{ __( 'IP Headers', 'redirection' ) }</th>
+					<th>{ __( 'IP Headers', 'dsuite-redirects' ) }</th>
 					<td>
 						{ Object.keys( ip_header )
 							.filter( ( key ) => ip_header[ key ] )

@@ -16,14 +16,14 @@ const MatchCookie = ( { data, onChange }: MatchCookieProps ) => {
 	const { name, value, regex } = data;
 
 	return (
-		<TableRow title={ __( 'Cookie', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'Cookie', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				name="name"
 				value={ name }
 				onChange={ onChange }
 				className="regular-text"
-				placeholder={ __( 'Cookie name', 'redirection' ) }
+				placeholder={ __( 'Cookie name', 'dsuite-redirects' ) }
 			/>
 			<input
 				type="text"
@@ -31,12 +31,12 @@ const MatchCookie = ( { data, onChange }: MatchCookieProps ) => {
 				value={ value }
 				onChange={ onChange }
 				className="regular-text"
-				placeholder={ __( 'Cookie value', 'redirection' ) }
+				placeholder={ __( 'Cookie value', 'dsuite-redirects' ) }
 			/>
 
 			<input id="redirect-cookie-regex" type="checkbox" name="regex" checked={ regex } onChange={ onChange } />
 			<label className="redirect-edit-regex" htmlFor="redirect-cookie-regex">
-				{ __( 'Regex', 'redirection' ) }{ ' ' }
+				{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
 				<sup>
 					<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">?</ExternalLink>
 				</sup>

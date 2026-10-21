@@ -92,8 +92,8 @@ class Eps301Redirects extends Plugin {
 			return array(
 				'id' => 'eps-301-redirects',
 				'name' => '301 Redirects',
-				'description' => __( 'Redirects stored by 301 Redirects.', 'redirection' ),
-				'source' => __( 'Database tables', 'redirection' ),
+				'description' => __( 'Redirects stored by 301 Redirects.', 'dsuite-redirects' ),
+				'source' => __( 'Database tables', 'dsuite-redirects' ),
 				'total' => intval( $total, 10 ),
 			);
 		}

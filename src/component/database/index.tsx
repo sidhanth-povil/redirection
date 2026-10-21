@@ -25,10 +25,10 @@ interface DatabaseProps {
 
 function getTitle( status: DatabaseStatus ): string {
 	if ( status === 'need-update' ) {
-		return __( 'Upgrading Redirection', 'redirection' );
+		return __( 'Upgrading Redirection', 'dsuite-redirects' );
 	}
 
-	return __( 'Setting up Redirection', 'redirection' );
+	return __( 'Setting up Redirection', 'dsuite-redirects' );
 }
 
 function hasWork( status: DatabaseStatus, result: DatabaseResult ): boolean {
@@ -95,7 +95,7 @@ export default function Database( { children }: DatabaseProps ) {
 					result: 'error',
 					reason: __(
 						'The process made no progress for a while and may be stuck. You can retry, skip this stage, or stop the process.',
-						'redirection'
+						'dsuite-redirects'
 					),
 				} );
 				return;
@@ -125,19 +125,19 @@ export default function Database( { children }: DatabaseProps ) {
 	return (
 		<div className="redirection-database">
 			<PreventLeaveWarning
-				message={ __( 'Leaving before the process has completed may cause problems.', 'redirection' ) }
+				message={ __( 'Leaving before the process has completed may cause problems.', 'dsuite-redirects' ) }
 				prevent={ result !== 'error' && result !== 'failed' && ! hasFinished( status ) }
 			/>
 
 			<h1>{ getTitle( status ) }</h1>
 
-			<p>{ __( 'Please remain on this page until complete.', 'redirection' ) }</p>
+			<p>{ __( 'Please remain on this page until complete.', 'dsuite-redirects' ) }</p>
 
 			<div className="redirection-database_progress">
 				<h3>
 					{
 						// translators: %(complete)d is percentage complete as a number
-						sprintf( __( 'Progress: %(complete)d%%', 'redirection' ), { complete } )
+						sprintf( __( 'Progress: %(complete)d%%', 'dsuite-redirects' ), { complete } )
 					}
 				</h3>
 				<Line percent={ complete } strokeWidth={ 4 } trailWidth={ 4 } strokeLinecap="square" />

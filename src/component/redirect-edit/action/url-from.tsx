@@ -15,24 +15,27 @@ const ActionUrlFrom = ( { onChange, data }: ActionUrlFromProps ) => {
 
 	return (
 		<>
-			<TableRow title={ __( 'Matched Target', 'redirection' ) } className="redirect-edit__target__matched">
+			<TableRow title={ __( 'Matched Target', 'dsuite-redirects' ) } className="redirect-edit__target__matched">
 				<input
 					type="text"
 					className="regular-text"
 					name="url_from"
 					value={ url_from }
 					onChange={ onChange }
-					placeholder={ __( 'Target URL when matched (empty to ignore)', 'redirection' ) }
+					placeholder={ __( 'Target URL when matched (empty to ignore)', 'dsuite-redirects' ) }
 				/>
 			</TableRow>
-			<TableRow title={ __( 'Unmatched Target', 'redirection' ) } className="redirect-edit__target__unmatched">
+			<TableRow
+				title={ __( 'Unmatched Target', 'dsuite-redirects' ) }
+				className="redirect-edit__target__unmatched"
+			>
 				<input
 					type="text"
 					className="regular-text"
 					name="url_notfrom"
 					value={ url_notfrom }
 					onChange={ onChange }
-					placeholder={ __( 'Target URL when not matched (empty to ignore)', 'redirection' ) }
+					placeholder={ __( 'Target URL when not matched (empty to ignore)', 'dsuite-redirects' ) }
 				/>
 			</TableRow>
 		</>

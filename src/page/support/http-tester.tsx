@@ -20,32 +20,32 @@ function HttpTester() {
 
 	return (
 		<form className="http-tester" onSubmit={ submit }>
-			<h3>{ __( 'Redirect Tester', 'redirection' ) }</h3>
+			<h3>{ __( 'Redirect Tester', 'dsuite-redirects' ) }</h3>
 
 			<p>
 				{ createInterpolateElement(
 					__(
 						"Sometimes your browser can cache a URL, making it hard to know if it's working as expected. Use this service from {{link}}redirect.li{{/link}} to get accurate results.",
-						'redirection'
+						'dsuite-redirects'
 					),
 					{ link: <ExternalLink url="https://redirect.li" /> }
 				) }
 			</p>
 			<div className="redirection-httptest__input">
-				<span>{ __( 'URL', 'redirection' ) }:</span>
+				<span>{ __( 'URL', 'dsuite-redirects' ) }:</span>
 
 				<input
 					className="regular-text"
 					type="text"
 					value={ url }
 					onChange={ ( ev ) => setUrl( ev.target.value ) }
-					placeholder={ __( 'Enter full URL, including http:// or https://', 'redirection' ) }
+					placeholder={ __( 'Enter full URL, including http:// or https://', 'dsuite-redirects' ) }
 				/>
 				<input
 					type="submit"
 					className="button-secondary"
 					disabled={ url.length === 0 }
-					value={ __( 'Check', 'redirection' ) }
+					value={ __( 'Check', 'dsuite-redirects' ) }
 				/>
 			</div>
 

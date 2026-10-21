@@ -81,7 +81,7 @@ class Permalinks {
 					// Get real URL from the post ID
 					$url = get_permalink( $query->posts[0]->ID );
 					if ( $url !== false ) {
-						wp_safe_redirect( $url, 301, 'redirection' );
+						wp_safe_redirect( $url, 301, 'dsuite-redirects' );
 						die();
 					}
 				}

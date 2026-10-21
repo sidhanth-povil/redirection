@@ -16,6 +16,6 @@ class Nothing extends Action {
 	}
 
 	public function name() {
-		return __( 'Do nothing (ignore)', 'redirection' );
+		return __( 'Do nothing (ignore)', 'dsuite-redirects' );
 	}
 }

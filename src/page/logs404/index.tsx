@@ -109,7 +109,7 @@ function Logs404() {
 	}
 
 	function handleDelete( id: number | string ) {
-		if ( ! window.confirm( __( 'Are you sure you want to delete this item?', 'redirection' ) ) ) {
+		if ( ! window.confirm( __( 'Are you sure you want to delete this item?', 'dsuite-redirects' ) ) ) {
 			return;
 		}
 
@@ -151,8 +151,8 @@ function Logs404() {
 
 		if ( action === 'delete' ) {
 			const message = table.selectAll
-				? __( 'Are you sure you want to delete all items?', 'redirection' )
-				: __( 'Are you sure you want to delete the selected items?', 'redirection' );
+				? __( 'Are you sure you want to delete all items?', 'dsuite-redirects' )
+				: __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' );
 
 			if ( ! window.confirm( message ) ) {
 				return;

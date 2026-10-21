@@ -52,8 +52,8 @@ class Simple301 extends Plugin {
 			return array(
 				'id' => 'wp-simple-redirect',
 				'name' => 'Simple 301 Redirects',
-				'description' => __( 'Redirects created by Simple 301 Redirects.', 'redirection' ),
-				'source' => __( 'Plugin settings', 'redirection' ),
+				'description' => __( 'Redirects created by Simple 301 Redirects.', 'dsuite-redirects' ),
+				'source' => __( 'Plugin settings', 'dsuite-redirects' ),
 				'total' => count( $data ),
 			);
 		}

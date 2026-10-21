@@ -18,7 +18,7 @@ function UseragentAction( props: UseragentActionProps ) {
 				href={ 'https://redirect.li/agent/?agent=' + encodeURIComponent( agent ) }
 				onClick={ () => setShowModal( true ) }
 			>
-				{ __( 'Agent Info', 'redirection' ) }
+				{ __( 'Agent Info', 'dsuite-redirects' ) }
 			</RowAction>
 
 			{ showModal && (

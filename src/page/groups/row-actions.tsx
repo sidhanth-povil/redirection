@@ -36,7 +36,7 @@ function GroupRowActions( props: GroupRowActionsProps ) {
 	if ( has_capability( CAP_GROUP_ADD ) ) {
 		menu.push(
 			<RowAction onClick={ () => setRowMode( rowMode === 'edit' ? false : 'edit' ) } key="0">
-				{ __( 'Edit', 'redirection' ) }
+				{ __( 'Edit', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}
@@ -45,13 +45,13 @@ function GroupRowActions( props: GroupRowActionsProps ) {
 		menu.push(
 			<RowAction
 				onClick={ () => {
-					if ( window.confirm( __( 'Are you sure you want to delete this item?', 'redirection' ) ) ) {
+					if ( window.confirm( __( 'Are you sure you want to delete this item?', 'dsuite-redirects' ) ) ) {
 						performBulkAction( { action: 'delete', items: [ id ] } );
 					}
 				} }
 				key="1"
 			>
-				{ __( 'Delete', 'redirection' ) }
+				{ __( 'Delete', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}
@@ -62,7 +62,7 @@ function GroupRowActions( props: GroupRowActionsProps ) {
 				key="2"
 				href={ Redirectioni10n.pluginRoot + '&' + encodeURIComponent( 'filterby[group]' ) + '=' + id }
 			>
-				{ __( 'View Redirects', 'redirection' ) }
+				{ __( 'View Redirects', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}
@@ -71,13 +71,13 @@ function GroupRowActions( props: GroupRowActionsProps ) {
 		if ( enabled ) {
 			menu.push(
 				<RowAction key="3" onClick={ () => performBulkAction( { action: 'disable', items: [ id ] } ) }>
-					{ __( 'Disable', 'redirection' ) }
+					{ __( 'Disable', 'dsuite-redirects' ) }
 				</RowAction>
 			);
 		} else {
 			menu.push(
 				<RowAction key="3" onClick={ () => performBulkAction( { action: 'enable', items: [ id ] } ) }>
-					{ __( 'Enable', 'redirection' ) }
+					{ __( 'Enable', 'dsuite-redirects' ) }
 				</RowAction>
 			);
 		}

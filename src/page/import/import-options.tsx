@@ -46,7 +46,7 @@ function ImportOptions( {
 	const isFileImport = activeImportType === 'file' || activeImportType === 'paste';
 	const groupItems =
 		isFileImport && file && isJsonFile( file )
-			? [ { value: '0', label: __( 'Use groups in file', 'redirection' ) }, ...items ]
+			? [ { value: '0', label: __( 'Use groups in file', 'dsuite-redirects' ) }, ...items ]
 			: items;
 	const jsonSections =
 		isFileImport && fileInfo?.format === 'json' && fileInfo.valid && fileInfo.contents ? fileInfo.contents : null;
@@ -61,11 +61,11 @@ function ImportOptions( {
 
 	return (
 		<fieldset className="groups inline-edit-row" disabled={ disabled }>
-			<h3>{ __( 'Import options', 'redirection' ) }</h3>
-			{ ! hasOptions && <p>{ __( 'Select an import source to see available options.', 'redirection' ) }</p> }
+			<h3>{ __( 'Import options', 'dsuite-redirects' ) }</h3>
+			{ ! hasOptions && <p>{ __( 'Select an import source to see available options.', 'dsuite-redirects' ) }</p> }
 			{ jsonSections && (
 				<div className="groups__row">
-					<div className="groups__label">{ __( 'Contents', 'redirection' ) }</div>
+					<div className="groups__label">{ __( 'Contents', 'dsuite-redirects' ) }</div>
 					<div className="groups__control groups__control--stacked">
 						{ Object.entries( jsonSections ).map( ( [ section, total ] ) => (
 							<label
@@ -82,11 +82,11 @@ function ImportOptions( {
 									disabled={ disabled }
 								/>{ ' ' }
 								<span>
-									{ section === 'settings' && __( 'Settings', 'redirection' ) }
-									{ section === 'groups' && __( 'Groups', 'redirection' ) }
-									{ section === 'redirects' && __( 'Redirects', 'redirection' ) }
-									{ section === 'logs' && __( 'Redirect logs', 'redirection' ) }
-									{ section === 'errors_404' && __( '404 logs', 'redirection' ) } ({ total })
+									{ section === 'settings' && __( 'Settings', 'dsuite-redirects' ) }
+									{ section === 'groups' && __( 'Groups', 'dsuite-redirects' ) }
+									{ section === 'redirects' && __( 'Redirects', 'dsuite-redirects' ) }
+									{ section === 'logs' && __( 'Redirect logs', 'dsuite-redirects' ) }
+									{ section === 'errors_404' && __( '404 logs', 'dsuite-redirects' ) } ({ total })
 								</span>
 							</label>
 						) ) }
@@ -96,7 +96,7 @@ function ImportOptions( {
 			{ hasRedirectSection && (
 				<>
 					<div className="groups__row">
-						<div className="groups__label">{ __( 'Group', 'redirection' ) }</div>
+						<div className="groups__label">{ __( 'Group', 'dsuite-redirects' ) }</div>
 						<div className="groups__control">
 							<Select
 								items={ groupItems as any }
@@ -108,13 +108,13 @@ function ImportOptions( {
 						</div>
 					</div>
 					<div className="groups__row">
-						<div className="groups__label">{ __( 'Duplicates', 'redirection' ) }</div>
+						<div className="groups__label">{ __( 'Duplicates', 'dsuite-redirects' ) }</div>
 						<div className="groups__control">
 							<Select
 								items={ [
-									{ value: 'import', label: __( 'Do not check duplicates', 'redirection' ) },
-									{ value: 'ignore', label: __( 'Ignore duplicates', 'redirection' ) },
-									{ value: 'update', label: __( 'Update duplicates', 'redirection' ) },
+									{ value: 'import', label: __( 'Do not check duplicates', 'dsuite-redirects' ) },
+									{ value: 'ignore', label: __( 'Ignore duplicates', 'dsuite-redirects' ) },
+									{ value: 'update', label: __( 'Update duplicates', 'dsuite-redirects' ) },
 								] }
 								name="duplicate_mode"
 								value={ duplicateMode }
@@ -127,7 +127,7 @@ function ImportOptions( {
 			) }
 			{ showDeleteSource && (
 				<div className="groups__row">
-					<div className="groups__label">{ __( 'Delete original data', 'redirection' ) }</div>
+					<div className="groups__label">{ __( 'Delete original data', 'dsuite-redirects' ) }</div>
 					<div className="groups__control">
 						<label className="groups__checkbox" htmlFor="delete_source">
 							<input
@@ -138,7 +138,7 @@ function ImportOptions( {
 								onChange={ onChange }
 								disabled={ disabled }
 							/>{ ' ' }
-							<span>{ __( 'Remove the original redirect data after import', 'redirection' ) }</span>
+							<span>{ __( 'Remove the original redirect data after import', 'dsuite-redirects' ) }</span>
 						</label>
 					</div>
 				</div>

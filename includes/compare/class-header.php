@@ -60,7 +60,7 @@ class Header extends Compare {
 	 * @return string
 	 */
 	public function name() {
-		return __( 'URL and HTTP header', 'redirection' );
+		return __( 'URL and HTTP header', 'dsuite-redirects' );
 	}
 
 	/**

@@ -29,25 +29,27 @@ function formatNumber( value: number ) {
 
 function ExportSummaryCard( { meta, isPreviewLoading, previewTotal, previewEstimatedSize }: ExportSummaryCardProps ) {
 	const stats: CardStatItem[] = [];
-	let badge: ReactNode = __( 'Preview', 'redirection' );
+	let badge: ReactNode = __( 'Preview', 'dsuite-redirects' );
 
 	if ( isPreviewLoading ) {
-		badge = __( 'Loading', 'redirection' );
+		badge = __( 'Loading', 'dsuite-redirects' );
 	} else if ( previewTotal !== null ) {
 		stats.push( {
-			label: _n( 'Item available', 'Items available', previewTotal, 'redirection' ),
+			label: _n( 'Item available', 'Items available', previewTotal, 'dsuite-redirects' ),
 			value: formatNumber( previewTotal ),
 		} );
 
 		if ( previewEstimatedSize !== null ) {
 			stats.push( {
-				label: __( 'Approximate file size', 'redirection' ),
+				label: __( 'Approximate file size', 'dsuite-redirects' ),
 				value: formatFileSize( previewEstimatedSize ),
 			} );
 		}
 	}
 
-	return <IoCard title={ __( 'Export preview', 'redirection' ) } badge={ badge } meta={ meta } stats={ stats } />;
+	return (
+		<IoCard title={ __( 'Export preview', 'dsuite-redirects' ) } badge={ badge } meta={ meta } stats={ stats } />
+	);
 }
 
 export default ExportSummaryCard;

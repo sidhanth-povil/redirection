@@ -31,7 +31,7 @@ function BulkActions( props: BulkActionsProps ) {
 				disabled={ disabled }
 				onChange={ ( ev ) => setAction( ev.target.value ) }
 			>
-				<option value="-1">{ __( 'Bulk Actions', 'redirection' ) }</option>
+				<option value="-1">{ __( 'Bulk Actions', 'dsuite-redirects' ) }</option>
 
 				{ bulk.map( ( item ) => (
 					<option key={ item.id } value={ item.id }>
@@ -46,7 +46,7 @@ function BulkActions( props: BulkActionsProps ) {
 				disabled={ disabled || parseInt( action, 10 ) === -1 }
 				onClick={ doAction }
 			>
-				{ __( 'Apply', 'redirection' ) }
+				{ __( 'Apply', 'dsuite-redirects' ) }
 			</button>
 		</div>
 	);

@@ -33,26 +33,26 @@ function MatchAgent( { onChange, data }: MatchAgentProps ) {
 	};
 
 	return (
-		<TableRow title={ __( 'User Agent', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'User Agent', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				name="agent"
 				value={ agent }
 				onChange={ onChange }
 				className="regular-text"
-				placeholder={ __( 'Match against this browser user agent', 'redirection' ) }
+				placeholder={ __( 'Match against this browser user agent', 'dsuite-redirects' ) }
 			/>
 
 			<select name="agent_dropdown" onChange={ onDropdown } value={ dropdown } className="medium">
-				<option value="">{ __( 'Custom', 'redirection' ) }</option>
-				<option value="mobile">{ __( 'Mobile', 'redirection' ) }</option>
-				<option value="feed">{ __( 'Feed Readers', 'redirection' ) } </option>
-				<option value="lib">{ __( 'Libraries', 'redirection' ) }</option>
+				<option value="">{ __( 'Custom', 'dsuite-redirects' ) }</option>
+				<option value="mobile">{ __( 'Mobile', 'dsuite-redirects' ) }</option>
+				<option value="feed">{ __( 'Feed Readers', 'dsuite-redirects' ) } </option>
+				<option value="lib">{ __( 'Libraries', 'dsuite-redirects' ) }</option>
 			</select>
 
 			<input id="redirect-agent-regex" type="checkbox" name="regex" checked={ regex } onChange={ onChange } />
 			<label className="redirect-edit-regex" htmlFor="redirect-agent-regex">
-				{ __( 'Regex', 'redirection' ) }{ ' ' }
+				{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
 				<sup>
 					<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">?</ExternalLink>
 				</sup>

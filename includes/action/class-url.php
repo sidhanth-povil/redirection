@@ -15,7 +15,7 @@ class Url extends Action {
 	protected function redirect_to( $target ) {
 		// This is a known redirect, possibly external
 		// phpcs:ignore
-		$redirect = wp_redirect( $target, $this->get_code(), 'redirection' );
+		$redirect = wp_redirect( $target, $this->get_code(), 'dsuite-redirects' );
 
 		if ( $redirect ) {
 			global $wp_version;
@@ -51,6 +51,6 @@ class Url extends Action {
 	}
 
 	public function name() {
-		return __( 'Redirect to URL', 'redirection' );
+		return __( 'Redirect to URL', 'dsuite-redirects' );
 	}
 }

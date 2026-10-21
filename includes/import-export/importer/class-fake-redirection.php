@@ -98,8 +98,8 @@ class FakeRedirection extends Plugin {
 			return array(
 				'id' => 'fake-redirection',
 				'name' => 'Fake Redirection',
-				'description' => __( 'Redirects stored by Redirect Redirection.', 'redirection' ),
-				'source' => __( 'Database tables', 'redirection' ),
+				'description' => __( 'Redirects stored by Redirect Redirection.', 'dsuite-redirects' ),
+				'source' => __( 'Database tables', 'dsuite-redirects' ),
 				'total' => intval( $total, 10 ),
 			);
 		}

@@ -28,16 +28,16 @@ const RelocateSite = ( { relocate, siteDomain, onChange }: RelocateSiteProps ) =
 
 	return (
 		<Fragment>
-			<h3>{ __( 'Relocate Site', 'redirection' ) }</h3>
+			<h3>{ __( 'Relocate Site', 'dsuite-redirects' ) }</h3>
 			<p>
 				{ __(
 					'Want to redirect the entire site? Enter a domain to redirect everything, except WordPress login and admin. Enabling this option will disable any site aliases or canonical settings.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
 			<p>
-				<strong>{ __( 'Relocate to domain', 'redirection' ) }:</strong>{ ' ' }
+				<strong>{ __( 'Relocate to domain', 'dsuite-redirects' ) }:</strong>{ ' ' }
 				<input
 					type="text"
 					className="regular-text"

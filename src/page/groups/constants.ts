@@ -35,47 +35,47 @@ interface SearchOption {
 }
 
 export const getDisplayOptions = (): DisplayOption[] => [
-	{ value: 'name', label: __( 'Name', 'redirection' ) },
-	{ value: 'module', label: __( 'Module', 'redirection' ) },
-	{ value: 'status', label: __( 'Status', 'redirection' ) },
-	{ value: 'redirects', label: __( 'Redirects', 'redirection' ) },
+	{ value: 'name', label: __( 'Name', 'dsuite-redirects' ) },
+	{ value: 'module', label: __( 'Module', 'dsuite-redirects' ) },
+	{ value: 'status', label: __( 'Status', 'dsuite-redirects' ) },
+	{ value: 'redirects', label: __( 'Redirects', 'dsuite-redirects' ) },
 ];
 
 export const getDisplayGroups = (): DisplayGroup[] => [
 	{
 		value: 'standard',
-		label: __( 'Standard Display', 'redirection' ),
+		label: __( 'Standard Display', 'dsuite-redirects' ),
 		grouping: [ 'name', 'module', 'redirects' ],
 	},
 	{
 		value: 'minimal',
-		label: __( 'Compact Display', 'redirection' ),
+		label: __( 'Compact Display', 'dsuite-redirects' ),
 		grouping: [ 'name' ],
 	},
 	{
 		value: 'all',
-		label: __( 'Display All', 'redirection' ),
+		label: __( 'Display All', 'dsuite-redirects' ),
 		grouping: getDisplayOptions().map( ( item ) => item.value ),
 	},
 ];
 
 export const getFilterOptions = ( options: Array< { label: string; value: string } > ): FilterOption[] => [
 	{
-		label: __( 'Status', 'redirection' ),
+		label: __( 'Status', 'dsuite-redirects' ),
 		value: 'status',
 		options: [
 			{
-				label: __( 'Enabled', 'redirection' ),
+				label: __( 'Enabled', 'dsuite-redirects' ),
 				value: 'enabled',
 			},
 			{
-				label: __( 'Disabled', 'redirection' ),
+				label: __( 'Disabled', 'dsuite-redirects' ),
 				value: 'disabled',
 			},
 		],
 	},
 	{
-		label: __( 'Module', 'redirection' ),
+		label: __( 'Module', 'dsuite-redirects' ),
 		value: 'module',
 		options,
 	},
@@ -84,22 +84,22 @@ export const getFilterOptions = ( options: Array< { label: string; value: string
 export const getHeaders = (): Header[] => [
 	{
 		name: 'status',
-		title: __( 'Status', 'redirection' ),
+		title: __( 'Status', 'dsuite-redirects' ),
 		sortable: false,
 	},
 	{
 		name: 'name',
-		title: __( 'Name', 'redirection' ),
+		title: __( 'Name', 'dsuite-redirects' ),
 		primary: true,
 	},
 	{
 		name: 'redirects',
-		title: __( 'Redirects', 'redirection' ),
+		title: __( 'Redirects', 'dsuite-redirects' ),
 		sortable: false,
 	},
 	{
 		name: 'module',
-		title: __( 'Module', 'redirection' ),
+		title: __( 'Module', 'dsuite-redirects' ),
 		sortable: false,
 	},
 ];
@@ -107,29 +107,29 @@ export const getHeaders = (): Header[] => [
 export const getBulk = (): BulkOption[] => [
 	{
 		id: 'delete',
-		name: __( 'Delete', 'redirection' ),
+		name: __( 'Delete', 'dsuite-redirects' ),
 	},
 	{
 		id: 'enable',
-		name: __( 'Enable', 'redirection' ),
+		name: __( 'Enable', 'dsuite-redirects' ),
 	},
 	{
 		id: 'disable',
-		name: __( 'Disable', 'redirection' ),
+		name: __( 'Disable', 'dsuite-redirects' ),
 	},
 	{
 		id: 'export-csv',
-		name: __( 'Export as CSV', 'redirection' ),
+		name: __( 'Export as CSV', 'dsuite-redirects' ),
 	},
 	{
 		id: 'export-json',
-		name: __( 'Export as JSON', 'redirection' ),
+		name: __( 'Export as JSON', 'dsuite-redirects' ),
 	},
 ];
 
 export const getSearchOptions = (): SearchOption[] => [
 	{
 		name: 'name',
-		title: __( 'Search', 'redirection' ),
+		title: __( 'Search', 'dsuite-redirects' ),
 	},
 ];

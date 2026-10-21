@@ -13,11 +13,11 @@ const arrayToSelect = ( array: string[] ) => array.map( ( header: string ) => ( 
 
 const getLocations = () => [
 	{
-		label: __( 'Site', 'redirection' ),
+		label: __( 'Site', 'dsuite-redirects' ),
 		value: 'site',
 	},
 	{
-		label: __( 'Redirect', 'redirection' ),
+		label: __( 'Redirect', 'dsuite-redirects' ),
 		value: 'redirect',
 	},
 ];
@@ -210,7 +210,7 @@ const getHeaderComponent = (
 const getHeaders = () => {
 	return [
 		{
-			label: __( 'General', 'redirection' ),
+			label: __( 'General', 'dsuite-redirects' ),
 			value: arrayToSelect( [ 'X-UA-Compatible', 'X-Robots-Tag' ] ),
 		},
 		{
@@ -241,7 +241,7 @@ const getHeaders = () => {
 			] ),
 		},
 		{
-			label: __( 'Custom Header', 'redirection' ),
+			label: __( 'Custom Header', 'dsuite-redirects' ),
 			value: 'Custom',
 		},
 	];

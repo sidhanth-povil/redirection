@@ -15,7 +15,7 @@ function ExportOptions( { selectedTypes, format, availableFormats, disabled, onC
 
 	return (
 		<div className="groups export-options">
-			<h3>{ __( 'Export options', 'redirection' ) }</h3>
+			<h3>{ __( 'Export options', 'dsuite-redirects' ) }</h3>
 
 			{ hasSelectedTypes && (
 				<ExportFormatSelector
@@ -28,8 +28,8 @@ function ExportOptions( { selectedTypes, format, availableFormats, disabled, onC
 
 			{ ! hasSelectedTypes && (
 				<div className="export-options__field">
-					<span className="export-options__label">{ __( 'Format', 'redirection' ) }</span>
-					{ __( 'Select one or more export types to choose a format.', 'redirection' ) }
+					<span className="export-options__label">{ __( 'Format', 'dsuite-redirects' ) }</span>
+					{ __( 'Select one or more export types to choose a format.', 'dsuite-redirects' ) }
 				</div>
 			) }
 		</div>

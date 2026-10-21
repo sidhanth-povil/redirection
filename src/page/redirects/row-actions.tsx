@@ -41,7 +41,7 @@ function RedirectRowActions( props: RedirectRowActionsProps ) {
 	if ( has_capability( CAP_REDIRECT_ADD ) ) {
 		menu.push(
 			<RowAction key="1" onClick={ () => setRowMode( 'edit' ) }>
-				{ __( 'Edit', 'redirection' ) }
+				{ __( 'Edit', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}
@@ -51,12 +51,12 @@ function RedirectRowActions( props: RedirectRowActionsProps ) {
 			<RowAction
 				key="2"
 				onClick={ () => {
-					if ( window.confirm( __( 'Are you sure you want to delete this item?', 'redirection' ) ) ) {
+					if ( window.confirm( __( 'Are you sure you want to delete this item?', 'dsuite-redirects' ) ) ) {
 						deleteRedirect( { items: [ id ] } );
 					}
 				} }
 			>
-				{ __( 'Delete', 'redirection' ) }
+				{ __( 'Delete', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}
@@ -65,13 +65,13 @@ function RedirectRowActions( props: RedirectRowActionsProps ) {
 		if ( enabled ) {
 			menu.push(
 				<RowAction key="3" onClick={ () => performDisable( { items: [ id ] } ) }>
-					{ __( 'Disable', 'redirection' ) }
+					{ __( 'Disable', 'dsuite-redirects' ) }
 				</RowAction>
 			);
 		} else {
 			menu.push(
 				<RowAction key="4" onClick={ () => performEnable( { items: [ id ] } ) }>
-					{ __( 'Enable', 'redirection' ) }
+					{ __( 'Enable', 'dsuite-redirects' ) }
 				</RowAction>
 			);
 		}
@@ -80,7 +80,7 @@ function RedirectRowActions( props: RedirectRowActionsProps ) {
 	if ( enabled && ! regex && action_type === 'url' && ( match_type === 'url' || match_type === 'server' ) ) {
 		menu.push(
 			<RowAction key="5" onClick={ () => setRowMode( 'check' ) }>
-				{ __( 'Check Redirect', 'redirection' ) }
+				{ __( 'Check Redirect', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}

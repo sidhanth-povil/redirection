@@ -10,7 +10,7 @@ function getCode( row: Row ): string | number {
 	const { action_code, action_type } = row;
 
 	if ( action_type === ACTION_PASS ) {
-		return __( 'pass', 'redirection' );
+		return __( 'pass', 'dsuite-redirects' );
 	}
 
 	if ( action_type === ACTION_NOTHING ) {

@@ -10,7 +10,7 @@ use Redirection\Request\Request;
  */
 class Cookie extends Header {
 	public function name() {
-		return __( 'URL and cookie', 'redirection' );
+		return __( 'URL and cookie', 'dsuite-redirects' );
 	}
 
 	public function is_match( $url ) {

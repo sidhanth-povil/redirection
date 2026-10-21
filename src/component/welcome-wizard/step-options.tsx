@@ -40,12 +40,12 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 
 	return (
 		<>
-			<h2>{ __( 'Basic Setup', 'redirection' ) }</h2>
+			<h2>{ __( 'Basic Setup', 'dsuite-redirects' ) }</h2>
 
 			<p>
 				{ __(
 					'These are some options you may want to enable now. They can be changed at any time.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
@@ -59,16 +59,16 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 						onChange={ setValue }
 					/>
 					<label htmlFor="wizard-monitor">
-						{ __( 'Monitor permalink changes in WordPress posts and pages', 'redirection' ) }.
+						{ __( 'Monitor permalink changes in WordPress posts and pages', 'dsuite-redirects' ) }.
 					</label>
 				</p>
 				<p>
 					{ __(
 						'If you change the permalink in a post or page then Redirection can automatically create a redirect for you.',
-						'redirection'
+						'dsuite-redirects'
 					) }
 					&nbsp;
-					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'redirection' ), {
+					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'dsuite-redirects' ), {
 						link: <ExternalLink url="https://redirection.me/support/options/#monitor" />,
 					} ) }
 				</p>
@@ -78,16 +78,16 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 				<p>
 					<input id="wizard-log" name="log" type="checkbox" checked={ log } onChange={ setLogChecked } />
 					<label htmlFor="wizard-log">
-						{ __( 'Keep a log of all redirects and 404 errors.', 'redirection' ) }
+						{ __( 'Keep a log of all redirects and 404 errors.', 'dsuite-redirects' ) }
 					</label>
 				</p>
 				<p>
 					{ __(
 						'Storing logs for redirects and 404s will allow you to see what is happening on your site. This will increase your database storage requirements.',
-						'redirection'
+						'dsuite-redirects'
 					) }
 					&nbsp;
-					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'redirection' ), {
+					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'dsuite-redirects' ), {
 						link: <ExternalLink url="https://redirection.me/support/logs/" />,
 					} ) }
 				</p>
@@ -104,16 +104,16 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 						onChange={ setValue }
 					/>
 					<label htmlFor="wizard-ip">
-						{ __( 'Store IP information for redirects and 404 errors.', 'redirection' ) }
+						{ __( 'Store IP information for redirects and 404 errors.', 'dsuite-redirects' ) }
 					</label>
 				</p>
 				<p>
 					{ __(
 						'Storing the IP address allows you to perform additional log actions. Note that you will need to adhere to local laws regarding the collection of data (for example GDPR).',
-						'redirection'
+						'dsuite-redirects'
 					) }
 					&nbsp;
-					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'redirection' ), {
+					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'dsuite-redirects' ), {
 						link: <ExternalLink url="https://redirection.me/support/privacy-gdpr/" />,
 					} ) }
 				</p>
@@ -121,11 +121,11 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 
 			<div className="wizard-buttons">
 				<button className="button-primary button" onClick={ () => setStep( nextStep ) }>
-					{ __( 'Continue', 'redirection' ) }
+					{ __( 'Continue', 'dsuite-redirects' ) }
 				</button>
 				&nbsp;
 				<button className="button" onClick={ () => setStep( step - 1 ) }>
-					{ __( 'Go back', 'redirection' ) }
+					{ __( 'Go back', 'dsuite-redirects' ) }
 				</button>
 			</div>
 		</>

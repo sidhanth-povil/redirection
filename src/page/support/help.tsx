@@ -10,12 +10,12 @@ const Help = () => {
 
 	return (
 		<div>
-			<h2>{ __( 'Need help?', 'redirection' ) }</h2>
+			<h2>{ __( 'Need help?', 'dsuite-redirects' ) }</h2>
 			<p>
 				{ createInterpolateElement(
 					__(
 						'Full documentation for Redirection can be found at {{site}}https://redirection.me{{/site}}. If you have a problem please check the {{faq}}FAQ{{/faq}} first.',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						site: <ExternalLink url="https://redirection.me" />,
@@ -28,7 +28,7 @@ const Help = () => {
 					{ createInterpolateElement(
 						__(
 							'If you want to report a bug please read the {{report}}Reporting Bugs{{/report}} guide.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							report: <ExternalLink url="https://redirection.me/support/reporting-bugs/" />,
@@ -54,26 +54,26 @@ const Help = () => {
 			<p>
 				{ __(
 					'Please note that any support is provide on as-time-is-available basis and is not guaranteed. I do not provide paid support.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 			<p>
 				{ createInterpolateElement(
 					__(
 						"If you want to submit information that you don't want in a public repository then send it directly via {{email}}email{{/email}} - include as much information as you can!",
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						email: <button type="button" className="button-link" onClick={ onEmailClick } />,
 					}
 				) }
 			</p>
-			<h2>{ __( 'Need to search and replace?', 'redirection' ) }</h2>
+			<h2>{ __( 'Need to search and replace?', 'dsuite-redirects' ) }</h2>
 			<p>
 				{ createInterpolateElement(
 					__(
 						'The companion plugin <link>Search Regex</link> allows you to search and replace data on your site and is handy if you want to bulk update a lot of URLs in your posts and pages.',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						link: <ExternalLink url="https://searchregex.com/" />,

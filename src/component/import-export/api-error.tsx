@@ -41,7 +41,7 @@ function ImportExportApiError( { error }: ImportExportApiErrorProps ) {
 		<div className="wpl-error import-export-error">
 			<p>
 				{ errorName && <strong>{ errorName }: </strong> }
-				{ apiError.message || __( 'An unknown error occurred.', 'redirection' ) }
+				{ apiError.message || __( 'An unknown error occurred.', 'dsuite-redirects' ) }
 			</p>
 
 			<DecodeError error={ apiError } links={ getErrorLinks() } locale="redirection" />

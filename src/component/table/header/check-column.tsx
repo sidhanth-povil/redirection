@@ -12,7 +12,7 @@ const CheckColumn = ( props: CheckColumnProps ) => {
 	return (
 		<th scope="col" className="manage-column column-cb check-column-red">
 			<label className="screen-reader-text" htmlFor="redirection-select-all">
-				{ __( 'Select All', 'redirection' ) }
+				{ __( 'Select All', 'dsuite-redirects' ) }
 			</label>
 			<input
 				id="redirection-select-all"

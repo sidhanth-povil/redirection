@@ -73,6 +73,6 @@ class Pass extends Url {
 	}
 
 	public function name() {
-		return __( 'Pass-through', 'redirection' );
+		return __( 'Pass-through', 'dsuite-redirects' );
 	}
 }

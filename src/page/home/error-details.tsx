@@ -8,14 +8,14 @@ function ErrorDetails() {
 		<>
 			<RestApiStatus />
 
-			<h3>{ __( 'What do I do next?', 'redirection' ) }</h3>
+			<h3>{ __( 'What do I do next?', 'dsuite-redirects' ) }</h3>
 
 			<ol>
 				<li>
 					{ createInterpolateElement(
 						__(
 							'Take a look at the {{link}}plugin status{{/link}}. It may be able to identify and "magic fix" the problem.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							// eslint-disable-next-line jsx-a11y/anchor-has-content
@@ -27,7 +27,7 @@ function ErrorDetails() {
 					{ createInterpolateElement(
 						__(
 							'{{link}}Caching software{{/link}}, in particular Cloudflare, can cache the wrong thing. Try clearing all your caches.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							link: <ExternalLink url="https://redirection.me/support/problems/cloudflare/" />,
@@ -38,7 +38,7 @@ function ErrorDetails() {
 					{ createInterpolateElement(
 						__(
 							'{{link}}Please temporarily disable other plugins!{{/link}} This fixes so many problems.',
-							'redirection'
+							'dsuite-redirects'
 						),
 						{
 							link: <ExternalLink url="https://redirection.me/support/problems/plugins/" />,
@@ -47,7 +47,7 @@ function ErrorDetails() {
 				</li>
 				<li>
 					{ createInterpolateElement(
-						__( 'Look at your {{link}}Site Health{{/link}} and resolve any issues.', 'redirection' ),
+						__( 'Look at your {{link}}Site Health{{/link}} and resolve any issues.', 'dsuite-redirects' ),
 						{
 							link: <ExternalLink url={ getErrorLinks().siteHealth } />,
 						}

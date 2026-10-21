@@ -8,7 +8,7 @@ interface HeaderPlainValueProps {
 const HeaderPlainValue = ( { headerValue, onChange }: HeaderPlainValueProps ) => {
 	return (
 		<>
-			<label htmlFor="header-plain-value">{ __( 'Value', 'redirection' ) }:</label>{ ' ' }
+			<label htmlFor="header-plain-value">{ __( 'Value', 'dsuite-redirects' ) }:</label>{ ' ' }
 			<input
 				id="header-plain-value"
 				type="text"

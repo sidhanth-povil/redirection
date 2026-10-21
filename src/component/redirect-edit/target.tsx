@@ -20,7 +20,7 @@ function TargetUrl( props: TargetUrlProps ) {
 		<DropdownText
 			placeholder={ __(
 				'The target URL you want to redirect, or auto-complete on post name or permalink.',
-				'redirection'
+				'dsuite-redirects'
 			) }
 			onChange={ onChange }
 			fetchData={ getSuggestedUrls }

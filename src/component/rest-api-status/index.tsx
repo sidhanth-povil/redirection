@@ -96,12 +96,12 @@ function getApiStatus( results: ApiTest, routes: RouteItem[], current: string ):
 
 function getApiStatusText( status: string ): string {
 	if ( status === STATUS_OK ) {
-		return __( 'Good', 'redirection' );
+		return __( 'Good', 'dsuite-redirects' );
 	} else if ( status === STATUS_WARNING || status === STATUS_WARNING_CURRENT ) {
-		return __( 'Working but some issues', 'redirection' );
+		return __( 'Working but some issues', 'dsuite-redirects' );
 	}
 
-	return __( 'Unavailable', 'redirection' );
+	return __( 'Unavailable', 'dsuite-redirects' );
 }
 
 export default function RestApiStatus( { allowChange = true }: RestApiStatusProps ) {
@@ -143,26 +143,26 @@ export default function RestApiStatus( { allowChange = true }: RestApiStatusProp
 		const showingProblem = canShowProblem( status );
 		let message: string = __(
 			'There are some problems connecting to your REST API. It is not necessary to fix these problems and the plugin is able to work.',
-			'redirection'
+			'dsuite-redirects'
 		);
 
 		if ( status === STATUS_FAIL ) {
 			message = __(
 				'Your REST API is not working and the plugin will not be able to continue until this is fixed.',
-				'redirection'
+				'dsuite-redirects'
 			) as string;
 		}
 
 		return (
 			<div className="api-result-log">
 				<p>
-					<strong>{ __( 'Summary', 'redirection' ) }</strong>: { message }
+					<strong>{ __( 'Summary', 'dsuite-redirects' ) }</strong>: { message }
 				</p>
 
 				{ ! showingProblem && (
 					<p>
 						<button className="button-secondary" onClick={ onShow }>
-							{ __( 'Show Problems', 'redirection' ) }
+							{ __( 'Show Problems', 'dsuite-redirects' ) }
 						</button>
 					</p>
 				) }
@@ -191,7 +191,7 @@ export default function RestApiStatus( { allowChange = true }: RestApiStatusProp
 						{ percent < 100 &&
 							sprintf(
 								// translators: %s is the percentage complete
-								__( 'Testing - %s%%', 'redirection' ),
+								__( 'Testing - %s%%', 'dsuite-redirects' ),
 								String( percent )
 							) }
 						{ percent >= 100 && getApiStatusText( status ) }
@@ -202,7 +202,7 @@ export default function RestApiStatus( { allowChange = true }: RestApiStatusProp
 
 				{ percent >= 100 && status !== STATUS_OK && (
 					<button className="button button-secondary api-result-retry" onClick={ onRetry }>
-						{ __( 'Check Again', 'redirection' ) }
+						{ __( 'Check Again', 'dsuite-redirects' ) }
 					</button>
 				) }
 			</div>

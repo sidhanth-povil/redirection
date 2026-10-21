@@ -32,7 +32,7 @@ function LogRowActions( props: LogRowActionsProps ) {
 
 	menu.push(
 		<RowAction onClick={ () => onDelete( id ) } capability={ CAP_LOG_DELETE } key="0">
-			{ __( 'Delete', 'redirection' ) }
+			{ __( 'Delete', 'dsuite-redirects' ) }
 		</RowAction>
 	);
 
@@ -50,7 +50,7 @@ function LogRowActions( props: LogRowActionsProps ) {
 				href={ Redirectioni10n.pluginRoot + '&' + encodeURIComponent( 'filterby[id]' ) + '=' + redirection_id }
 				key="5"
 			>
-				{ __( 'View Redirect', 'redirection' ) }
+				{ __( 'View Redirect', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}
@@ -70,7 +70,7 @@ function LogRowActions( props: LogRowActionsProps ) {
 				capability={ CAP_REDIRECT_MANAGE }
 				key="6"
 			>
-				{ __( 'Show All', 'redirection' ) }
+				{ __( 'Show All', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}

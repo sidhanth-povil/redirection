@@ -41,7 +41,7 @@ function ErrorRowActions( props: ErrorRowActionsProps ) {
 
 	menu.push(
 		<RowAction onClick={ () => onDelete( id ) } capability={ CAP_404_DELETE } key="0">
-			{ __( 'Delete', 'redirection' ) }
+			{ __( 'Delete', 'dsuite-redirects' ) }
 		</RowAction>
 	);
 
@@ -61,7 +61,7 @@ function ErrorRowActions( props: ErrorRowActionsProps ) {
 			capability={ CAP_REDIRECT_ADD }
 			key="1"
 		>
-			{ __( 'Add Redirect', 'redirection' ) }
+			{ __( 'Add Redirect', 'dsuite-redirects' ) }
 		</RowAction>
 	);
 
@@ -75,7 +75,7 @@ function ErrorRowActions( props: ErrorRowActionsProps ) {
 			capability={ CAP_REDIRECT_MANAGE }
 			key="4"
 		>
-			{ __( 'Show All', 'redirection' ) }
+			{ __( 'Show All', 'dsuite-redirects' ) }
 		</RowAction>
 	);
 
@@ -86,7 +86,7 @@ function ErrorRowActions( props: ErrorRowActionsProps ) {
 				capability={ CAP_REDIRECT_ADD }
 				key="5"
 			>
-				{ __( 'Block IP', 'redirection' ) }
+				{ __( 'Block IP', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	} else if ( groupBy !== 'agent' ) {
@@ -96,7 +96,7 @@ function ErrorRowActions( props: ErrorRowActionsProps ) {
 				capability={ CAP_REDIRECT_ADD }
 				key="6"
 			>
-				{ __( 'Ignore URL', 'redirection' ) }
+				{ __( 'Ignore URL', 'dsuite-redirects' ) }
 			</RowAction>
 		);
 	}

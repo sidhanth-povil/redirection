@@ -5,10 +5,10 @@ import './style.scss';
 
 function getMessage( inProgress: number ): string {
 	if ( inProgress > 1 ) {
-		return __( 'Saving…', 'redirection' ) + ' (' + inProgress + ')';
+		return __( 'Saving…', 'dsuite-redirects' ) + ' (' + inProgress + ')';
 	}
 
-	return __( 'Saving…', 'redirection' );
+	return __( 'Saving…', 'dsuite-redirects' );
 }
 
 export default function Progress() {

@@ -32,12 +32,12 @@ export default function StepImporter( { setOptions, options, setStep, step }: St
 
 	return (
 		<div>
-			<h2>{ __( 'Import Existing Redirects', 'redirection' ) }</h2>
+			<h2>{ __( 'Import Existing Redirects', 'dsuite-redirects' ) }</h2>
 
 			<p>
 				{ __(
 					'Importing existing redirects from WordPress or other plugins is a good way to get started with Redirection. Check each set of redirects you wish to import.',
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 
@@ -46,7 +46,7 @@ export default function StepImporter( { setOptions, options, setStep, step }: St
 					<p>
 						{ __(
 							'WordPress automatically creates redirects when you change a post URL. Importing these into Redirection will allow you to manage and monitor them.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</p>
 					<ul>
@@ -68,7 +68,7 @@ export default function StepImporter( { setOptions, options, setStep, step }: St
 
 			{ otherImporters.length > 0 && (
 				<>
-					<p>{ __( 'The following plugins have been detected.', 'redirection' ) }</p>
+					<p>{ __( 'The following plugins have been detected.', 'dsuite-redirects' ) }</p>
 					<ul>
 						{ otherImporters.map( ( item: any ) => {
 							const importerId = `wizard-importer-${ item.id }`;
@@ -94,11 +94,11 @@ export default function StepImporter( { setOptions, options, setStep, step }: St
 
 			<div className="wizard-buttons">
 				<button className="button-primary button" onClick={ () => setStep( step + 1 ) }>
-					{ __( 'Continue', 'redirection' ) }
+					{ __( 'Continue', 'dsuite-redirects' ) }
 				</button>
 				&nbsp;
 				<button className="button" onClick={ () => setStep( step - 1 ) }>
-					{ __( 'Go back', 'redirection' ) }
+					{ __( 'Go back', 'dsuite-redirects' ) }
 				</button>
 			</div>
 		</div>

@@ -15,7 +15,7 @@ const FailedRow = ( props: FailedRowProps ) => {
 	return (
 		<tr>
 			<td colSpan={ headers.length + 1 }>
-				<p>{ __( 'Sorry, something went wrong loading the data - please try again', 'redirection' ) }</p>
+				<p>{ __( 'Sorry, something went wrong loading the data - please try again', 'dsuite-redirects' ) }</p>
 			</td>
 		</tr>
 	);

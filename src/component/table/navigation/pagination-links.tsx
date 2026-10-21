@@ -42,7 +42,7 @@ function PaginationLinks( props: PaginationLinksProps ) {
 	return (
 		<>
 			<NavigationButton
-				title={ __( 'First page', 'redirection' ) }
+				title={ __( 'First page', 'dsuite-redirects' ) }
 				button="«"
 				className="first-page"
 				disabled={ page <= 0 }
@@ -50,7 +50,7 @@ function PaginationLinks( props: PaginationLinksProps ) {
 			/>
 
 			<NavigationButton
-				title={ __( 'Prev page', 'redirection' ) }
+				title={ __( 'Prev page', 'dsuite-redirects' ) }
 				button="‹"
 				className="prev-page"
 				disabled={ page <= 0 }
@@ -58,7 +58,7 @@ function PaginationLinks( props: PaginationLinksProps ) {
 			/>
 			<span className="paging-input">
 				<label htmlFor="current-page-selector" className="screen-reader-text">
-					{ __( 'Current Page', 'redirection' ) }
+					{ __( 'Current Page', 'dsuite-redirects' ) }
 				</label>
 
 				<input
@@ -77,14 +77,14 @@ function PaginationLinks( props: PaginationLinksProps ) {
 				<span className="tablenav-paging-text">
 					{ sprintf(
 						// translators: %s is the total number of pages
-						__( 'of %s', 'redirection' ),
+						__( 'of %s', 'dsuite-redirects' ),
 						new Intl.NumberFormat( window.Redirectioni10n.locale ).format( max )
 					) }
 				</span>
 			</span>
 
 			<NavigationButton
-				title={ __( 'Next page', 'redirection' ) }
+				title={ __( 'Next page', 'dsuite-redirects' ) }
 				button="›"
 				className="next-page"
 				disabled={ page >= max - 1 }
@@ -92,7 +92,7 @@ function PaginationLinks( props: PaginationLinksProps ) {
 			/>
 
 			<NavigationButton
-				title={ __( 'Last page', 'redirection' ) }
+				title={ __( 'Last page', 'dsuite-redirects' ) }
 				button="»"
 				className="last-page"
 				disabled={ page >= max - 1 }

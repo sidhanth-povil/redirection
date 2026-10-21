@@ -30,7 +30,7 @@ function ExportPage() {
 				<p>
 					{ __(
 						'Export redirects, redirect logs, 404 logs, groups, or settings. You can combine multiple export cards, and mixed exports are bundled as JSON.',
-						'redirection'
+						'dsuite-redirects'
 					) }
 				</p>
 
@@ -38,7 +38,7 @@ function ExportPage() {
 					<p>
 						{ __(
 							'You can also export directly from the redirects, redirect logs, or 404 logs pages for more control over filtering.',
-							'redirection'
+							'dsuite-redirects'
 						) }
 					</p>
 				</div>
@@ -52,7 +52,7 @@ function ExportPage() {
 							onChange={ ( event ) => onToggleAllTypes( event.target.checked ) }
 							disabled={ state.isExporting }
 						/>
-						<span>{ __( 'Select all', 'redirection' ) }</span>
+						<span>{ __( 'Select all', 'dsuite-redirects' ) }</span>
 					</label>
 				</div>
 

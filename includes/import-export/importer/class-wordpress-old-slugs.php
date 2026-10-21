@@ -142,9 +142,9 @@ class WordpressOldSlugs extends Plugin {
 		if ( $total !== null && intval( $total, 10 ) > 0 ) {
 			return array(
 				'id' => 'wordpress-old-slugs',
-				'name' => __( 'WordPress permalink redirect', 'redirection' ),
-				'description' => __( 'Redirects created by WordPress.', 'redirection' ),
-				'source' => __( 'WordPress post meta', 'redirection' ),
+				'name' => __( 'WordPress permalink redirect', 'dsuite-redirects' ),
+				'description' => __( 'Redirects created by WordPress.', 'dsuite-redirects' ),
+				'source' => __( 'WordPress post meta', 'dsuite-redirects' ),
 				'total' => intval( $total, 10 ),
 			);
 		}

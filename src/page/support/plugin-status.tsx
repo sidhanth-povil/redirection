@@ -10,11 +10,15 @@ const Fixit = () => {
 			<p>
 				{ __(
 					"If the magic button doesn't work then you should read the error and see if you can fix it manually, otherwise follow the 'Need help' section below.",
-					'redirection'
+					'dsuite-redirects'
 				) }
 			</p>
 			<p>
-				<input type="submit" className="button-primary" value={ __( '⚡️ Magic fix ⚡️', 'redirection' ) } />
+				<input
+					type="submit"
+					className="button-primary"
+					value={ __( '⚡️ Magic fix ⚡️', 'dsuite-redirects' ) }
+				/>
 			</p>
 		</form>
 	);
@@ -38,7 +42,7 @@ const PluginStatusItem = ( props: PluginStatusItemProps ) => {
 			<th>{ item.name }</th>
 			<td>
 				<span className={ 'plugin-status-' + item.status }>
-					{ item.status === 'good' ? __( 'Good', 'redirection' ) : __( 'Problem', 'redirection' ) }
+					{ item.status === 'good' ? __( 'Good', 'dsuite-redirects' ) : __( 'Problem', 'dsuite-redirects' ) }
 				</span>{ ' ' }
 				{ item.message }
 			</td>

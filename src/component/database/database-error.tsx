@@ -42,22 +42,22 @@ export default function DatabaseError( { onRetry, error }: DatabaseErrorProps ) 
 
 	return (
 		<div className="redirection-database_error wpl-error">
-			<h3>{ __( 'Database problem', 'redirection' ) }</h3>
+			<h3>{ __( 'Database problem', 'dsuite-redirects' ) }</h3>
 			<p>{ error }</p>
 			<p>
 				<button className="button button-primary" onClick={ onRetry }>
-					{ __( 'Try again', 'redirection' ) }
+					{ __( 'Try again', 'dsuite-redirects' ) }
 				</button>
 				&nbsp;
 				{ current !== '-' && (
 					<button className="button button-secondary" onClick={ onSkip }>
-						{ __( 'Skip this stage', 'redirection' ) }
+						{ __( 'Skip this stage', 'dsuite-redirects' ) }
 					</button>
 				) }
 				&nbsp;
 				{ current !== '-' && (
 					<button className="button button-secondary" onClick={ onStop }>
-						{ __( 'Stop upgrade', 'redirection' ) }
+						{ __( 'Stop upgrade', 'dsuite-redirects' ) }
 					</button>
 				) }
 			</p>
@@ -66,7 +66,7 @@ export default function DatabaseError( { onRetry, error }: DatabaseErrorProps ) 
 				{ createInterpolateElement(
 					__(
 						'If you want to {{support}}ask for support{{/support}} please include these details:',
-						'redirection'
+						'dsuite-redirects'
 					),
 					{
 						support: <button type="button" onClick={ onSupport } />,

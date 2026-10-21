@@ -8,7 +8,7 @@ interface RedirectPositionProps {
 const RedirectPosition = ( { position, onChange }: RedirectPositionProps ) => {
 	return (
 		<span className="redirect-edit-position">
-			<strong>{ __( 'Position', 'redirection' ) }</strong>
+			<strong>{ __( 'Position', 'dsuite-redirects' ) }</strong>
 			&nbsp;
 			<input type="number" value={ position } name="position" min="0" size={ 3 } onChange={ onChange } />
 		</span>

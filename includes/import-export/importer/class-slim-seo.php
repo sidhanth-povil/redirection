@@ -48,8 +48,8 @@ class SlimSeo extends Plugin {
 			return array(
 				'id' => 'slim-seo',
 				'name' => 'Slim SEO',
-				'description' => __( 'Redirects created by Slim SEO.', 'redirection' ),
-				'source' => __( 'Plugin settings', 'redirection' ),
+				'description' => __( 'Redirects created by Slim SEO.', 'dsuite-redirects' ),
+				'source' => __( 'Plugin settings', 'dsuite-redirects' ),
 				'total' => count( $data ),
 			);
 		}

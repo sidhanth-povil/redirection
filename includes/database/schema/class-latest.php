@@ -15,9 +15,9 @@ class Latest extends Upgrader {
 	public function get_stages() {
 		return [
 			/* translators: displayed when installing the plugin */
-			'create_tables' => __( 'Install Redirection tables', 'redirection' ),
+			'create_tables' => __( 'Install Redirection tables', 'dsuite-redirects' ),
 			/* translators: displayed when installing the plugin */
-			'create_groups' => __( 'Create basic data', 'redirection' ),
+			'create_groups' => __( 'Create basic data', 'dsuite-redirects' ),
 		];
 	}
 
@@ -126,7 +126,7 @@ class Latest extends Upgrader {
 				$show[] = '';
 			} else {
 				/* translators: 1: table name */
-				$show[] = sprintf( __( 'Table "%s" is missing', 'redirection' ), $table );
+				$show[] = sprintf( __( 'Table "%s" is missing', 'dsuite-redirects' ), $table );
 			}
 		}
 
@@ -169,12 +169,12 @@ class Latest extends Upgrader {
 
 		$defaults = [
 			[
-				'name' => __( 'Redirections', 'redirection' ),
+				'name' => __( 'Redirections', 'dsuite-redirects' ),
 				'module_id' => 1,
 				'position' => 0,
 			],
 			[
-				'name' => __( 'Modified Posts', 'redirection' ),
+				'name' => __( 'Modified Posts', 'dsuite-redirects' ),
 				'module_id' => 1,
 				'position' => 1,
 			],

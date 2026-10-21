@@ -37,12 +37,12 @@ function ApiResultRaw( { error }: ApiResultRawProps ) {
 			<>
 				{ needToHide && hide && (
 					<button className="api-result-hide" type="button" onClick={ onShow }>
-						{ __( 'Show Full', 'redirection' ) }
+						{ __( 'Show Full', 'dsuite-redirects' ) }
 					</button>
 				) }
 				{ needToHide && ! hide && (
 					<button className="api-result-hide" type="button" onClick={ onHide }>
-						{ __( 'Hide', 'redirection' ) }
+						{ __( 'Hide', 'dsuite-redirects' ) }
 					</button>
 				) }
 				<pre>{ hide ? request.raw.substring( 0, RAW_HIDE_LENGTH ) + ' ...' : request.raw }</pre>

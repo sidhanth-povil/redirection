@@ -13,13 +13,13 @@ const MatchServer = ( { data, onChange }: MatchServerProps ) => {
 	const { server } = data;
 
 	return (
-		<TableRow title={ __( 'Server', 'redirection' ) } className="redirect-edit__match">
+		<TableRow title={ __( 'Server', 'dsuite-redirects' ) } className="redirect-edit__match">
 			<input
 				type="text"
 				className="regular-text"
 				name="server"
 				value={ server }
-				placeholder={ __( 'Enter server URL to match against', 'redirection' ) }
+				placeholder={ __( 'Enter server URL to match against', 'dsuite-redirects' ) }
 				onChange={ onChange }
 			/>
 		</TableRow>

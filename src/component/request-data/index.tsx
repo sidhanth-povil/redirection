@@ -30,7 +30,7 @@ const RequestHeaders = ( { headers }: RequestHeadersProps ) => {
 
 	return (
 		<Fragment>
-			<h3>{ __( 'Request Headers', 'redirection' ) }</h3>
+			<h3>{ __( 'Request Headers', 'dsuite-redirects' ) }</h3>
 
 			<table>
 				<tbody>
@@ -53,7 +53,7 @@ const RequestSource = ( { source }: RequestSourceProps ) => {
 
 	return (
 		<Fragment>
-			<h3>{ __( 'Redirect Source', 'redirection' ) }</h3>
+			<h3>{ __( 'Redirect Source', 'dsuite-redirects' ) }</h3>
 
 			<ul>
 				{ source.map( ( item, key ) => (

@@ -97,8 +97,8 @@ class RankMath extends Plugin {
 			return array(
 				'id' => 'rank-math',
 				'name' => 'RankMath',
-				'description' => __( 'Redirects created by Rank Math.', 'redirection' ),
-				'source' => __( 'Database tables', 'redirection' ),
+				'description' => __( 'Redirects created by Rank Math.', 'dsuite-redirects' ),
+				'source' => __( 'Database tables', 'dsuite-redirects' ),
 				'total' => intval( $total, 10 ),
 			);
 		}

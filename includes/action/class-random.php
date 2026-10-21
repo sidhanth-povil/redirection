@@ -45,6 +45,6 @@ class Random extends Url {
 	}
 
 	public function name() {
-		return __( 'Redirect to random post', 'redirection' );
+		return __( 'Redirect to random post', 'dsuite-redirects' );
 	}
 }

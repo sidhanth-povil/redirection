@@ -18,7 +18,7 @@ function ModuleColumn( { row }: ModuleColumnProps ) {
 				onClick={ () => setGroupsTable( { filterBy: { module: String( module_id ) }, page: 0 } ) }
 				title={ sprintf(
 					// translators: %(type)s is the module type name
-					__( 'Filter on: %(type)s', 'redirection' ),
+					__( 'Filter on: %(type)s', 'dsuite-redirects' ),
 					{ type: name }
 				) }
 			>
