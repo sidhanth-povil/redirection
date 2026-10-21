@@ -1,10 +1,8 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import WelcomeWizard from 'component/welcome-wizard';
 import DatabaseUpdate from './database-update';
-import { Snackbar, Menu, ErrorBoundary, Error } from '@wp-plugin-components';
-import PageRouter from '@wp-plugin-lib/page-router';
-import { getPluginPage } from '@wp-plugin-lib/wordpress-url';
+import { Snackbar, ErrorBoundary, Error } from '@wp-plugin-components';
 import DebugReport from './debug';
 import ErrorDetails from './error-details';
 import CrashHandler from './crash-handler';
@@ -14,82 +12,13 @@ import CacheDetect from './cache-detect';
 import UpdateNotice from './update-notice';
 import { getInitialError, getInitialLog, getInitialGroup, getInitialRedirect } from 'lib/log-constants';
 import { useMessageStore, useSettingsStore, useTableStore } from 'stores';
-import { has_capability, has_page_access, CAP_REDIRECT_ADD } from 'lib/capabilities';
+import { has_capability, CAP_REDIRECT_ADD } from 'lib/capabilities';
+import { allowedRoutes, getRouteLabel, pageForRoute, resolveRoute, useRoute, type RouteName } from 'app/router';
+import Shell from 'app/shell';
+import { Button } from 'ui';
 import './style.scss';
 
-interface MenuOption {
-	name: string;
-	value: string;
-}
-
-interface PageTitles {
-	redirect: string;
-	site: string;
-	groups: string;
-	import: string;
-	export: string;
-	log: string;
-	'404s': string;
-	options: string;
-	support: string;
-	[ key: string ]: string;
-}
-
-const getTitles = (): PageTitles => ( {
-	redirect: __( 'Redirections', 'dsuite-redirects' ),
-	site: __( 'Site', 'dsuite-redirects' ),
-	groups: __( 'Groups', 'dsuite-redirects' ),
-	import: __( 'Import redirects', 'dsuite-redirects' ),
-	export: __( 'Export redirects', 'dsuite-redirects' ),
-	log: __( 'Logs', 'dsuite-redirects' ),
-	'404s': __( '404 errors', 'dsuite-redirects' ),
-	options: __( 'Options', 'dsuite-redirects' ),
-	support: __( 'Support', 'dsuite-redirects' ),
-} );
-
-const getMenu = (): MenuOption[] =>
-	[
-		{
-			name: __( 'Redirects', 'dsuite-redirects' ),
-			value: '',
-		},
-		{
-			name: __( 'Groups', 'dsuite-redirects' ),
-			value: 'groups',
-		},
-		{
-			name: __( 'Site', 'dsuite-redirects' ),
-			value: 'site',
-		},
-		{
-			name: __( 'Log', 'dsuite-redirects' ),
-			value: 'log',
-		},
-		{
-			name: __( '404s', 'dsuite-redirects' ),
-			value: '404s',
-		},
-		{
-			name: __( 'Import', 'dsuite-redirects' ),
-			value: 'import',
-		},
-		{
-			name: __( 'Export', 'dsuite-redirects' ),
-			value: 'export',
-		},
-		{
-			name: __( 'Options', 'dsuite-redirects' ),
-			value: 'options',
-		},
-		{
-			name: __( 'Support', 'dsuite-redirects' ),
-			value: 'support',
-		},
-	].filter(
-		( option ) => has_page_access( option.value ) || ( option.value === '' && has_page_access( 'redirect' ) )
-	);
-
-const ALLOWED_PAGES = Redirectioni10n?.caps?.pages || [];
+const ALLOWED_ROUTES = allowedRoutes( Redirectioni10n?.caps?.pages || [] );
 
 export default function Home() {
 	// Access store properties directly to avoid creating new objects on every render
@@ -104,7 +33,8 @@ export default function Home() {
 	const { setShowDatabase, setApi } = useSettingsStore();
 	const { setErrorsTable, setLogsTable, setRedirectsTable, setRedirectsAddTop, setGroupsTable } = useTableStore();
 
-	const [ page, setPageState ] = useState< string >( getPluginPage( ALLOWED_PAGES ) );
+	const route = useRoute();
+	const current = resolveRoute( route.name, ALLOWED_ROUTES );
 
 	// Initialize API routes, preloaded settings, and database status from global config on mount
 	useEffect( () => {
@@ -129,39 +59,29 @@ export default function Home() {
 		}
 	}, [ setApi ] );
 
-	// Wrap setPage in useCallback to ensure stable reference
-	const setPage = useCallback( ( newPage: string ) => {
-		setPageState( newPage );
-	}, [] );
+	// Same as upstream's menu click: a sidebar click starts the target page from a clean table.
+	const onNavigate = useCallback(
+		( name: RouteName ) => {
+			clearErrors();
 
-	const onPageChange = useCallback( () => {
-		clearErrors();
-	}, [ clearErrors ] );
-
-	// Memoize menu and titles to prevent creating new objects on every render
-	const menu = useMemo( () => getMenu(), [] );
-	const titles = useMemo( () => getTitles(), [] );
-
-	const changePage = useCallback(
-		( newPage: string ) => {
-			setPage( newPage === '' ? 'redirect' : newPage );
-
-			if ( newPage === '404s' ) {
+			if ( name === '404s' ) {
 				setErrorsTable( getInitialError() as any );
-			} else if ( newPage === 'log' ) {
+			} else if ( name === 'logs' ) {
 				setLogsTable( getInitialLog() as any );
-			} else if ( newPage === '' ) {
+			} else if ( name === 'redirects' ) {
 				setRedirectsTable( getInitialRedirect() as any );
-			} else if ( newPage === 'groups' ) {
+			} else if ( name === 'groups' ) {
 				setGroupsTable( getInitialGroup() as any );
 			}
 		},
-		[ setPage, setErrorsTable, setLogsTable, setRedirectsTable, setGroupsTable ]
+		[ clearErrors, setErrorsTable, setLogsTable, setRedirectsTable, setGroupsTable ]
 	);
 
 	if ( REDIRECTION_VERSION !== Redirectioni10n.version ) {
 		return <CacheDetect />;
 	}
+
+	const page = current === null ? '' : pageForRoute( current );
 
 	if ( databaseStatus === 'need-install' || databaseStatus === 'finish-install' ) {
 		return (
@@ -176,63 +96,48 @@ export default function Home() {
 
 	return (
 		<ErrorBoundary renderCrash={ CrashHandler } extra={ { page } }>
-			<div className="wrap redirection notranslate" translate="no">
-				{ needsUpgrader && (
+			{ needsUpgrader && (
+				<div className="redirection">
 					<DatabaseUpdate onShowUpgrade={ () => setShowDatabase( true ) } showDatabase={ showDatabase } />
-				) }
+				</div>
+			) }
 
-				{ ! inProgress && databaseStatus !== 'finish-update' && ! showDatabase && (
-					<PageRouter
-						page={ page }
-						setPage={ setPage }
-						onPageChange={ onPageChange }
-						allowedPages={ ALLOWED_PAGES }
-						baseUrl="?page=dsuite-redirects.php"
-						defaultPage="redirect"
-					>
-						<h1 className="wp-heading-inline">{ titles[ page ] }</h1>
-
-						{ page === 'redirect' && has_capability( CAP_REDIRECT_ADD ) && (
-							<button
-								type="button"
-								onClick={ () => setRedirectsAddTop( true ) }
-								className="page-title-action"
-							>
+			{ current !== null && ! inProgress && databaseStatus !== 'finish-update' && ! showDatabase && (
+				<Shell
+					routes={ ALLOWED_ROUTES }
+					current={ current }
+					title={ getRouteLabel( current ) }
+					onNavigate={ onNavigate }
+					actions={
+						current === 'redirects' && has_capability( CAP_REDIRECT_ADD ) ? (
+							<Button variant="primary" onClick={ () => setRedirectsAddTop( true ) }>
 								{ __( 'Add redirect', 'dsuite-redirects' ) }
-							</button>
-						) }
+							</Button>
+						) : null
+					}
+				>
+					<UpdateNotice />
 
-						<UpdateNotice />
+					<Error
+						errors={ errors }
+						onClear={ () => clearErrors() }
+						renderDebug={ DebugReport }
+						details={ getErrorDetails() }
+						links={ getErrorLinks() }
+						locale="redirection"
+					>
+						<ErrorDetails />
+					</Error>
 
-						<Menu
-							onChangePage={ changePage }
-							currentPage={ page }
-							menu={ menu }
-							home="redirect"
-							urlBase={ Redirectioni10n.pluginRoot }
-						/>
+					<PageContent route={ current } />
 
-						<Error
-							errors={ errors }
-							onClear={ () => clearErrors() }
-							renderDebug={ DebugReport }
-							details={ getErrorDetails() }
-							links={ getErrorLinks() }
-							locale="redirection"
-						>
-							<ErrorDetails />
-						</Error>
-
-						<PageContent page={ page } />
-
-						<Snackbar
-							notices={ notices }
-							onClear={ () => clearNotices() }
-							snackBarViewText={ __( 'View notice', 'dsuite-redirects' ) }
-						/>
-					</PageRouter>
-				) }
-			</div>
+					<Snackbar
+						notices={ notices }
+						onClear={ () => clearNotices() }
+						snackBarViewText={ __( 'View notice', 'dsuite-redirects' ) }
+					/>
+				</Shell>
+			) }
 		</ErrorBoundary>
 	);
 }

@@ -73,4 +73,15 @@ class AdminMenuTest extends WP_UnitTestCase {
 			Admin::get_legacy_redirect( 'tools.php', [ 'page' => 'redirection.php', 'sub' => '<script>alert(1)</script>' ] )
 		);
 	}
+
+	public function testAdminScreenMountsAppInsideWrap() {
+		wp_set_current_user( $this->factory->user->create( [ 'role' => 'administrator' ] ) );
+
+		ob_start();
+		( new Admin() )->admin_screen();
+		$html = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<div class="wrap">\s*<div id="dsr-app" class="dsr-app">/', $html );
+		$this->assertStringNotContainsString( 'id="react-ui"', $html );
+	}
 }

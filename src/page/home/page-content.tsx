@@ -1,3 +1,7 @@
+import { __ } from '@wordpress/i18n';
+import type { RouteName } from 'app/router';
+import { has_page_access } from 'lib/capabilities';
+
 import Options from 'page/options';
 import Support from 'page/support';
 import Site from 'page/site';
@@ -9,37 +13,50 @@ import Groups from 'page/groups';
 import Redirects from 'page/redirects';
 
 interface PageContentProps {
-	page: string;
+	route: RouteName;
 }
 
-function PageContent( { page }: PageContentProps ) {
-	switch ( page ) {
+function PageContent( { route }: PageContentProps ) {
+	switch ( route ) {
 		case 'support':
 			return <Support />;
 
 		case '404s':
 			return <Logs404 />;
 
-		case 'log':
+		case 'logs':
 			return <Logs />;
 
-		case 'import':
-			return <ImportPage />;
-
-		case 'export':
-			return <ExportPage />;
+		case 'import-export':
+			return (
+				<>
+					{ has_page_access( 'import' ) && (
+						<>
+							<h2 className="dsr-section-title">{ __( 'Import', 'dsuite-redirects' ) }</h2>
+							<ImportPage />
+						</>
+					) }
+					{ has_page_access( 'export' ) && (
+						<>
+							<h2 className="dsr-section-title">{ __( 'Export', 'dsuite-redirects' ) }</h2>
+							<ExportPage />
+						</>
+					) }
+				</>
+			);
 
 		case 'groups':
 			return <Groups />;
 
-		case 'options':
+		case 'settings':
 			return <Options />;
 
 		case 'site':
 			return <Site />;
-	}
 
-	return <Redirects />;
+		case 'redirects':
+			return <Redirects />;
+	}
 }
 
 export default PageContent;

@@ -784,7 +784,8 @@ class Admin {
 	private function show_main() {
 		?>
 	<div id="react-modal"></div>
-	<div id="react-ui">
+	<div class="wrap">
+	<div id="dsr-app" class="dsr-app">
 		<div class="react-loading">
 			<h1><?php esc_html_e( 'Loading, please wait...', 'dsuite-redirects' ); ?></h1>
 
@@ -793,6 +794,7 @@ class Admin {
 		<noscript><?php esc_html_e( 'Please enable JavaScript', 'dsuite-redirects' ); ?></noscript>
 
 		<?php $this->show_load_fail(); ?>
+	</div>
 	</div>
 
 	<script>
@@ -829,7 +831,7 @@ class Admin {
 					document.querySelector( '.react-error .button-primary' ).href += '&body=' + encodeURIComponent( errorText ) + encodeURIComponent( Redirectioni10n.versions );
 				}
 			} else {
-				document.querySelector( '#react-ui' ).innerHTML = '<p>Sorry something went very wrong.</p>';
+				document.querySelector( '#dsr-app' ).innerHTML = '<p>Sorry something went very wrong.</p>';
 			}
 		}
 
