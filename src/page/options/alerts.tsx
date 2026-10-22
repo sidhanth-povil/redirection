@@ -3,7 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useSettingsUpdate } from 'lib/api/hooks/use-settings';
 import { useSettingsStore } from 'stores';
 import { Button, Field } from 'ui';
-import './alerts.scss';
+import './style.scss';
 
 interface AlertSettings {
 	enabled: boolean;
