@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import Placeholder from '@wp-plugin-components/placeholder';
-import { ExternalLink, createInterpolateElement } from '@wp-plugin-components';
 import SiteAliases from './aliases';
 import RelocateSite from './relocate';
 import CanonicalSettings from './canonical';
@@ -88,17 +87,7 @@ export default function Site() {
 	return (
 		<form onSubmit={ onSubmit }>
 			<div className="inline-notice inline-warning">
-				<p>
-					{ createInterpolateElement(
-						__(
-							'Options on this page can cause problems if used incorrectly. You can {{link}}temporarily disable them{{/link}} to make changes.',
-							'dsuite-redirects'
-						),
-						{
-							link: <ExternalLink url="https://redirection.me/support/disable-redirection/" />,
-						}
-					) }
-				</p>
+				<p>{ __( 'Options on this page can cause problems if used incorrectly.', 'dsuite-redirects' ) }</p>
 			</div>
 
 			<section className="dsr-card">

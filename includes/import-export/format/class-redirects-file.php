@@ -72,7 +72,7 @@ class RedirectsFile extends FormatHandler {
 		$lines = [
 			'# Created by Redirection',
 			'# ' . $details['date'],
-			'# Redirection ' . $details['version'] . ' - https://redirection.me',
+			'# DSuite Redirects ' . $details['version'],
 			'',
 		];
 

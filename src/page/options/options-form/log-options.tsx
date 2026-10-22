@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import TextareaAutosize from 'react-textarea-autosize';
 import { TableRow } from 'component/form-table';
-import { ExternalLink, MultiOptionDropdown, Notice, Select, createInterpolateElement } from '@wp-plugin-components';
+import { MultiOptionDropdown, Notice, Select, createInterpolateElement } from '@wp-plugin-components';
 
 interface Option {
 	value: number | string;
@@ -22,7 +22,6 @@ interface Settings {
 interface LogOptionsProps {
 	settings: Settings;
 	onChange: ( ev: React.ChangeEvent< HTMLInputElement | HTMLTextAreaElement > | { [ key: string ]: any } ) => void;
-	getLink: ( rel: string, anchor?: string ) => string;
 }
 
 const timeToKeep = (): Option[] => [
@@ -50,7 +49,7 @@ const ipAddress = (): Option[] => [
 ];
 
 function LogOptions( props: LogOptionsProps ) {
-	const { settings, onChange, getLink } = props;
+	const { settings, onChange } = props;
 	const {
 		expire_redirect,
 		expire_404,
@@ -69,7 +68,7 @@ function LogOptions( props: LogOptionsProps ) {
 					<h2 className="title">{ __( 'Logs', 'dsuite-redirects' ) }</h2>
 				</th>
 			</tr>
-			<TableRow title={ __( 'Redirect Logs', 'dsuite-redirects' ) + ':' } url={ getLink( 'logs' ) }>
+			<TableRow title={ __( 'Redirect Logs', 'dsuite-redirects' ) + ':' }>
 				<Select
 					items={ timeToKeep() as any }
 					name="expire_redirect"
@@ -78,7 +77,7 @@ function LogOptions( props: LogOptionsProps ) {
 				/>{ ' ' }
 				{ __( '(time to keep logs for)', 'dsuite-redirects' ) }
 			</TableRow>
-			<TableRow title={ __( '404 Logs', 'dsuite-redirects' ) + ':' } url={ getLink( 'tracking-404-errors' ) }>
+			<TableRow title={ __( '404 Logs', 'dsuite-redirects' ) + ':' }>
 				<Select
 					items={ timeToKeep() as any }
 					name="expire_404"
@@ -87,7 +86,7 @@ function LogOptions( props: LogOptionsProps ) {
 				/>{ ' ' }
 				{ __( '(time to keep logs for)', 'dsuite-redirects' ) }
 			</TableRow>
-			<TableRow title={ __( 'IP Logging', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'iplogging' ) }>
+			<TableRow title={ __( 'IP Logging', 'dsuite-redirects' ) + ':' }>
 				<Select
 					items={ ipLogging() as any }
 					name="ip_logging"
@@ -96,7 +95,7 @@ function LogOptions( props: LogOptionsProps ) {
 				/>{ ' ' }
 				{ __( '(IP logging level)', 'dsuite-redirects' ) }
 			</TableRow>
-			<TableRow title={ __( 'IP Address', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'ipaddress' ) }>
+			<TableRow title={ __( 'IP Address', 'dsuite-redirects' ) + ':' }>
 				<MultiOptionDropdown
 					options={ ipAddress() as any }
 					selected={ ip_headers }
@@ -131,10 +130,7 @@ function LogOptions( props: LogOptionsProps ) {
 				) }
 			</TableRow>
 			{ ip_headers.length > 0 && (
-				<TableRow
-					title={ __( 'Proxy Address', 'dsuite-redirects' ) + ':' }
-					url={ getLink( 'options', 'proxy' ) }
-				>
+				<TableRow title={ __( 'Proxy Address', 'dsuite-redirects' ) + ':' }>
 					<TextareaAutosize
 						minRows={ 3 }
 						value={ ip_proxy.join( '\n' ) }
@@ -149,7 +145,7 @@ function LogOptions( props: LogOptionsProps ) {
 					</p>
 				</TableRow>
 			) }
-			<TableRow title={ __( 'Logging', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'iplogging' ) }>
+			<TableRow title={ __( 'Logging', 'dsuite-redirects' ) + ':' }>
 				<p>
 					<input
 						id="log-options-log-external"
@@ -200,14 +196,9 @@ function LogOptions( props: LogOptionsProps ) {
 			<tr>
 				<th />
 				<td>
-					{ createInterpolateElement(
-						__(
-							'DSuite Redirects stores no user identifiable information other than what is configured above. It is your responsibility to ensure your site meets any applicable {{link}}privacy requirements{{/link}}.',
-							'dsuite-redirects'
-						),
-						{
-							link: <ExternalLink url={ getLink( 'privacy-gdpr' ) } />,
-						}
+					{ __(
+						'DSuite Redirects stores no user identifiable information other than what is configured above. It is your responsibility to ensure your site meets any applicable privacy requirements.',
+						'dsuite-redirects'
 					) }
 				</td>
 			</tr>

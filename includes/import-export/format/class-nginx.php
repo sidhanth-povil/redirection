@@ -36,7 +36,7 @@ class Nginx extends FormatHandler {
 
 		$lines[] = '# Created by Redirection';
 		$lines[] = '# ' . $details['date'];
-		$lines[] = '# Redirection ' . $details['version'] . ' - https://redirection.me';
+		$lines[] = '# DSuite Redirects ' . $details['version'];
 		$lines[] = '';
 		$lines[] = 'server {';
 

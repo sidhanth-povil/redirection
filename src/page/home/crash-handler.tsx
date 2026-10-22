@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import type { ErrorInfo } from 'react';
-import { ExternalLink, Error, createInterpolateElement } from '@wp-plugin-components';
+import { Error } from '@wp-plugin-components';
 import { getErrorLinks, getErrorDetails } from 'lib/error-links';
 import DebugReport from './debug';
 
@@ -65,14 +65,9 @@ function DefaultCrashMessage() {
 			</p>
 
 			<p>
-				{ createInterpolateElement(
-					__(
-						"If that doesn't help, open your browser's error console and create a {{link}}new issue{{/link}} with the details.",
-						'dsuite-redirects'
-					),
-					{
-						link: <ExternalLink url="https://github.com/johngodley/redirection/issues" />,
-					}
+				{ __(
+					"If that doesn't help, open your browser's error console and send the details to your site developer.",
+					'dsuite-redirects'
 				) }
 			</p>
 		</>

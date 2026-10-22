@@ -32,7 +32,6 @@ interface PostTypes {
 interface UrlOptionsProps {
 	settings: Settings;
 	onChange: ( ev: React.ChangeEvent< HTMLInputElement > | { [ key: string ]: any } ) => void;
-	getLink: ( rel: string, anchor?: string ) => string;
 	groups: GroupOption[];
 	postTypes: PostTypes;
 }
@@ -51,7 +50,7 @@ const expireTimes = (): Option[] => [
 ];
 
 function UrlOptions( props: UrlOptionsProps ) {
-	const { settings, onChange, getLink, groups, postTypes } = props;
+	const { settings, onChange, groups, postTypes } = props;
 	const { flag_case, flag_trailing, flag_query, auto_target, redirect_cache, cache_key } = settings;
 
 	return (
@@ -61,17 +60,8 @@ function UrlOptions( props: UrlOptionsProps ) {
 					<h2 className="title">{ __( 'URL', 'dsuite-redirects' ) }</h2>
 				</th>
 			</tr>
-			<UrlMonitoring
-				settings={ settings }
-				onChange={ onChange }
-				groups={ groups }
-				getLink={ getLink }
-				postTypes={ postTypes }
-			/>
-			<TableRow
-				title={ __( 'Default URL settings', 'dsuite-redirects' ) + ':' }
-				url={ getLink( 'options', 'urlsettings' ) }
-			>
+			<UrlMonitoring settings={ settings } onChange={ onChange } groups={ groups } postTypes={ postTypes } />
+			<TableRow title={ __( 'Default URL settings', 'dsuite-redirects' ) + ':' }>
 				<p>{ __( 'Applies to all redirections unless you configure them otherwise.', 'dsuite-redirects' ) }</p>
 				<p>
 					<input
@@ -115,10 +105,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 					</label>
 				</p>
 			</TableRow>
-			<TableRow
-				title={ __( 'Default query matching', 'dsuite-redirects' ) + ':' }
-				url={ getLink( 'options', 'querysettings' ) }
-			>
+			<TableRow title={ __( 'Default query matching', 'dsuite-redirects' ) + ':' }>
 				<p>{ __( 'Applies to all redirections unless you configure them otherwise.', 'dsuite-redirects' ) }</p>
 				<p>
 					<Select
@@ -149,10 +136,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 					</li>
 				</ul>
 			</TableRow>
-			<TableRow
-				title={ __( 'Auto-generate URL', 'dsuite-redirects' ) + ':' }
-				url={ getLink( 'options', 'autogenerate' ) }
-			>
+			<TableRow title={ __( 'Auto-generate URL', 'dsuite-redirects' ) + ':' }>
 				<input
 					className="regular-text"
 					type="text"
@@ -174,7 +158,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 				</span>
 			</TableRow>
 
-			<TableRow title={ __( 'HTTP Cache Header', 'dsuite-redirects' ) } url={ getLink( 'options', 'cache' ) }>
+			<TableRow title={ __( 'HTTP Cache Header', 'dsuite-redirects' ) }>
 				<Select
 					items={ expireTimes() as any }
 					name="redirect_cache"
@@ -186,7 +170,7 @@ function UrlOptions( props: UrlOptionsProps ) {
 					{ __( 'How long to cache redirected 301 URLs (via "Expires" HTTP header)', 'dsuite-redirects' ) }
 				</span>
 			</TableRow>
-			<TableRow title={ __( 'Redirect Caching', 'dsuite-redirects' ) } url={ getLink( 'options', 'cache' ) }>
+			<TableRow title={ __( 'Redirect Caching', 'dsuite-redirects' ) }>
 				<input
 					id="url-options-cache-key"
 					type="checkbox"

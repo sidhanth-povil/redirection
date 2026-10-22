@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { createInterpolateElement, ExternalLink } from '@wp-plugin-components';
+import { ExternalLink } from '@wp-plugin-components';
 import { getServerUrl } from 'lib/wordpress-url';
 
 interface HttpHeader {
@@ -89,14 +89,9 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 	if ( status >= 400 && status < 500 ) {
 		return (
 			<>
-				{ createInterpolateElement(
-					__(
-						'An error page was returned. This is unlikely to be a problem with DSuite Redirects. {{support}}What does this mean?{{/support}}.',
-						'dsuite-redirects'
-					),
-					{
-						support: <ExternalLink url="https://redirection.me/support/problems/redirect-returning-404/" />,
-					}
+				{ __(
+					'An error page was returned. This is unlikely to be a problem with DSuite Redirects.',
+					'dsuite-redirects'
 				) }
 			</>
 		);
@@ -125,20 +120,13 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 
 			return (
 				<>
-					{ createInterpolateElement(
-						sprintf(
-							// translators: %1$s is the name of the agent that performed the redirect
-							__(
-								'Redirected by %1$s. {{support}}What does this mean?{{/support}}.',
-								'dsuite-redirects'
-							),
-							agent.value
+					{ sprintf(
+						// translators: %1$s is the name of the agent that performed the redirect
+						__(
+							'Redirected by %1$s. Another plugin or your server sent this redirect, not DSuite Redirects.',
+							'dsuite-redirects'
 						),
-						{
-							support: (
-								<ExternalLink url="https://redirection.me/support/problems/redirected-by-another-agent/" />
-							),
-						}
+						agent.value
 					) }
 				</>
 			);
@@ -146,16 +134,9 @@ function Details( { status, headers, statusMessage, isMatch: isMatching }: Detai
 
 		return (
 			<>
-				{ createInterpolateElement(
-					__(
-						'Redirected by an unknown agent. {{support}}What does this mean?{{/support}}.',
-						'dsuite-redirects'
-					),
-					{
-						support: (
-							<ExternalLink url="https://redirection.me/support/problems/redirected-by-another-agent/" />
-						),
-					}
+				{ __(
+					'Redirected by an unknown agent. Another plugin or your server sent this redirect, not DSuite Redirects.',
+					'dsuite-redirects'
 				) }
 			</>
 		);
@@ -279,16 +260,9 @@ function HttpDetails( { desiredTarget, desiredCode, http, url }: HttpDetailsProp
 			<p>
 				{ desiredTarget && desiredCode && (
 					<>
-						{ createInterpolateElement(
-							__(
-								'If this is not expected then this {{support}}support page{{/support}} may help.',
-								'dsuite-redirects'
-							),
-							{
-								support: (
-									<ExternalLink url="https://redirection.me/support/problems/url-not-redirecting/" />
-								),
-							}
+						{ __(
+							'If this is not expected, look for a conflicting redirect in another plugin or your server config.',
+							'dsuite-redirects'
 						) }{ ' ' }
 					</>
 				) }

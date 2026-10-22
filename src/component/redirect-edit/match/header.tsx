@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 
-import { ExternalLink } from '@wp-plugin-components';
 import TableRow from '../table-row';
 
 interface MatchHeaderProps {
@@ -64,12 +63,7 @@ function MatchHeader( { onChange, data }: MatchHeaderProps ) {
 					onChange={ onChange }
 				/>
 				<label className="redirect-edit-regex" htmlFor="redirect-header-regex">
-					{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
-					<sup>
-						<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">
-							?
-						</ExternalLink>
-					</sup>
+					{ __( 'Regex', 'dsuite-redirects' ) }
 				</label>
 			</TableRow>
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, Error } from '@wp-plugin-components';
+import { Error } from '@wp-plugin-components';
 import { getErrorLinks, getErrorDetails } from 'lib/error-links';
 import { useSettingsStore } from 'stores';
 import DebugReport from 'page/home/debug';
@@ -117,12 +117,6 @@ function WelcomeWizard() {
 						setOptions={ ( newOptions ) => setOptions( { ...options, ...newOptions } ) }
 					/>
 				</div>
-			</div>
-
-			<div className="wizard-support">
-				<ExternalLink url="https://redirection.me/contact/">
-					{ __( 'I need support!', 'dsuite-redirects' ) }
-				</ExternalLink>
 			</div>
 		</>
 	);

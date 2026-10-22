@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 
-import { ExternalLink } from '@wp-plugin-components';
 import TableRow from '../table-row';
 
 interface MatchAgentProps {
@@ -52,10 +51,7 @@ function MatchAgent( { onChange, data }: MatchAgentProps ) {
 
 			<input id="redirect-agent-regex" type="checkbox" name="regex" checked={ regex } onChange={ onChange } />
 			<label className="redirect-edit-regex" htmlFor="redirect-agent-regex">
-				{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
-				<sup>
-					<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">?</ExternalLink>
-				</sup>
+				{ __( 'Regex', 'dsuite-redirects' ) }
 			</label>
 		</TableRow>
 	);

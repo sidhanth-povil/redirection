@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { ExternalLink, createInterpolateElement } from '@wp-plugin-components';
+import { createInterpolateElement } from '@wp-plugin-components';
 import { STEP_DATABASE, STEP_BASIC } from './constants';
 
 interface StepWelcomeProps {
@@ -90,55 +90,21 @@ export default function StepWelcome( { setStep, setOptions }: StepWelcomeProps )
 					'dsuite-redirects'
 				) }
 			</p>
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Full documentation can be found in the {{link}}Redirection documentation.{{/link}}',
-						'dsuite-redirects'
-					),
-					{
-						link: <ExternalLink url="https://redirection.me/support/" />,
-					}
-				) }
-			</p>
 
 			<h3>{ __( 'Some features you may find useful are', 'dsuite-redirects' ) }:</h3>
 
 			<ul>
 				<li>
-					{ createInterpolateElement(
-						__(
-							'{{link}}Monitor 404 errors{{/link}}, get detailed information about the visitor, and fix any problems',
-							'dsuite-redirects'
-						),
-						{
-							link: <ExternalLink url="https://redirection.me/support/tracking-404-errors/" />,
-						}
+					{ __(
+						'Monitor 404 errors, get detailed information about the visitor, and fix any problems',
+						'dsuite-redirects'
 					) }
 				</li>
+				<li>{ __( 'Import from .htaccess, CSV, and a variety of other plugins', 'dsuite-redirects' ) }</li>
 				<li>
-					{ createInterpolateElement(
-						__(
-							'{{link}}Import{{/link}} from .htaccess, CSV, and a variety of other plugins',
-							'dsuite-redirects'
-						),
-						{
-							link: <ExternalLink url="https://redirection.me/support/import-export-redirects/" />,
-						}
-					) }
-				</li>
-				<li>
-					{ createInterpolateElement(
-						__(
-							'More powerful URL matching, including {{regular}}regular expressions{{/regular}}, and {{other}}other conditions{{/other}}',
-							'dsuite-redirects'
-						),
-						{
-							regular: (
-								<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/" />
-							),
-							other: <ExternalLink url="https://redirection.me/support/matching-redirects/" />,
-						}
+					{ __(
+						'More powerful URL matching, including regular expressions, and other conditions',
+						'dsuite-redirects'
 					) }
 				</li>
 				<li>{ __( 'Check a URL is being redirected', 'dsuite-redirects' ) }</li>

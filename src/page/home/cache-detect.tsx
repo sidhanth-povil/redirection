@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, Error, Button, createInterpolateElement } from '@wp-plugin-components';
+import { Error, Button } from '@wp-plugin-components';
 import { getErrorLinks, getErrorDetails, getCacheBuster, getReloadUrl } from 'lib/error-links';
 
 function reloadWithoutCache() {
@@ -28,14 +28,9 @@ function CacheDetect() {
 				</Button>
 			</p>
 			<p>
-				{ createInterpolateElement(
-					__(
-						'If reloading does not fix this, ask your host or caching provider to exclude the WordPress admin area (/wp-admin/) from any page caching. If you are using Cloudflare then please read this: {{link}}clearing your cache.{{/link}}',
-						'dsuite-redirects'
-					),
-					{
-						link: <ExternalLink url="https://redirection.me/support/problems/cloudflare/" />,
-					}
+				{ __(
+					'If reloading does not fix this, ask your host or caching provider to exclude the WordPress admin area (/wp-admin/) from any page caching, then clear the cache.',
+					'dsuite-redirects'
 				) }
 			</p>
 		</Error>

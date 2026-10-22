@@ -21,7 +21,6 @@ interface UrlMonitoringProps {
 	onChange: ( settings: Partial< Settings > ) => void;
 	settings: Settings;
 	groups: GroupOption[];
-	getLink: ( rel: string, anchor?: string ) => string;
 	postTypes: PostTypes;
 }
 
@@ -82,7 +81,7 @@ function getMonitorPost( post: number, groups: GroupOption[] ): number {
 }
 
 function UrlMonitoring( props: UrlMonitoringProps ) {
-	const { onChange, settings, groups, getLink, postTypes } = props;
+	const { onChange, settings, groups, postTypes } = props;
 	const { associated_redirect, monitor_post, monitor_types } = settings;
 	const canMonitor = monitor_types.length > 0;
 
@@ -103,15 +102,12 @@ function UrlMonitoring( props: UrlMonitoringProps ) {
 
 	return (
 		<>
-			<TableRow title={ __( 'URL Monitor', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'monitor' ) }>
+			<TableRow title={ __( 'URL Monitor', 'dsuite-redirects' ) + ':' }>
 				{ getPostTypes( postTypes, monitor_types, onChangeMonitor ) }
 			</TableRow>
 
 			{ canMonitor && (
-				<TableRow
-					title={ __( 'URL Monitor Changes', 'dsuite-redirects' ) + ':' }
-					url={ getLink( 'options', 'monitor' ) }
-				>
+				<TableRow title={ __( 'URL Monitor Changes', 'dsuite-redirects' ) + ':' }>
 					<Select
 						items={ groups as any }
 						name="monitor_post"

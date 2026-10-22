@@ -43,9 +43,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	// Anchor value
 	if ( url.includes( '#' ) ) {
 		warnings.push(
-			<ExternalLink url="https://redirection.me/support/faq/#anchor">
-				{ __( 'Anchor values are not sent to the server and cannot be redirected.', 'dsuite-redirects' ) }
-			</ExternalLink>
+			<>{ __( 'Anchor values are not sent to the server and cannot be redirected.', 'dsuite-redirects' ) }</>
 		);
 	}
 
@@ -54,7 +52,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 		try {
 			const parsedUrl = new URL( url );
 			warnings.push(
-				<ExternalLink url="https://redirection.me/support/matching-redirects/#server">
+				<>
 					{ createInterpolateElement(
 						sprintf(
 							// translators: %(server)s is the domain name
@@ -68,7 +66,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 							code: <code />,
 						}
 					) }
-				</ExternalLink>
+				</>
 			);
 		} catch ( e ) {
 			// Invalid URL, skip warning
@@ -96,9 +94,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	// Regex without checkbox
 	if ( isRegex( url ) && flag_regex === false ) {
 		warnings.push(
-			<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">
-				{ __( 'Remember to enable the "regex" option if this is a regular expression.', 'dsuite-redirects' ) }
-			</ExternalLink>
+			<>{ __( 'Remember to enable the "regex" option if this is a regular expression.', 'dsuite-redirects' ) }</>
 		);
 	}
 
@@ -163,17 +159,7 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	}
 
 	if ( flag_regex && url.match( /[a-zA-Z0-9 ]\*/ ) ) {
-		warnings.push(
-			createInterpolateElement(
-				__(
-					'Wildcards are not supported. You need to use a {{link}}regular expression{{/link}}.',
-					'dsuite-redirects'
-				),
-				{
-					link: <ExternalLink url="https://redirection.me/support/redirect-regular-expressions/" />,
-				}
-			)
-		);
+		warnings.push( __( 'Wildcards are not supported. You need to use a regular expression.', 'dsuite-redirects' ) );
 	}
 
 	// Redirect everything
@@ -283,12 +269,12 @@ export const getWarningFromState = ( item: any ): React.ReactNode[] => {
 	// Warning if a URL with a common file extension
 	if ( url.match( /(\.html|\.htm|\.php|\.pdf|\.jpg)$/ ) !== null ) {
 		warnings.push(
-			<ExternalLink url="https://redirection.me/support/problems/url-not-redirecting/">
+			<>
 				{ __(
 					'Some servers may be configured to serve file resources directly, preventing a redirect occurring.',
 					'dsuite-redirects'
 				) }
-			</ExternalLink>
+			</>
 		);
 	}
 

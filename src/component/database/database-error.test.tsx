@@ -236,14 +236,13 @@ describe( 'DatabaseError Component', () => {
 		expect( textarea.value ).toContain( 'Debug: Debug info' );
 	} );
 
-	it( 'should render support button', () => {
+	it( 'points the user to their developer, not an upstream support address', () => {
 		render( <DatabaseError error="Test error" onRetry={ mockOnRetry } />, {
 			wrapper: createWrapper(),
 		} );
 
-		const supportButton = screen.getByText( 'ask for support' );
-		expect( supportButton ).toBeInTheDocument();
-		expect( supportButton.tagName ).toBe( 'BUTTON' );
+		expect( screen.getByText( /send these details to your site developer/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'ask for support' } ) ).toBeNull();
 	} );
 
 	it( 'should render textarea as readonly', () => {
