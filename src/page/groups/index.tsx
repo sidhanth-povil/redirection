@@ -1,44 +1,141 @@
-import { __ } from '@wordpress/i18n';
-import {
-	getFilterOptions,
-	getDisplayGroups,
-	getDisplayOptions,
-	getHeaders,
-	getBulk,
-	getSearchOptions,
-} from './constants';
-import { useTableStore } from 'stores';
-import { useGroupList, useGroupBulkAction, useExport } from 'lib/api/hooks';
-import { cleanApiParams } from 'lib/api/utils';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import { useGroupBulkAction, useGroupCreate, useGroupList, useGroupUpdate } from 'lib/api/hooks';
 import { useTableUrlSync } from 'lib/hooks';
-import { getModules } from 'lib/modules';
-import { has_capability, CAP_GROUP_ADD } from 'lib/capabilities';
-import LogPage from 'component/log-page';
-import CreateGroup from './create-group';
-import GroupRowActions from './row-actions';
-import getColumns, { type RowParams } from './columns';
-import { getExportFilename } from 'page/export/export-helpers';
-import type { TableState, Group, RowId } from 'types';
-import './style.scss';
+import { getModuleName, getModules } from 'lib/modules';
+import { has_capability, CAP_GROUP_ADD, CAP_GROUP_DELETE, CAP_REDIRECT_MANAGE } from 'lib/capabilities';
+import { useTableStore } from 'stores';
+import { buildHash } from 'app/router';
+import { Badge, Button } from 'ui';
+// Shared list styles (.dsr-table, .dsr-toolbar, …).
+import '../redirects/style.scss';
+import type { Group } from 'types';
 
-function validateDisplay( selected: string[] ): string[] {
-	if ( ! selected.includes( 'name' ) ) {
-		return selected.concat( [ 'name' ] );
-	}
+const APACHE_MODULE = 2;
 
-	return selected;
+interface ModuleSelectProps {
+	id: string;
+	value: number;
+	onChange: ( moduleId: number ) => void;
 }
 
-function isAvailable( item: string, table: TableState ): boolean {
-	return table.displaySelected?.includes( item ) ?? false;
+function ModuleSelect( { id, value, onChange }: ModuleSelectProps ) {
+	return (
+		<>
+			<label className="screen-reader-text" htmlFor={ id }>
+				{ __( 'Module', 'dsuite-redirects' ) }
+			</label>
+			<select
+				id={ id }
+				className="dsr-select"
+				value={ value }
+				onChange={ ( event ) => onChange( parseInt( event.target.value, 10 ) ) }
+			>
+				{ getModules().map( ( module ) => (
+					<option key={ module.value } value={ module.value }>
+						{ module.label }
+					</option>
+				) ) }
+			</select>
+		</>
+	);
 }
 
-function Groups() {
-	// Get table UI state from table store
-	const table = useTableStore( ( state ) => state.groups );
-	const { setGroupsTable, setGroupsSelected } = useTableStore();
+function ApacheNote( { moduleId }: { moduleId: number } ) {
+	return moduleId === APACHE_MODULE ? (
+		<p className="dsr-hint">
+			{ __(
+				'Note that you will need to set the Apache module path in your DSuite Redirects options.',
+				'dsuite-redirects'
+			) }
+		</p>
+	) : null;
+}
 
-	// Sync table state with URL query parameters
+function AddGroup() {
+	const [ name, setName ] = useState( '' );
+	const [ moduleId, setModuleId ] = useState( 1 );
+	const create = useGroupCreate();
+
+	const onSubmit = ( event: FormEvent ) => {
+		event.preventDefault();
+		create.mutate( { name: name.trim(), moduleId, position: 0 } );
+		setName( '' );
+	};
+
+	return (
+		<form className="dsr-toolbar" onSubmit={ onSubmit }>
+			<div className="dsr-search">
+				<label className="screen-reader-text" htmlFor="dsr-group-new">
+					{ __( 'New group name', 'dsuite-redirects' ) }
+				</label>
+				<input
+					id="dsr-group-new"
+					type="text"
+					className="dsr-input"
+					placeholder={ __( 'New group name', 'dsuite-redirects' ) }
+					value={ name }
+					onChange={ ( event ) => setName( event.target.value ) }
+				/>
+			</div>
+			<ModuleSelect id="dsr-group-new-module" value={ moduleId } onChange={ setModuleId } />
+			<Button type="submit" variant="primary" disabled={ name.trim() === '' }>
+				{ __( 'Add group', 'dsuite-redirects' ) }
+			</Button>
+			<ApacheNote moduleId={ moduleId } />
+		</form>
+	);
+}
+
+interface EditRowProps {
+	group: Group;
+	onDone: () => void;
+}
+
+function EditRow( { group, onDone }: EditRowProps ) {
+	const [ name, setName ] = useState( group.name );
+	const [ moduleId, setModuleId ] = useState( group.module_id );
+	const update = useGroupUpdate();
+
+	const onSubmit = ( event: FormEvent ) => {
+		event.preventDefault();
+		update.mutate( { id: group.id, name: name.trim(), moduleId } );
+		onDone();
+	};
+
+	return (
+		<tr>
+			<td colSpan={ 4 }>
+				<form className="dsr-toolbar" onSubmit={ onSubmit }>
+					<div className="dsr-search">
+						<label className="screen-reader-text" htmlFor={ `dsr-group-${ group.id }` }>
+							{ __( 'Group name', 'dsuite-redirects' ) }
+						</label>
+						<input
+							id={ `dsr-group-${ group.id }` }
+							type="text"
+							className="dsr-input"
+							value={ name }
+							onChange={ ( event ) => setName( event.target.value ) }
+						/>
+					</div>
+					<ModuleSelect id={ `dsr-group-${ group.id }-module` } value={ moduleId } onChange={ setModuleId } />
+					<Button type="submit" variant="primary" disabled={ name.trim() === '' }>
+						{ __( 'Save', 'dsuite-redirects' ) }
+					</Button>
+					<Button onClick={ onDone }>{ __( 'Cancel', 'dsuite-redirects' ) }</Button>
+					<ApacheNote moduleId={ moduleId } />
+				</form>
+			</td>
+		</tr>
+	);
+}
+
+export default function Groups() {
+	const table = useTableStore( ( store ) => store.groups );
+	const { setGroupsTable } = useTableStore();
+
 	useTableUrlSync( {
 		table,
 		setTable: setGroupsTable,
@@ -48,174 +145,139 @@ function Groups() {
 		pageName: 'groups',
 	} );
 
-	const groupBulkAction = useGroupBulkAction();
-	const exportMutation = useExport();
+	const { data, isFetching } = useGroupList( table );
+	const bulk = useGroupBulkAction();
+	const rows: Group[] = data?.items ?? [];
+	const total = data?.total ?? 0;
+	const pages = Math.max( 1, Math.ceil( total / table.per_page ) );
+	const [ editing, setEditing ] = useState< number | null >( null );
 
-	// Fetch groups with current table params - read directly from Query
-	const { data: groupData, isLoading } = useGroupList( table );
-	const rows = groupData?.items ?? [];
-	const total = groupData?.total ?? 0;
+	const canEdit = has_capability( CAP_GROUP_ADD );
+	const canDelete = has_capability( CAP_GROUP_DELETE );
+	const canViewRedirects = has_capability( CAP_REDIRECT_MANAGE );
 
-	// Derive status from Query states
-	const status: 'loading' | 'complete' = isLoading && ! groupData ? 'loading' : 'complete';
-
-	const handleChangePage = ( page: number ) => {
-		setGroupsTable( { page, selected: [], selectAll: false } );
-	};
-
-	const handleBulk = ( action: string ) => {
-		if ( table.selected.length === 0 && ! table.selectAll ) {
-			return;
+	const onDelete = ( group: Group ) => {
+		/* translators: %s: group name */
+		if ( window.confirm( sprintf( __( 'Delete the group %s and its redirects?', 'dsuite-redirects' ), group.name ) ) ) {
+			bulk.mutate( { action: 'delete', items: [ group.id ] } );
 		}
-
-		if ( action === 'export-csv' || action === 'export-json' ) {
-			const params = cleanApiParams(
-				table.selectAll
-					? {
-							global: true,
-							filterBy: table.filterBy,
-					  }
-					: {
-							items: table.selected,
-					  }
-			);
-
-			exportMutation.mutate( {
-				exportType: 'group',
-				format: action === 'export-csv' ? 'csv' : 'json',
-				download: true,
-				filename: getExportFilename( 'group', action === 'export-csv' ? 'csv' : 'json' ),
-				params,
-			} );
-
-			return;
-		}
-
-		if ( action === 'delete' ) {
-			const message = table.selectAll
-				? __( 'Are you sure you want to delete all items?', 'dsuite-redirects' )
-				: __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' );
-
-			if ( ! window.confirm( message ) ) {
-				return;
-			}
-		}
-
-		const selectedIds = table.selected as number[];
-
-		if ( table.selectAll ) {
-			// Apply action to all items matching current filters
-			const params = { global: true, filterBy: table.filterBy };
-			groupBulkAction.mutate( { action, items: [], params } );
-		} else {
-			// Apply action to selected items only
-			groupBulkAction.mutate( { action, items: selectedIds } );
-		}
-	};
-
-	const handleSelect = ( id: RowId | RowId[] | boolean ) => {
-		const currentSelected = table.selected;
-
-		if ( typeof id === 'boolean' ) {
-			// Select all or clear all
-			setGroupsSelected( id ? rows.map( ( r ) => r.id ) : [] );
-		} else if ( Array.isArray( id ) ) {
-			// Multiple items selected
-			setGroupsSelected( id );
-		} else if ( currentSelected.includes( id ) ) {
-			// Toggle single item - remove if selected, clear selectAll if active
-			setGroupsTable( { selected: currentSelected.filter( ( i ) => i !== id ), selectAll: false } );
-		} else {
-			// Toggle single item - add if not selected, clear selectAll if active
-			setGroupsTable( { selected: [ ...currentSelected, id ], selectAll: false } );
-		}
-	};
-
-	const handleSetOrder = ( column: string, direction: string ) => {
-		setGroupsTable( { orderby: column, direction: direction as 'asc' | 'desc' } );
-	};
-
-	const handleGroup = ( groupBy: string ) => {
-		setGroupsTable( { groupBy, page: 0, selected: [], selectAll: false } );
-	};
-
-	const handleFilter = ( filterBy: Record< string, any > ) => {
-		setGroupsTable( { filterBy, page: 0, selected: [], selectAll: false } );
-	};
-
-	const handleSetDisplay = ( displayType: string, displaySelected: string[] ) => {
-		setGroupsTable( { displayType, displaySelected } );
-	};
-
-	const handleSetAll = ( allOrClear: boolean ) => {
-		setGroupsTable( {
-			selected: allOrClear ? rows.map( ( r ) => r.id ) : [],
-			selectAll: allOrClear,
-		} );
-	};
-
-	const logOptions = {
-		displayFilters: getDisplayOptions(),
-		displayGroups: getDisplayGroups(),
-		searchOptions: getSearchOptions(),
-		groupBy: [],
-		bulk: getBulk(),
-		rowFilters: getFilterOptions(
-			getModules().map( ( module ) => ( { label: module.label, value: `${ module.value }` } ) )
-		),
-		headers: getHeaders().filter( ( item ) => isAvailable( item.name, table ) ),
-		validateDisplay,
-	};
-
-	const logActions = {
-		onChangePage: handleChangePage,
-		onBulk: handleBulk,
-		onSelect: handleSelect,
-		onSetOrder: handleSetOrder,
-		onFilter: handleFilter,
-		onSetDisplay: handleSetDisplay,
-		onSetAll: handleSetAll,
-		onGroup: handleGroup,
-	};
-
-	// Convert TableState to LogPage's Table format
-	const logPageTable = {
-		page: table.page,
-		perPage: table.per_page,
-		orderBy: table.orderby,
-		direction: table.direction,
-		selected: table.selected as number[],
-		selectAll: table.selectAll ?? false,
-		filter: '',
-		filterBy: ( table.filterBy ?? {} ) as Record< string, string >,
-		displayType: table.displayType ?? 'standard',
-		displaySelected: table.displaySelected ?? [],
-		groupBy: table.groupBy ?? '',
 	};
 
 	return (
-		<>
-			<LogPage
-				logOptions={ logOptions }
-				logActions={ logActions }
-				table={ logPageTable }
-				status={ status }
-				total={ total }
-				rows={ rows }
-				saving={ [] }
-				getRow={ ( row, rowParams ) => getColumns( row as Group, rowParams as unknown as RowParams ) }
-				getRowActions={ ( row, rowParams ) => (
-					<GroupRowActions
-						disabled={ false }
-						row={ row as Group }
-						rowParams={ rowParams as unknown as RowParams }
-					/>
-				) }
-			/>
+		<div className="dsr-redirects">
+			{ canEdit && <AddGroup /> }
 
-			{ has_capability( CAP_GROUP_ADD ) && <CreateGroup disabled={ false } /> }
-		</>
+			{ rows.length === 0 ? (
+				<div className="dsr-empty">
+					{ isFetching && ! data
+						? __( 'Loading groups…', 'dsuite-redirects' )
+						: __( 'No groups yet.', 'dsuite-redirects' ) }
+				</div>
+			) : (
+				<table className="dsr-table">
+					<thead>
+						<tr>
+							<th>{ __( 'Group', 'dsuite-redirects' ) }</th>
+							<th className="dsr-table__type">{ __( 'Module', 'dsuite-redirects' ) }</th>
+							<th className="dsr-table__hits dsr-num">{ __( 'Redirects', 'dsuite-redirects' ) }</th>
+							<th className="dsr-table__actions">
+								<span className="screen-reader-text">{ __( 'Actions', 'dsuite-redirects' ) }</span>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ rows.map( ( group ) =>
+							editing === group.id ? (
+								<EditRow key={ group.id } group={ group } onDone={ () => setEditing( null ) } />
+							) : (
+								<tr key={ group.id } className={ group.enabled ? undefined : 'is-disabled' }>
+									<td className="dsr-table__redirect">
+										<span className="dsr-table__source" title={ group.name }>
+											{ group.name }
+										</span>
+									</td>
+									<td className="dsr-table__type">
+										<span className="dsr-table__badges">
+											<Badge tone="info">{ getModuleName( group.module_id ) }</Badge>
+											{ ! group.enabled && (
+												<Badge tone="neutral">{ __( 'Disabled', 'dsuite-redirects' ) }</Badge>
+											) }
+										</span>
+									</td>
+									<td
+										className="dsr-table__hits dsr-num"
+										data-label={ __( 'Redirects', 'dsuite-redirects' ) }
+									>
+										{ group.redirects }
+									</td>
+									<td className="dsr-table__actions">
+										{ canViewRedirects && (
+											<a
+												className="dsr-link"
+												href={ buildHash( 'redirects', { 'filterby[group]': String( group.id ) } ) }
+											>
+												{ __( 'View redirects', 'dsuite-redirects' ) }
+											</a>
+										) }
+										{ canEdit && (
+											<button type="button" className="dsr-link" onClick={ () => setEditing( group.id ) }>
+												{ __( 'Edit', 'dsuite-redirects' ) }
+											</button>
+										) }
+										{ canEdit && (
+											<button
+												type="button"
+												className="dsr-link"
+												onClick={ () =>
+													bulk.mutate( {
+														action: group.enabled ? 'disable' : 'enable',
+														items: [ group.id ],
+													} )
+												}
+											>
+												{ group.enabled
+													? __( 'Disable', 'dsuite-redirects' )
+													: __( 'Enable', 'dsuite-redirects' ) }
+											</button>
+										) }
+										{ canDelete && (
+											<button
+												type="button"
+												className="dsr-link dsr-link--danger"
+												onClick={ () => onDelete( group ) }
+											>
+												{ __( 'Delete', 'dsuite-redirects' ) }
+											</button>
+										) }
+									</td>
+								</tr>
+							)
+						) }
+					</tbody>
+				</table>
+			) }
+
+			{ pages > 1 && (
+				<nav className="dsr-pagination" aria-label={ __( 'Pagination', 'dsuite-redirects' ) }>
+					<Button disabled={ table.page === 0 } onClick={ () => setGroupsTable( { page: table.page - 1 } ) }>
+						{ __( 'Previous', 'dsuite-redirects' ) }
+					</Button>
+					<span>
+						{ sprintf(
+							/* translators: 1: current page, 2: total pages */
+							__( 'Page %1$d of %2$d', 'dsuite-redirects' ),
+							table.page + 1,
+							pages
+						) }
+					</span>
+					<Button
+						disabled={ table.page + 1 >= pages }
+						onClick={ () => setGroupsTable( { page: table.page + 1 } ) }
+					>
+						{ __( 'Next', 'dsuite-redirects' ) }
+					</Button>
+				</nav>
+			) }
+		</div>
 	);
 }
-
-export default Groups;
