@@ -137,7 +137,12 @@ class Nginx extends FormatHandler {
 		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
 		if ( $item->is_wildcard() ) {
 			// A wildcard is exported as its compiled regex, with each * in the target as $1, $2...
-			return $this->get_redirect( \Redirection\Url\Wildcard::to_pattern( $item->get_url() ), \Redirection\Url\Wildcard::to_replacement( $item->get_action_data() ), $this->get_redirect_code( $item ), $source, true );
+			// Written directly: Red_Url_Encode would percent-encode preg_quote's backslashes and drop the leading /,
+			// and nginx matches against $uri, which always starts with /. Quoted because the pattern may contain { }.
+			$case = isset( $source['flag_case'] ) && $source['flag_case'] ? '(?i)' : '';
+			$from = $case . \Redirection\Url\Wildcard::to_pattern( $item->get_url() );
+
+			return 'rewrite "' . str_replace( '"', '\\"', $from ) . '" ' . \Redirection\Url\Wildcard::to_replacement( $item->get_action_data() ) . ' ' . $this->get_redirect_code( $item ) . ';';
 		}
 
 		return $this->get_redirect( $item->get_url(), $item->get_action_data(), $this->get_redirect_code( $item ), $source, $regex );

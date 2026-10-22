@@ -141,6 +141,11 @@ class Sanitize {
 		// A plain source containing * is a wildcard. It is stored as a regex row so the existing regex lookup fetches it.
 		$asked_for_regex = isset( $details['regex'] ) && intval( $details['regex'], 10 ) === 1;
 		if ( $data['regex'] === 0 && ! $asked_for_regex && is_string( $data['url'] ) && strpos( $data['url'], '*' ) !== false ) {
+			// A whole-site wildcard would also catch wp-login.php and lock admins out.
+			if ( in_array( $data['url'], [ '*', '/*' ], true ) ) {
+				return new WP_Error( 'redirect', __( 'A wildcard for the whole site would also redirect the login page. To move the whole site, use Site → Relocate.', 'dsuite-redirects' ) );
+			}
+
 			$data['regex'] = 1;
 			$match_data = is_array( $data['match_data'] ) ? $data['match_data'] : [];
 			$match_data['source'] = array_merge( $match_data['source'] ?? [], [ 'flag_wildcard' => true ] );

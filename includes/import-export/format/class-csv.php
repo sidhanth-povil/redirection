@@ -98,7 +98,9 @@ class Csv extends FormatHandler {
 		$csv = [
 			$item->get_url(),
 			$data,
-			$item->is_regex() ? 1 : 0,
+			// Wildcards export as plain sources; the server turns them back into wildcards on import.
+			// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+			$item->is_regex() && ! $item->is_wildcard() ? 1 : 0,
 			$item->get_action_code(),
 			$item->get_action_type(),
 			$item->get_hits(),

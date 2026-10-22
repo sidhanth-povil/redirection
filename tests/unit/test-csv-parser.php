@@ -94,4 +94,12 @@ class CsvParserTest extends TestCase {
 		$this->assertArrayNotHasKey( 'end_at', $item );
 		$this->assertArrayNotHasKey( 'start_at', $parser->parse_row( array_slice( $row, 0, 8 ) ) );
 	}
+
+	public function testGuessesWildcardVersusRegexWithoutARegexColumn() {
+		$parser = new CsvParser();
+
+		$this->assertFalse( $parser->parse_row( [ '/blog/*', '/news/*' ] )['regex'] );
+		$this->assertTrue( $parser->parse_row( [ '/blog/.*', '/news/' ] )['regex'] );
+		$this->assertTrue( $parser->parse_row( [ '^/old/(\d+)$', '/new/$1' ] )['regex'] );
+	}
 }

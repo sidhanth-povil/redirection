@@ -129,11 +129,43 @@ class WildcardRedirectsTest extends Redirection_Api_Test {
 		$this->assertStringNotContainsString( '/news/*', $apache );
 
 		$nginx = ( new \Redirection\ImportExport\Format\Nginx() )->get_data( $items, [] );
-		$this->assertStringContainsString( 'blog/(.*)', $nginx );
-		$this->assertStringContainsString( '/news/$1', $nginx );
+		$this->assertStringContainsString( 'rewrite "^/blog/(.*)$" /news/$1 permanent;', $nginx );
+
+		$hyphen = $this->create( '/summer-sale/*', '/autumn/*', [ 'flag_case' => true ] );
+		$nginx = ( new \Redirection\ImportExport\Format\Nginx() )->get_data( [ Red_Item::get_by_id( $hyphen->get_id() ) ], [] );
+		$this->assertStringContainsString( 'rewrite "(?i)^/summer\\-sale/(.*)$" /autumn/$1 permanent;', $nginx );
 
 		$netlify = ( new \Redirection\ImportExport\Format\RedirectsFile() )->get_data( $items, [] );
 		$this->assertStringContainsString( '/blog/* /news/:splat 301', $netlify );
 		$this->assertStringNotContainsString( '/shop/', $netlify );
+	}
+
+	public function testJsonRoundTripKeepsAWildcard() {
+		$json = Red_Item::get_by_id( $this->create( '/blog/*', '/news/*' )->get_id() )->to_json();
+		$this->assertFalse( $json['regex'] );
+
+		global $wpdb;
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}redirection_items" );
+
+		$copy = Red_Item::create( array_merge( $json, [ 'group_id' => $this->group->get_id() ] ) );
+
+		$this->assertTrue( $copy->is_wildcard() );
+		$this->assertSame( '/news/x', $this->target_for( '/blog/x' ) );
+		$this->assertFalse( $this->target_for( '/blogging-tips' ) );
+	}
+
+	public function testCsvExportLetsTheServerDeriveTheWildcard() {
+		$item = Red_Item::get_by_id( $this->create( '/blog/*', '/news/*' )->get_id() );
+		$line = ( new \Redirection\ImportExport\Format\Csv() )->item_as_csv( $item );
+
+		$this->assertStringStartsWith( '"/blog/*","/news/*",0,', $line );
+	}
+
+	public function testRefusesAWholeSiteWildcard() {
+		foreach ( [ '*', '/*' ] as $source ) {
+			$result = $this->create( $source, 'https://example.com/*' );
+
+			$this->assertWPError( $result, $source );
+		}
 	}
 }

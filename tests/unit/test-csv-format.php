@@ -68,6 +68,10 @@ class CsvFormatTest extends TestCase {
 				return $this->args['regex'] ?? false;
 			}
 
+			public function is_wildcard() {
+				return $this->args['wildcard'] ?? false;
+			}
+
 			public function to_json() {
 				return [ 'start_at' => null, 'end_at' => null ];
 			}

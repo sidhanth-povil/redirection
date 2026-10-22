@@ -1240,7 +1240,8 @@ class Redirect {
 			'match_type' => $this->get_match_type(),
 			'title' => $this->get_title(),
 			'hits' => $this->get_hits(),
-			'regex' => $this->is_regex(),
+			// A wildcard is stored as a regex row for the lookup, but it is not a regex: exports and re-imports derive it again.
+			'regex' => $this->is_regex() && ! $this->is_wildcard(),
 			'group_id' => $this->get_group_id(),
 			'position' => $this->get_position(),
 			'last_access' => $this->get_last_hit() > 0 ? date_i18n( get_option( 'date_format' ), $this->get_last_hit() ) : '-',

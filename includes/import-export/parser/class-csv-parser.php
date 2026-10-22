@@ -118,11 +118,8 @@ class CsvParser {
 	 * @return bool
 	 */
 	private function is_regex( $url ) {
-		if ( strpbrk( $url, '()[]$^*' ) === false ) {
-			return false;
-		}
-
-		return true;
+		// A bare * is now a wildcard; * only signals regex when it quantifies something (.* )* ]*).
+		return strpbrk( $url, '()[]$^' ) !== false || preg_match( '/[.)\]]\*/', $url ) === 1;
 	}
 
 	/**
