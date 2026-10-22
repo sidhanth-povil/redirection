@@ -51,7 +51,8 @@ if [ "$(git rev-parse HEAD)" != "$(git rev-parse refs/remotes/origin/trunk)" ]; 
 fi
 
 VERSION="$(node -p "require('./package.json').version")"
-TAG="$VERSION"
+# "v" prefix: upstream Redirection tags are bare numbers (2.3.7 … 5.10.1) and arrive with `git fetch upstream`.
+TAG="v$VERSION"
 ZIP_FILE="release/dsuite-redirects.zip"
 REMOTE_TAG_EXISTS=0
 
