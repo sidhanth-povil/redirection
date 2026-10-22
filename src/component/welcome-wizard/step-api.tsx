@@ -63,14 +63,9 @@ export default function StepAPI( { setStep, step }: StepApiProps ) {
 			</ul>
 
 			<p>
-				{ createInterpolateElement(
-					__(
-						'If you do experience a problem then please consult your plugin documentation, or try contacting your host support. This is generally {{link}}not a problem caused by DSuite Redirects{{/link}}.',
-						'dsuite-redirects'
-					),
-					{
-						link: <ExternalLink url="https://redirection.me/support/problems/rest-api/" />,
-					}
+				{ __(
+					'If you do experience a problem then please consult your plugin documentation, or try contacting your host support. This is generally not a problem caused by DSuite Redirects.',
+					'dsuite-redirects'
 				) }
 			</p>
 

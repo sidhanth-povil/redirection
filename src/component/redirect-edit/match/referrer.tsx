@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 
-import { ExternalLink } from '@wp-plugin-components';
 import TableRow from '../table-row';
 
 interface MatchReferrerProps {
@@ -27,10 +26,7 @@ const MatchReferrer = ( { data, onChange }: MatchReferrerProps ) => {
 
 			<input id="redirect-referrer-regex" type="checkbox" name="regex" checked={ regex } onChange={ onChange } />
 			<label className="redirect-edit-regex" htmlFor="redirect-referrer-regex">
-				{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
-				<sup>
-					<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">?</ExternalLink>
-				</sup>
+				{ __( 'Regex', 'dsuite-redirects' ) }
 			</label>
 		</TableRow>
 	);

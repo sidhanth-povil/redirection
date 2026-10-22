@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
-import { createInterpolateElement, ExternalLink, Error } from '@wp-plugin-components';
+import { createInterpolateElement, Error } from '@wp-plugin-components';
 import TextareaAutosize from 'react-textarea-autosize';
 import Database from 'component/database';
 import { useExport } from 'lib/api/hooks';
@@ -220,7 +220,6 @@ function ShowNotice( { onShowUpgrade }: ShowNoticeProps ) {
 						),
 						{
 							download: <DownloadBackupLink />,
-							import: <ExternalLink url="https://redirection.me/support/import-export-redirects/" />,
 						}
 					) }
 				</p>

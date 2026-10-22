@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, createInterpolateElement } from '@wp-plugin-components';
 import { useImporterList } from 'lib/api/hooks';
 
 interface StepSettings {
@@ -67,10 +66,6 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 						'If you change the permalink in a post or page then DSuite Redirects can automatically create a redirect for you.',
 						'dsuite-redirects'
 					) }
-					&nbsp;
-					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'dsuite-redirects' ), {
-						link: <ExternalLink url="https://redirection.me/support/options/#monitor" />,
-					} ) }
 				</p>
 			</div>
 
@@ -86,10 +81,6 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 						'Storing logs for redirects and 404s will allow you to see what is happening on your site. This will increase your database storage requirements.',
 						'dsuite-redirects'
 					) }
-					&nbsp;
-					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'dsuite-redirects' ), {
-						link: <ExternalLink url="https://redirection.me/support/logs/" />,
-					} ) }
 				</p>
 			</div>
 
@@ -112,10 +103,6 @@ export default function StepOptions( { setStep, step, options, setOptions }: Ste
 						'Storing the IP address allows you to perform additional log actions. Note that you will need to adhere to local laws regarding the collection of data (for example GDPR).',
 						'dsuite-redirects'
 					) }
-					&nbsp;
-					{ createInterpolateElement( __( '{{link}}Read more about this.{{/link}}', 'dsuite-redirects' ), {
-						link: <ExternalLink url="https://redirection.me/support/privacy-gdpr/" />,
-					} ) }
 				</p>
 			</div>
 

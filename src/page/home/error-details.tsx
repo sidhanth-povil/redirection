@@ -24,25 +24,15 @@ function ErrorDetails() {
 					) }
 				</li>
 				<li>
-					{ createInterpolateElement(
-						__(
-							'{{link}}Caching software{{/link}}, in particular Cloudflare, can cache the wrong thing. Try clearing all your caches.',
-							'dsuite-redirects'
-						),
-						{
-							link: <ExternalLink url="https://redirection.me/support/problems/cloudflare/" />,
-						}
+					{ __(
+						'Caching software, in particular Cloudflare, can cache the wrong thing. Try clearing all your caches.',
+						'dsuite-redirects'
 					) }
 				</li>
 				<li>
-					{ createInterpolateElement(
-						__(
-							'{{link}}Please temporarily disable other plugins!{{/link}} This fixes so many problems.',
-							'dsuite-redirects'
-						),
-						{
-							link: <ExternalLink url="https://redirection.me/support/problems/plugins/" />,
-						}
+					{ __(
+						'Please temporarily disable other plugins! This fixes so many problems.',
+						'dsuite-redirects'
 					) }
 				</li>
 				<li>

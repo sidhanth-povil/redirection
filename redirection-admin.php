@@ -441,8 +441,6 @@ class Redirection_Admin {
 		);
 
 		wp_set_script_translations( 'redirection', 'redirection' );
-
-		$this->add_help_tab();
 	}
 
 	/**
@@ -486,28 +484,6 @@ class Redirection_Admin {
 		}
 
 		return [];
-	}
-
-	/**
-	 * @return void
-	 */
-	private function add_help_tab() {
-		/* translators: URL */
-		$content = sprintf( __( 'You can find full documentation about using Redirection on the <a href="%s" target="_blank">redirection.me</a> support site.', 'redirection' ), 'https://redirection.me/support/?utm_source=redirection&utm_medium=plugin&utm_campaign=context-help' );
-		$title = __( 'Redirection Support', 'redirection' );
-
-		$current_screen = get_current_screen();
-		if ( $current_screen === null ) {
-			return;
-		}
-
-		$current_screen->add_help_tab(
-			array(
-				'id'        => 'redirection',
-				'title'     => 'Redirection',
-				'content'   => "<h2>$title</h2><p>$content</p>",
-			)
-		);
 	}
 
 	/**
@@ -637,18 +613,7 @@ class Redirection_Admin {
 			</p>
 			<p><code><?php echo esc_html( plugin_dir_url( REDIRECTION_FILE ) . 'redirection.js?ver=' . rawurlencode( REDIRECTION_VERSION ) ); ?></code></p>
 			<p><?php esc_html_e( 'Please note that Redirection requires the WordPress REST API to be enabled. If you have disabled this then you won\'t be able to use Redirection', 'redirection' ); ?></p>
-			<p>
-				<?php
-				echo wp_kses_post(
-					sprintf(
-						/* translators: %s: URL to common problems documentation */
-						__( 'Please see the <a href="%s">list of common problems</a>.', 'redirection' ),
-						esc_url( 'https://redirection.me/support/problems/' )
-					)
-				);
-				?>
-			</p>
-			<p><?php esc_html_e( 'If you think Redirection is at fault then create an issue.', 'redirection' ); ?></p>
+			<p><?php esc_html_e( 'If the problem continues, send the details on this page to your site developer.', 'redirection' ); ?></p>
 			<p class="versions">
 				<?php
 				echo wp_kses_post(
@@ -656,11 +621,6 @@ class Redirection_Admin {
 				);
 				?>
 			</p>
-		<p>
-			<a class="button-primary" target="_blank" href="https://github.com/johngodley/redirection/issues/new?title=Problem%20starting%20Redirection%20<?php echo esc_attr( REDIRECTION_VERSION ); ?>">
-				<?php esc_html_e( 'Create Issue', 'redirection' ); ?>
-			</a>
-		</p>
 	</div>
 		<?php
 	}

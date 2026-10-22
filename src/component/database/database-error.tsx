@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import TextareaAutosize from 'react-textarea-autosize';
-import { createInterpolateElement } from '@wp-plugin-components';
 import { useDatabaseUpgrade } from 'lib/api/hooks/use-settings';
 import { useSettingsStore } from 'stores';
 
@@ -24,20 +23,12 @@ export default function DatabaseError( { onRetry, error }: DatabaseErrorProps ) 
 	const { current, next, debug, reason } = useSettingsStore( ( state ) => state.database );
 	const { mutate: upgradeDatabaseMutation } = useDatabaseUpgrade();
 	const recovery = getErrorMessage( reason, current, next, debug );
-	const mailto =
-		'mailto:john@redirection.me?subject=Redirection%20Database&body=' +
-		encodeURIComponent( 'Redirection: ' + window.Redirectioni10n.versions );
-
 	function onSkip() {
 		upgradeDatabaseMutation( 'skip' );
 	}
 
 	function onStop() {
 		upgradeDatabaseMutation( 'stop' );
-	}
-
-	function onSupport() {
-		window.location.href = mailto;
 	}
 
 	return (
@@ -62,17 +53,7 @@ export default function DatabaseError( { onRetry, error }: DatabaseErrorProps ) 
 				) }
 			</p>
 
-			<p>
-				{ createInterpolateElement(
-					__(
-						'If you want to {{support}}ask for support{{/support}} please include these details:',
-						'dsuite-redirects'
-					),
-					{
-						support: <button type="button" onClick={ onSupport } />,
-					}
-				) }
-			</p>
+			<p>{ __( 'If you need help, send these details to your site developer:', 'dsuite-redirects' ) }</p>
 
 			<TextareaAutosize readOnly value={ recovery } rows={ 15 } />
 		</div>

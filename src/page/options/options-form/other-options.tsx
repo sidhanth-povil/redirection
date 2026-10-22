@@ -17,7 +17,6 @@ interface Settings {
 interface OtherOptionsProps {
 	settings: Settings;
 	onChange: ( ev: React.ChangeEvent< HTMLInputElement > ) => void;
-	getLink: ( rel: string, anchor?: string ) => string;
 	installed: string;
 	warning: string;
 }
@@ -44,7 +43,7 @@ function getPluginUpdateOptions(): Option[] {
 }
 
 function OtherOptions( props: OtherOptionsProps ) {
-	const { settings, onChange, getLink, installed, warning } = props;
+	const { settings, onChange, installed, warning } = props;
 	const { location, token, rest_api, plugin_update } = settings;
 
 	return (
@@ -54,7 +53,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 					<h2 className="title">{ __( 'Advanced', 'dsuite-redirects' ) }</h2>
 				</th>
 			</tr>
-			<TableRow title={ __( 'RSS Token', 'dsuite-redirects' ) + ':' } url={ getLink( 'options', 'rsstoken' ) }>
+			<TableRow title={ __( 'RSS Token', 'dsuite-redirects' ) + ':' }>
 				<input className="regular-text" type="text" value={ token } name="token" onChange={ onChange } />
 				<br />
 				<span className="sub">
@@ -64,7 +63,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 					) }
 				</span>
 			</TableRow>
-			<TableRow title={ __( 'Apache .htaccess', 'dsuite-redirects' ) } url={ getLink( 'options', 'apache' ) }>
+			<TableRow title={ __( 'Apache .htaccess', 'dsuite-redirects' ) }>
 				<p>
 					<label className="screen-reader-text" htmlFor="apache-htaccess-location">
 						{ __( 'Apache .htaccess location', 'dsuite-redirects' ) }
@@ -102,7 +101,7 @@ function OtherOptions( props: OtherOptionsProps ) {
 					</p>
 				) }
 			</TableRow>
-			<TableRow title={ __( 'REST API', 'dsuite-redirects' ) } url={ getLink( 'options', 'restapi' ) }>
+			<TableRow title={ __( 'REST API', 'dsuite-redirects' ) }>
 				<Select
 					items={ restApi() as any }
 					name="rest_api"

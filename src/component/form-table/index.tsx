@@ -2,23 +2,15 @@ import './style.scss';
 
 interface TableRowProps {
 	title: React.ReactNode;
-	url?: string | false;
 	children: React.ReactNode;
 }
 
 export const TableRow = ( props: TableRowProps ) => {
-	const { title, url = false, children } = props;
+	const { title, children } = props;
 
 	return (
 		<tr>
-			<th>
-				{ ! url && title }
-				{ url && (
-					<a href={ url } target="_blank" rel="noreferrer">
-						{ title }
-					</a>
-				) }
-			</th>
+			<th>{ title }</th>
 			<td>{ children }</td>
 		</tr>
 	);

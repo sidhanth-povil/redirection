@@ -455,8 +455,6 @@ class Admin {
 		);
 
 		wp_set_script_translations( 'redirection', 'dsuite-redirects' );
-
-		$this->add_help_tab();
 	}
 
 	/**
@@ -557,28 +555,6 @@ class Admin {
 		}
 
 		return [];
-	}
-
-	/**
-	 * @return void
-	 */
-	private function add_help_tab() {
-		/* translators: URL */
-		$content = sprintf( __( 'You can find full documentation about using DSuite Redirects on the <a href="%s" target="_blank">redirection.me</a> support site.', 'dsuite-redirects' ), 'https://redirection.me/support/?utm_source=redirection&utm_medium=plugin&utm_campaign=context-help' );
-		$title = __( 'DSuite Redirects Support', 'dsuite-redirects' );
-
-		$current_screen = get_current_screen();
-		if ( $current_screen === null ) {
-			return;
-		}
-
-		$current_screen->add_help_tab(
-			[
-				'id'        => 'redirection',
-				'title'     => 'DSuite Redirects',
-				'content'   => "<h2>$title</h2><p>$content</p>",
-			]
-		);
 	}
 
 	/**
@@ -754,18 +730,7 @@ class Admin {
 			</p>
 			<p><code><?php echo esc_html( plugin_dir_url( REDIRECTION_FILE ) . 'redirection.js?ver=' . rawurlencode( REDIRECTION_VERSION ) ); ?></code></p>
 			<p><?php esc_html_e( 'Please note that Redirection requires the WordPress REST API to be enabled. If you have disabled this then you won\'t be able to use Redirection', 'dsuite-redirects' ); ?></p>
-			<p>
-				<?php
-				echo wp_kses_post(
-					sprintf(
-						/* translators: %s: URL to common problems documentation */
-						__( 'Please see the <a href="%s">list of common problems</a>.', 'dsuite-redirects' ),
-						esc_url( 'https://redirection.me/support/problems/' )
-					)
-				);
-				?>
-			</p>
-			<p><?php esc_html_e( 'If you think Redirection is at fault then create an issue.', 'dsuite-redirects' ); ?></p>
+			<p><?php esc_html_e( 'If the problem continues, send the details on this page to your site developer.', 'dsuite-redirects' ); ?></p>
 			<p class="versions">
 				<?php
 				echo wp_kses_post(
@@ -773,11 +738,6 @@ class Admin {
 				);
 				?>
 			</p>
-		<p>
-			<a class="button-primary" target="_blank" href="https://github.com/johngodley/redirection/issues/new?title=Problem%20starting%20Redirection%20<?php echo esc_attr( REDIRECTION_VERSION ); ?>">
-				<?php esc_html_e( 'Create Issue', 'dsuite-redirects' ); ?>
-			</a>
-		</p>
 	</div>
 		<?php
 	}

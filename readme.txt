@@ -1,6 +1,5 @@
 === DSuite Redirects ===
 Contributors: johnny5
-Donate link: https://redirection.me/donation/
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
 Stable tag: 5.10.1
@@ -15,8 +14,6 @@ Redirection is the most popular redirect manager for WordPress. With it you can 
 Redirection is designed to be used on sites with a few redirects to sites with thousands of redirects.
 
 It has been a WordPress plugin for over 10 years and has been recommended countless times. And it's free!
-
-Full documentation can be found at [https://redirection.me](https://redirection.me)
 
 Redirection is compatible with PHP from 7.4 to 8.5.
 
@@ -112,27 +109,16 @@ Yes, it's really free. There's no premium version and no need to pay money to ge
 
 == Support ==
 
-Please submit bugs, patches, and feature requests to:
-
-[https://github.com/johngodley/redirection](https://github.com/johngodley/redirection)
-
-Please submit translations to:
-
-[https://translate.wordpress.org/projects/wp-plugins/redirection](https://translate.wordpress.org/projects/wp-plugins/redirection)
+DSuite Redirects is a private plugin. Report problems to the DSuite development team.
 
 == Installation ==
 
 The plugin is simple to install:
 
-1. Download `redirection.zip`
-1. Unzip
-1. Upload `redirection` directory to your `/wp-content/plugins` directory
-1. Go to the plugin management page and enable the plugin
-1. Configure the options from the `Tools/Redirection` page
-
-You can find full details of installing a plugin on the [plugin installation page](https://redirection.me/support/installation/).
-
-Full documentation can be found on the [Redirection](https://redirection.me/support/) site.
+1. Build `dsuite-redirects.zip` with `pnpm plugin:zip` (or take it from a release)
+1. Go to Plugins > Add New > Upload Plugin and upload the zip
+1. Activate the plugin (deactivate Redirection first; your redirects carry over)
+1. Open the Redirects menu
 
 == Screenshots ==
 

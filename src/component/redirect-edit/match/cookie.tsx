@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 
-import { ExternalLink } from '@wp-plugin-components';
 import TableRow from '../table-row';
 
 interface MatchCookieProps {
@@ -36,10 +35,7 @@ const MatchCookie = ( { data, onChange }: MatchCookieProps ) => {
 
 			<input id="redirect-cookie-regex" type="checkbox" name="regex" checked={ regex } onChange={ onChange } />
 			<label className="redirect-edit-regex" htmlFor="redirect-cookie-regex">
-				{ __( 'Regex', 'dsuite-redirects' ) }{ ' ' }
-				<sup>
-					<ExternalLink url="https://redirection.me/support/redirect-regular-expressions/">?</ExternalLink>
-				</sup>
+				{ __( 'Regex', 'dsuite-redirects' ) }
 			</label>
 		</TableRow>
 	);

@@ -1,5 +1,5 @@
 import { sprintf, __ } from '@wordpress/i18n';
-import { Notice, Button, ExternalLink, createInterpolateElement } from '@wp-plugin-components';
+import { Notice, Button } from '@wp-plugin-components';
 import { has_capability, CAP_OPTION_MANAGE } from 'lib/capabilities';
 import { useSettingsUpdate } from 'lib/api/hooks/use-settings';
 
@@ -19,26 +19,10 @@ function UpdateNotice() {
 	return (
 		<Notice className="update-notice">
 			<p>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: %s is the version number
-						__(
-							'Version %s installed! Please read the {{url}}release notes{{/url}} for details.',
-							'dsuite-redirects'
-						),
-						update_notice
-					),
-					{
-						url: (
-							<ExternalLink
-								url={
-									'https://redirection.me/blog/redirection-version-' +
-									update_notice.replace( '.', '-' ) +
-									'/'
-								}
-							/>
-						),
-					}
+				{ sprintf(
+					// translators: %s is the version number
+					__( 'Version %s installed!', 'dsuite-redirects' ),
+					update_notice
 				) }
 				&nbsp;
 				<Button onClick={ dismiss }>{ __( 'OK', 'dsuite-redirects' ) }</Button>

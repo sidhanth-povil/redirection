@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import getFirstApi, { hasWorkingApi } from './first-api';
-import { ExternalLink, createInterpolateElement } from '@wp-plugin-components';
 import { useMessageStore, useSettingsStore } from 'stores';
 import { useSettingsUpdate, useFinishUpgrade } from 'lib/api/hooks/use-settings';
 
@@ -58,18 +57,6 @@ export default function StepFinish( { options }: StepFinishProps ) {
 			<h2>{ __( 'Installation Complete', 'dsuite-redirects' ) }</h2>
 
 			<p>{ __( 'DSuite Redirects is now installed!', 'dsuite-redirects' ) }</p>
-
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Please take a moment to consult the {{support}}support site{{/support}} for information about how to use DSuite Redirects.',
-						'dsuite-redirects'
-					),
-					{
-						support: <ExternalLink url="https://redirection.me" />,
-					}
-				) }
-			</p>
 
 			<button className="button button-primary" onClick={ onFinish } type="button" disabled={ ! canFinish }>
 				{ __( 'Ready to begin! 🎉', 'dsuite-redirects' ) }

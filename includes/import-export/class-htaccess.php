@@ -55,7 +55,7 @@ class Htaccess {
 		$text = [
 			'# Created by Redirection',
 			'# ' . $details['date'],
-			'# Redirection ' . $details['version'] . ' - https://redirection.me',
+			'# DSuite Redirects ' . $details['version'],
 			'',
 			'<IfModule mod_rewrite.c>',
 		];

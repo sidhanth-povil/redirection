@@ -25,10 +25,6 @@ interface SettingsValues {
 	support?: any;
 }
 
-function supportLink( rel: string, anchor?: string ): string {
-	return 'https://redirection.me/support/' + rel + ( anchor ? '/#' + anchor : '' );
-}
-
 // Empty object constant to avoid creating new object on every render
 const EMPTY_POST_TYPES: PostTypes = {};
 const EMPTY_SETTINGS: SettingsValues = {};
@@ -72,11 +68,10 @@ function OptionsForm() {
 	return (
 		<form onSubmit={ onSubmit }>
 			<FormTable>
-				<LogOptions settings={ settings as any } onChange={ onChange } getLink={ supportLink } />
+				<LogOptions settings={ settings as any } onChange={ onChange } />
 				<UrlOptions
 					settings={ settings as any }
 					onChange={ onChange }
-					getLink={ supportLink }
 					groups={ groups }
 					postTypes={ postTypes }
 				/>
@@ -84,7 +79,6 @@ function OptionsForm() {
 				<OtherOptions
 					settings={ settings as any }
 					onChange={ onChange }
-					getLink={ supportLink }
 					installed={ installed }
 					warning={ warning }
 				/>
