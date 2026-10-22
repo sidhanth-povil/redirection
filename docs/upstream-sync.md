@@ -43,6 +43,8 @@ Where conflicts come from, most to least common:
 3. **Branding**: plugin header, menu, readme, support links. Keep ours.
 4. **Schema**: upstream bumps `REDIRECTION_DB_VERSION` and adds its own migrations. Take them. Ours live separately (`dsr_db_version`, `includes/database/class-dsr-upgrader.php`) and never collide.
 
+**Submodules.** `src/wp-plugin-components` and `src/wp-plugin-lib` are git submodules owned by the upstream author. Never edit files inside them: we can't push those changes, so a fresh clone would lose them. Customise from our side (props, wrappers, `lib/`). After a merge that moves them, run `git submodule update --init`.
+
 Things we deliberately keep unchanged so merges stay cheap: the `Redirection\` namespace, DB table names, option keys, the `redirection/v1` REST namespace. Don't rename them.
 
 ## Before merging the sync branch into trunk

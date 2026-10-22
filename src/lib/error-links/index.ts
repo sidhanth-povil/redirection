@@ -1,12 +1,19 @@
 /* global Redirectioni10n, REDIRECTION_VERSION */
 
 interface ErrorLinks {
+	url: string;
+	http: string;
+	api: string;
 	rootUrl: string;
 	siteHealth: string;
 }
 
 export function getErrorLinks(): ErrorLinks {
+	// WordPress's own docs: the plugin's original help pages lived on the upstream author's site.
 	return {
+		url: 'https://developer.wordpress.org/advanced-administration/upgrade/migrating/#changing-the-site-url',
+		http: 'https://developer.wordpress.org/rest-api/frequently-asked-questions/',
+		api: 'https://developer.wordpress.org/rest-api/frequently-asked-questions/',
 		rootUrl: Redirectioni10n.api.WP_API_root,
 		siteHealth: Redirectioni10n.api.site_health,
 	};
