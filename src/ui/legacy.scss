@@ -1,0 +1,219 @@
+/**
+ * Upstream WP markup still rendered by Settings, Site & domain, Import/Export and Support,
+ * restyled to match the rest of the app. Every selector stays inside .dsr-app (spec §4.2).
+ */
+
+.dsr-app .dsr-card {
+	margin: 0 0 var(--dsr-space-6);
+	padding: var(--dsr-space-6);
+	border: 1px solid var(--dsr-border);
+	border-radius: var(--dsr-radius-lg);
+	background: var(--dsr-surface);
+	box-shadow: var(--dsr-shadow-sm);
+
+	> :first-child {
+		margin-top: 0;
+	}
+
+	> :last-child {
+		margin-bottom: 0;
+	}
+
+	h2,
+	h3 {
+		margin: var(--dsr-space-6) 0 var(--dsr-space-2);
+		color: var(--dsr-text);
+		font-size: 15px;
+		font-weight: 600;
+	}
+
+	p {
+		color: var(--dsr-text-muted);
+	}
+
+	// Upstream sections arrive wrapped in WP's .wrap or a <form>, so their heading isn't the card's first child.
+	.wrap {
+		margin: 0;
+	}
+
+	:is(h2, h3):first-child {
+		margin-top: 0;
+	}
+}
+
+// Settings: label column, quiet rows, section headings as rows.
+.dsr-app .form-table {
+	margin: 0;
+
+	th {
+		width: 220px;
+		padding: var(--dsr-space-4) var(--dsr-space-4) var(--dsr-space-4) 0;
+		color: var(--dsr-text);
+		font-weight: 500;
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: var(--dsr-accent);
+			text-decoration: underline;
+		}
+	}
+
+	td {
+		padding: var(--dsr-space-4) 0;
+		color: var(--dsr-text-muted);
+	}
+
+	tr + tr > * {
+		border-top: 1px solid var(--dsr-border);
+	}
+
+	tr:first-child > * {
+		padding-top: 0;
+	}
+
+	h2 {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 600;
+	}
+}
+
+// Site aliases, permalinks, headers.
+.dsr-app table.widefat {
+	overflow: hidden;
+	border: 1px solid var(--dsr-border);
+	border-radius: var(--dsr-radius-md);
+	border-collapse: separate;
+	border-spacing: 0;
+	box-shadow: none;
+
+	thead th,
+	thead td {
+		border-bottom: 1px solid var(--dsr-border);
+		background: var(--dsr-surface-muted);
+		color: var(--dsr-text-subtle);
+		font-size: 12px;
+		font-weight: 500;
+	}
+
+	tbody tr:nth-child(odd) {
+		background: var(--dsr-surface);
+	}
+}
+
+// WP buttons, inputs and selects, in the app's shapes and colours. `.wp-core-ui` matches core's own
+// selectors, whose stylesheets load after ours.
+.wp-core-ui .dsr-app .button,
+.wp-core-ui .dsr-app .button-secondary,
+.wp-core-ui .dsr-app .button-primary {
+	min-height: 36px;
+	padding: 0 var(--dsr-space-4);
+	border-radius: var(--dsr-radius-sm);
+	box-shadow: none;
+	line-height: 34px;
+}
+
+.wp-core-ui .dsr-app .button,
+.wp-core-ui .dsr-app .button-secondary {
+	border-color: var(--dsr-border-strong);
+	background: var(--dsr-surface);
+	color: var(--dsr-text);
+
+	&:hover,
+	&:focus {
+		border-color: var(--dsr-accent);
+		background: var(--dsr-accent-soft);
+		color: var(--dsr-accent-text);
+	}
+}
+
+.wp-core-ui .dsr-app .button-primary {
+	border-color: var(--dsr-accent);
+	background: var(--dsr-accent);
+	color: #fff;
+
+	&:hover,
+	&:focus {
+		border-color: var(--dsr-accent-hover);
+		background: var(--dsr-accent-hover);
+		color: #fff;
+	}
+}
+
+.wp-core-ui .dsr-app .button:focus-visible,
+.wp-core-ui .dsr-app .button-secondary:focus-visible,
+.wp-core-ui .dsr-app .button-primary:focus-visible {
+	box-shadow: var(--dsr-focus-ring);
+	outline: none;
+}
+
+.wp-core-ui .dsr-app .button-secondary.button-delete,
+.wp-core-ui .dsr-app .button-primary.button-delete {
+	border-color: var(--dsr-danger-text);
+	background: var(--dsr-danger-text);
+	color: #fff;
+}
+
+.wp-core-ui .dsr-app input[type="text"]:not(.dsr-input),
+.wp-core-ui .dsr-app input[type="url"]:not(.dsr-input),
+.wp-core-ui .dsr-app input[type="number"]:not(.dsr-input),
+.wp-core-ui .dsr-app input[type="email"]:not(.dsr-input),
+.wp-core-ui .dsr-app textarea:not(.dsr-input),
+.wp-core-ui .dsr-app select:not(.dsr-select) {
+	border-color: var(--dsr-border-strong);
+	border-radius: var(--dsr-radius-sm);
+
+	&:focus {
+		border-color: var(--dsr-accent);
+		box-shadow: 0 0 0 1px var(--dsr-accent);
+	}
+}
+
+// Inline notices: soft tinted boxes instead of WP's white box with a coloured edge.
+.dsr-app .inline-notice {
+	margin: 0 0 var(--dsr-space-4);
+	padding: var(--dsr-space-3) var(--dsr-space-4);
+	border: 0;
+	border-radius: var(--dsr-radius-md);
+	background: var(--dsr-warning-bg);
+	box-shadow: none;
+	color: var(--dsr-warning-text);
+
+	p {
+		margin: var(--dsr-space-1) 0;
+		color: inherit;
+	}
+
+	&.inline-general {
+		background: var(--dsr-info-bg);
+		color: var(--dsr-info-text);
+	}
+
+	&.inline-error {
+		background: var(--dsr-danger-bg);
+		color: var(--dsr-danger-text);
+	}
+}
+
+// Import/Export cards.
+.dsr-app .file-sniff__card {
+	border-color: var(--dsr-border);
+	border-radius: var(--dsr-radius-md);
+	background: var(--dsr-surface);
+	box-shadow: var(--dsr-shadow-sm);
+}
+
+@container dsr (max-width: 782px) {
+	.dsr-app .dsr-card {
+		padding: var(--dsr-space-4);
+	}
+
+	.dsr-app .form-table th {
+		width: auto;
+		padding-bottom: 0;
+	}
+}

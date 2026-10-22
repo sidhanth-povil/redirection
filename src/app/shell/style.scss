@@ -1,5 +1,6 @@
 // Tokens come in here: wp-scripts only bundles CSS from files named style.scss into redirection.css.
 @use "../../ui/tokens";
+@use "../../ui/legacy";
 
 // Size containment makes .dsr-app a formatting root, which would shrink beside WP's floated Screen Options/Help tabs.
 .dsr-app {

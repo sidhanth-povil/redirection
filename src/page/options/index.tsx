@@ -27,11 +27,21 @@ function Options() {
 
 	return (
 		<div>
-			{ loadStatus === 'success' && <Alerts /> }
-			{ loadStatus === 'success' && <OptionsForm /> }
-
-			<hr />
-			{ canDelete && <DeletePlugin onDelete={ handleDeletePlugin } /> }
+			{ loadStatus === 'success' && (
+				<section className="dsr-card">
+					<Alerts />
+				</section>
+			) }
+			{ loadStatus === 'success' && (
+				<section className="dsr-card">
+					<OptionsForm />
+				</section>
+			) }
+			{ canDelete && (
+				<section className="dsr-card">
+					<DeletePlugin onDelete={ handleDeletePlugin } />
+				</section>
+			) }
 		</div>
 	);
 }
