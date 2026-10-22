@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 5.10.1
+Stable tag: 1.0.0
 License: GPLv3
 
 Redirect manager for marketing teams. Fork of Redirection by John Godley.
@@ -173,6 +173,17 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.0.0 - 22nd October 2026 =
+First DSuite Redirects release, based on Redirection 5.10.1.
+* New app-style admin: Overview, Redirects, Groups, 404s, Logs, Site & domain, Import / Export, Settings
+* Create redirects by typing an old URL and picking the destination page by title
+* Scheduled redirects that switch on and off by date
+* Simple * wildcards
+* Chain and loop detection, with one-click flatten and a pre-save check
+* 404s grouped by URL with Fix, Ignore and Delete
+* Daily or weekly 404 email alerts
+* Replaces Redirection in place: deactivate it, activate this, and redirects, groups and logs carry over
 
 = 5.10.1 - 17th September 2026 =
 * Fix loop when importing redirects during setup process
