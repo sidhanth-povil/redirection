@@ -21,7 +21,6 @@ class Digest {
 	const MAX_ROWS = 20;
 	const MAX_RECIPIENTS = 10;
 	const DEFAULT_MIN_HITS = 3;
-	const FIRST_RUN_DAYS = 7;
 	// Some top URLs may already be redirected, so fetch more than are sent.
 	// ponytail: fixed candidate window; page through if sites have hundreds of redirected top 404s.
 	const MAX_CANDIDATES = 200;
@@ -117,7 +116,9 @@ class Digest {
 
 		$now = time();
 		$last_sent = intval( get_option( self::LAST_SENT_OPTION, 0 ), 10 );
-		$since = $last_sent > 0 ? $last_sent : $now - self::FIRST_RUN_DAYS * DAY_IN_SECONDS;
+		// Never more than one period back, so "today" and "this week" stay true after a pause or on the first run.
+		$period = $alerts['frequency'] === 'daily' ? DAY_IN_SECONDS : WEEK_IN_SECONDS;
+		$since = max( $last_sent, $now - $period );
 		$rows = self::select( self::get_rows( $since ), $alerts['min_hits'], [ Redirect::class, 'matches_any' ] );
 
 		if ( count( $rows ) === 0 ) {

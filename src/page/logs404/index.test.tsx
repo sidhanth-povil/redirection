@@ -122,10 +122,38 @@ describe( '404s page', () => {
 		fireEvent.click( within( row( '/old' ) ).getByRole( 'button', { name: 'Delete' } ) );
 
 		expect( window.confirm ).toHaveBeenCalled();
-		expect( bulk.mutate ).toHaveBeenCalledWith( {
-			action: 'delete',
-			items: [ '/old' ],
-			params: { groupBy: 'url' },
+		expect( bulk.mutate ).toHaveBeenCalledWith(
+			{ action: 'delete', items: [ '/old' ], params: { groupBy: 'url' } },
+			expect.anything()
+		);
+	} );
+
+	it( 'waits for the groups before offering Ignore', () => {
+		setup();
+		( useGroupDropdown as jest.Mock ).mockReturnValue( { data: undefined } );
+		const { container } = render( <Logs404 /> );
+
+		const buttons = container.querySelectorAll( 'button' );
+		const ignore = [ ...buttons ].find( ( button ) => button.textContent === 'Ignore' );
+		expect( ignore ).toBeDisabled();
+	} );
+
+	it( 'steps back a page when deleting the last row of the last page', () => {
+		useTableStore.getState().setErrorsTable( { page: 2 } as any );
+		( useErrorList as jest.Mock ).mockReturnValue( {
+			data: { items: [ rows[ 1 ] ], total: 51 },
+			isFetching: false,
+			refetch,
 		} );
+		( useErrorBulkAction as jest.Mock ).mockReturnValue( bulk );
+		( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
+		( useRedirectCreate as jest.Mock ).mockReturnValue( create );
+		window.confirm = jest.fn().mockReturnValue( true );
+		bulk.mutate.mockImplementation( ( _vars, options ) => options?.onSuccess?.() );
+		render( <Logs404 /> );
+
+		fireEvent.click( within( row( '/old' ) ).getByRole( 'button', { name: 'Delete' } ) );
+
+		expect( useTableStore.getState().errors.page ).toBe( 1 );
 	} );
 } );

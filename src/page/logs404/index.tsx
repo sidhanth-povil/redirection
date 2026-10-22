@@ -89,7 +89,17 @@ export default function Logs404() {
 	const onDelete = ( url: string ) => {
 		/* translators: %s: URL */
 		if ( window.confirm( sprintf( __( 'Delete the 404 log for %s?', 'dsuite-redirects' ), url ) ) ) {
-			remove.mutate( { action: 'delete', items: [ url ], params: { groupBy: 'url' } } );
+			remove.mutate(
+				{ action: 'delete', items: [ url ], params: { groupBy: 'url' } },
+				{
+					// Deleting the only row of a later page would otherwise leave an empty page past the end.
+					onSuccess: () => {
+						if ( rows.length === 1 && table.page > 0 ) {
+							setErrorsTable( { page: table.page - 1 } );
+						}
+					},
+				}
+			);
 		}
 	};
 
@@ -193,6 +203,8 @@ export default function Logs404() {
 											<button
 												type="button"
 												className="dsr-link"
+												// Ignore files its redirect in the default group, so it waits for the groups.
+												disabled={ ! groupData }
 												onClick={ () => onIgnore( url ) }
 											>
 												{ __( 'Ignore', 'dsuite-redirects' ) }

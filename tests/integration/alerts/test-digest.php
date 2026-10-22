@@ -108,4 +108,18 @@ class DigestJobTest extends WP_UnitTestCase {
 		Settings::save( [ 'dsr_alerts' => [ 'enabled' => false ] ] );
 		$this->assertFalse( wp_get_schedule( Digest::HOOK ) );
 	}
+
+	public function testALongPauseOnlyCoversTheLastPeriod() {
+		global $wpdb;
+
+		$this->log404( '/months-ago' );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}redirection_404 SET created = %s", wp_date( 'Y-m-d H:i:s', time() - 60 * DAY_IN_SECONDS ) ) );
+		$this->log404( '/this-week' );
+		update_option( Digest::LAST_SENT_OPTION, time() - 90 * DAY_IN_SECONDS );
+
+		Digest::run();
+
+		$this->assertStringContainsString( '/this-week', $this->body() );
+		$this->assertStringNotContainsString( '/months-ago', $this->body() );
+	}
 }

@@ -64,4 +64,14 @@ class Grouped404ApiTest extends Redirection_Api_Test {
 		$this->assertSame( [ '/broken' ], array_column( $this->grouped( [ 'ignored' => '0' ] ), 'url' ) );
 		$this->assertSame( [ '/ignored' ], array_column( $this->grouped( [ 'ignored' => '1' ] ), 'url' ) );
 	}
+
+	public function testUrlsDifferingOnlyByCaseKeepTheirReferrer() {
+		$this->log404( '/Foo', 'https://a.test/' );
+		$this->log404( '/foo', 'https://a.test/' );
+
+		$row = $this->grouped()[0];
+
+		$this->assertSame( 'https://a.test/', $row->referrer );
+		$this->assertNotEmpty( $row->last_seen );
+	}
 }

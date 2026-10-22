@@ -77,14 +77,19 @@ class Error extends Log {
 				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
 				"SELECT url, MAX(created) AS last_seen FROM {$wpdb->prefix}redirection_404 WHERE url IN ({$placeholders}) GROUP BY url",
 				$urls
-			),
-			OBJECT_K
+			)
 		);
 		$referrers = self::get_top_referrers( $urls );
 
+		// The URL column's collation ignores case, so a query can return another spelling of the same URL.
+		$seen = [];
+		foreach ( (array) $last_seen as $row ) {
+			$seen[ strtolower( $row->url ) ] = (string) $row->last_seen;
+		}
+
 		/** @var \stdClass $row Rows are plain database objects. */
 		foreach ( $result['items'] as $row ) {
-			$row->last_seen = isset( $last_seen[ $row->url ] ) ? $last_seen[ $row->url ]->last_seen : '';
+			$row->last_seen = $seen[ strtolower( $row->url ) ] ?? '';
 			$row->referrer = $referrers[ $row->url ] ?? '';
 		}
 
@@ -138,15 +143,24 @@ class Error extends Log {
 				$urls
 			)
 		);
-		$top = array_fill_keys( $urls, '' );
+		// Keyed case-insensitively: the URL column's collation folds case, so rows may use another spelling.
+		$top = [];
 
 		foreach ( (array) $rows as $row ) {
-			if ( $top[ $row->url ] === '' ) {
-				$top[ $row->url ] = (string) $row->referrer;
+			$key = strtolower( $row->url );
+
+			if ( ! isset( $top[ $key ] ) ) {
+				$top[ $key ] = (string) $row->referrer;
 			}
 		}
 
-		return $top;
+		$referrers = [];
+
+		foreach ( $urls as $url ) {
+			$referrers[ $url ] = $top[ strtolower( $url ) ] ?? '';
+		}
+
+		return $referrers;
 	}
 
 	/**
