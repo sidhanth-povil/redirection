@@ -1,70 +1,53 @@
-import { __ } from '@wordpress/i18n';
-import {
-	getHeaders,
-	getBulk,
-	getDisplayOptions,
-	getDisplayGroups,
-	getSearchOptions,
-	getFilterOptions,
-	getGroupBy,
-} from './constants';
-import { useTableStore, useSettingsStore } from 'stores';
-import { useExport, useLogList, useLogBulkAction } from 'lib/api/hooks';
-import { cleanApiParams } from 'lib/api/utils';
-import { getRssUrl } from 'lib/wordpress-url';
+import { useState } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { useDebouncedCallback } from 'use-debounce';
+import { useExport, useLogBulkAction, useLogList } from 'lib/api/hooks';
+import { cleanApiParams, getShowFilter } from 'lib/api/utils';
 import { useTableUrlSync } from 'lib/hooks';
-import { STATUS_IDLE, STATUS_LOADING, STATUS_COMPLETE, type LoadingStatus } from 'lib/constants';
-import LogPage, {
-	type LogPageTable,
-	type LogOptions,
-	type LogActions,
-	type TableRow,
-	type FilterBy,
-	type RowId,
-} from 'component/log-page';
-import LogRowActions from './row-actions';
-import TableButtons from 'component/table/table-buttons';
-import getColumns from './columns';
+import { getRssUrl } from 'lib/wordpress-url';
+import { has_capability, CAP_LOG_DELETE } from 'lib/capabilities';
+import { useSettingsStore, useTableStore } from 'stores';
+import { buildHash } from 'app/router';
+import { Button } from 'ui';
+// Shared list styles (.dsr-table, .dsr-chip, …).
+import '../redirects/style.scss';
 import { getExportFilename } from 'page/export/export-helpers';
+import type { Log } from 'types';
 
-interface TableState {
-	groupBy?: string;
-	displaySelected: string[];
-	[ key: string ]: any;
+const SEARCH_DELAY = 300;
+
+interface Chip {
+	label: string;
+	groupBy: string;
 }
 
-function validateDisplay( selected: string[] ): string[] {
-	if ( ! selected.includes( 'url' ) ) {
-		return selected.concat( [ 'url' ] );
-	}
-
-	return selected;
+function getChips( hasIp: boolean ): Chip[] {
+	return [
+		{ label: __( 'All hits', 'dsuite-redirects' ), groupBy: '' },
+		{ label: __( 'By URL', 'dsuite-redirects' ), groupBy: 'url' },
+		...( hasIp ? [ { label: __( 'By IP', 'dsuite-redirects' ), groupBy: 'ip' } ] : [] ),
+		{ label: __( 'By agent', 'dsuite-redirects' ), groupBy: 'agent' },
+	];
 }
 
-function getGroupByTable( groupBy?: string ): Partial< TableState > {
-	if ( groupBy ) {
-		return {
-			displayOptions: getDisplayOptions( groupBy ),
-			displaySelected: getDisplayGroups( groupBy )[ 0 ]?.grouping || [],
-		};
-	}
+/**
+ * What a grouped row is grouped on.
+ *
+ * @param row     Log row.
+ * @param groupBy `ip`, `agent` or `url`.
+ */
+function groupValue( row: Log, groupBy: string ): string {
+	const values: Record< string, string | null | undefined > = { ip: row.ip, agent: row.agent };
+	const value = groupBy in values ? values[ groupBy ] : row.url;
 
-	return {};
+	return value ?? String( row.id );
 }
 
-function isAvailable( item: string, table: TableState ): boolean {
-	return table.displaySelected.includes( item );
-}
+export default function Logs() {
+	const table = useTableStore( ( store ) => store.logs );
+	const { setLogsTable } = useTableStore();
+	const settings = useSettingsStore( ( store ) => store.values );
 
-function Logs() {
-	// Get table UI state from table store
-	const table = useTableStore( ( state ) => state.logs );
-	const { setLogsTable, setLogsSelected } = useTableStore();
-
-	const settings = useSettingsStore( ( state ) => state.values );
-	const token = settings?.token || '';
-
-	// Sync table state with URL query parameters
 	useTableUrlSync( {
 		table,
 		setTable: setLogsTable,
@@ -73,209 +56,312 @@ function Logs() {
 		pageName: 'log',
 	} );
 
-	const logBulkAction = useLogBulkAction();
-	const exportMutation = useExport();
+	const { data, isFetching } = useLogList( table );
+	const remove = useLogBulkAction();
+	const exporter = useExport();
+	const rows: Log[] = data?.items ?? [];
+	const total = data?.total ?? 0;
+	const pages = Math.max( 1, Math.ceil( total / table.per_page ) );
 
-	// Fetch logs with current table params - read directly from Query
-	const { data: logData, isLoading, isSuccess } = useLogList( table );
-	const rows = logData?.items ?? [];
-	const total = logData?.total ?? 0;
+	const hasIp = Number( settings?.ip_logging ?? 0 ) > 0;
+	const token = settings?.token ?? '';
+	const canDelete = has_capability( CAP_LOG_DELETE );
+	const groupBy = table.groupBy ?? '';
+	const filterBy: Record< string, string > = table.filterBy || {};
+	const { url: searchUrl, ...linkFilters } = filterBy;
+	const hasLinkFilters = Object.keys( linkFilters ).length > 0;
+	const groupParams = groupBy ? { groupBy } : {};
+	const selected = table.selected;
 
-	// Derive status from Query states
-	let status = STATUS_IDLE;
-	if ( isLoading && ! logData ) {
-		status = STATUS_LOADING;
-	} else if ( isSuccess || logData ) {
-		status = STATUS_COMPLETE;
-	}
+	const [ search, setSearch ] = useState( searchUrl ?? '' );
 
-	const handleChangePage = ( page: number ) => {
-		setLogsTable( { page, selected: [], selectAll: false } );
-	};
+	const setFilter = ( next: Record< string, string > ) =>
+		setLogsTable( { filterBy: next, page: 0, selected: [], selectAll: false } );
 
-	const handleDelete = ( id: number | string ) => {
-		if ( ! window.confirm( __( 'Are you sure you want to delete this item?', 'dsuite-redirects' ) ) ) {
-			return;
-		}
+	const applySearch = useDebouncedCallback( ( value: string ) => {
+		setFilter( value.trim() === '' ? linkFilters : { ...linkFilters, url: value.trim() } );
+	}, SEARCH_DELAY );
 
-		const params = table.groupBy ? { groupBy: table.groupBy } : {};
-		logBulkAction.mutate( { action: 'delete', items: [ id ], params } );
-	};
-
-	const handleBulk = ( action: string ) => {
-		if ( table.selected.length === 0 && ! table.selectAll ) {
-			return;
-		}
-
-		if ( action === 'export-csv' || action === 'export-json' ) {
-			const params = {
-				...cleanApiParams( {
-					...( table.groupBy ? { groupBy: table.groupBy } : {} ),
-					...( table.selectAll
-						? {
-								global: true,
-								filterBy: table.filterBy,
-						  }
-						: {
-								items: table.selected,
-						  } ),
-				} ),
-				displaySelected: groupedTable.displaySelected ?? [],
-			};
-
-			exportMutation.mutate( {
-				exportType: 'log',
-				format: action === 'export-csv' ? 'csv' : 'json',
-				download: true,
-				filename: getExportFilename( 'log', action === 'export-csv' ? 'csv' : 'json' ),
-				params,
-			} );
-
-			return;
-		}
-
-		if ( action === 'delete' ) {
-			const message = table.selectAll
-				? __( 'Are you sure you want to delete all items?', 'dsuite-redirects' )
-				: __( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' );
-
-			if ( ! window.confirm( message ) ) {
-				return;
-			}
-		}
-
-		const params = table.groupBy ? { groupBy: table.groupBy } : {};
-
-		if ( table.selectAll ) {
-			// Delete all items matching current filters
-			logBulkAction.mutate( {
-				action,
-				items: [],
-				params: cleanApiParams( { ...params, global: true, filterBy: table.filterBy } ),
-			} );
-		} else {
-			// Delete only selected items
-			logBulkAction.mutate( { action, items: table.selected, params } );
+	const deleteItems = ( items: ( string | number )[], message: string ) => {
+		if ( window.confirm( message ) ) {
+			remove.mutate( { action: 'delete', items, params: groupParams } );
 		}
 	};
 
-	const handleSetOrder = ( column: string, direction: string ) => {
-		setLogsTable( { orderby: column === 'date' ? '' : column, direction: direction as 'asc' | 'desc' } );
+	const exportSelected = () => {
+		exporter.mutate( {
+			exportType: 'log',
+			format: 'csv',
+			download: true,
+			filename: getExportFilename( 'log', 'csv' ),
+			params: cleanApiParams( { ...groupParams, items: selected } ),
+		} as any );
+		setLogsTable( { selected: [], selectAll: false } );
 	};
 
-	const handleGroup = ( groupBy: string ) => {
-		setLogsTable( { groupBy, selected: [], selectAll: false } );
-	};
-
-	const handleFilter = ( filterBy: FilterBy ) => {
-		setLogsTable( { filterBy, page: 0, selected: [], selectAll: false } );
-	};
-
-	const handleSetDisplay = ( displayType: string, displaySelected: string[] ) => {
-		setLogsTable( { displayType, displaySelected } );
-	};
-
-	const handleSelect = ( items: RowId | RowId[] | boolean ) => {
-		if ( typeof items === 'boolean' ) {
-			setLogsSelected( items ? rows.map( ( r ) => r.id ) : [] );
-		} else if ( typeof items === 'number' || typeof items === 'string' ) {
-			// Toggle single item selection - clear selectAll if active
-			const currentSelected = Array.isArray( table.selected ) ? table.selected : [];
-			const newSelected = currentSelected.some( ( id ) => id === items )
-				? currentSelected.filter( ( id ) => id !== items )
-				: [ ...currentSelected, items ];
-			setLogsTable( { selected: newSelected, selectAll: false } );
-		} else {
-			setLogsSelected( items );
-		}
-	};
-
-	const handleSetAll = ( allOrClear: boolean ) => {
+	const toggleRow = ( id: string | number ) =>
 		setLogsTable( {
-			selected: allOrClear ? rows.map( ( r ) => r.id ) : [],
-			selectAll: allOrClear,
+			selected: selected.includes( id ) ? selected.filter( ( item ) => item !== id ) : [ ...selected, id ],
+			selectAll: false,
 		} );
-	};
-
-	const groupedTable = { ...table, ...getGroupByTable( table.groupBy ) };
-
-	// Convert TableState to LogPage's Table format (camelCase)
-	const logPageTable: LogPageTable = {
-		page: table.page,
-		perPage: table.per_page,
-		orderBy: table.orderby || 'date',
-		direction: table.direction,
-		selected: table.selected ?? [],
-		selectAll: table.selectAll ?? false,
-		filter: '',
-		filterBy: ( table.filterBy ?? {} ) as FilterBy,
-		displayType: table.displayType ?? 'standard',
-		displaySelected: groupedTable.displaySelected ?? [],
-		groupBy: table.groupBy ?? '',
-	};
-
-	const logOptions: LogOptions = {
-		displayFilters: getDisplayOptions( groupedTable.groupBy ),
-		displayGroups: getDisplayGroups( groupedTable.groupBy ),
-		searchOptions: getSearchOptions(),
-		groupBy: getGroupBy( settings?.ip_logging || 0 ),
-		bulk: getBulk(),
-		rowFilters: groupedTable.groupBy ? [] : getFilterOptions(),
-		headers: getHeaders( groupedTable.groupBy ).filter( ( item ) =>
-			isAvailable( item.name, groupedTable as TableState )
-		),
-		validateDisplay,
-	};
-
-	const logActions: LogActions = {
-		onChangePage: handleChangePage,
-		onBulk: handleBulk,
-		onGroup: handleGroup,
-		onSetOrder: handleSetOrder,
-		onFilter: handleFilter,
-		onSetDisplay: handleSetDisplay,
-		onSelect: handleSelect,
-		onSetAll: handleSetAll,
-	};
+	const allSelected = rows.length > 0 && rows.every( ( row ) => selected.includes( row.id ) );
 
 	return (
-		<LogPage
-			logOptions={ logOptions }
-			logActions={ logActions }
-			table={ logPageTable }
-			status={ status as LoadingStatus }
-			total={ total }
-			rows={ rows as TableRow[] }
-			saving={ [] }
-			getRow={ ( row, rowParams ) =>
-				getColumns( row as Parameters< typeof getColumns >[ 0 ], {
-					...rowParams,
-					onFilter: handleFilter,
-				} )
-			}
-			getRowActions={ ( row ) => (
-				<LogRowActions
-					disabled={ false }
-					row={ row as Parameters< typeof getColumns >[ 0 ] }
-					onDelete={ handleDelete }
-					groupBy={ table.groupBy }
-				/>
-			) }
-			renderTableActions={ () => (
-				<>
-					<TableButtons enabled={ rows.length > 0 }>
-						{ token && (
-							<div className="table-button-item">
-								<a href={ getRssUrl( token ) } className="button-secondary">
-									{ __( 'RSS', 'dsuite-redirects' ) }
-								</a>
-							</div>
+		<div className="dsr-redirects">
+			<div className="dsr-toolbar">
+				<div className="dsr-search">
+					<label className="screen-reader-text" htmlFor="dsr-log-search">
+						{ __( 'Search logs', 'dsuite-redirects' ) }
+					</label>
+					<input
+						id="dsr-log-search"
+						type="search"
+						className="dsr-input"
+						placeholder={ __( 'Search URLs…', 'dsuite-redirects' ) }
+						value={ search }
+						onChange={ ( event ) => {
+							setSearch( event.target.value );
+							applySearch( event.target.value );
+						} }
+					/>
+				</div>
+
+				<div className="dsr-chips" role="group" aria-label={ __( 'Show', 'dsuite-redirects' ) }>
+					{ getChips( hasIp ).map( ( chip ) => (
+						<button
+							key={ chip.groupBy }
+							type="button"
+							className="dsr-chip"
+							aria-pressed={ groupBy === chip.groupBy }
+							onClick={ () => setLogsTable( { groupBy: chip.groupBy, page: 0, selected: [] } ) }
+						>
+							{ chip.label }
+						</button>
+					) ) }
+					{ hasLinkFilters && (
+						<button
+							type="button"
+							className="dsr-chip"
+							aria-pressed
+							onClick={ () => setFilter( searchUrl ? { url: searchUrl } : {} ) }
+						>
+							{ sprintf(
+								/* translators: %s: active filters, e.g. "referrer: news.test" */
+								__( 'Clear filter: %s', 'dsuite-redirects' ),
+								Object.entries( linkFilters )
+									.map( ( [ key, value ] ) => key + ': ' + value )
+									.join( ', ' )
+							) }
+						</button>
+					) }
+				</div>
+
+				{ token && (
+					<a className="dsr-link" href={ getRssUrl( token ) }>
+						{ __( 'RSS', 'dsuite-redirects' ) }
+					</a>
+				) }
+			</div>
+
+			{ selected.length > 0 && (
+				<div className="dsr-bulkbar" role="region" aria-label={ __( 'Bulk actions', 'dsuite-redirects' ) }>
+					<span className="dsr-bulkbar__count">
+						{ sprintf(
+							/* translators: %d: number of selected log rows */
+							_n( '%d selected', '%d selected', selected.length, 'dsuite-redirects' ),
+							selected.length
 						) }
-					</TableButtons>
-				</>
+					</span>
+					<Button onClick={ exportSelected }>{ __( 'Export CSV', 'dsuite-redirects' ) }</Button>
+					{ canDelete && (
+						<Button
+							onClick={ () =>
+								deleteItems(
+									selected,
+									__( 'Are you sure you want to delete the selected items?', 'dsuite-redirects' )
+								)
+							}
+						>
+							{ __( 'Delete selected', 'dsuite-redirects' ) }
+						</Button>
+					) }
+				</div>
 			) }
-		/>
+
+			{ rows.length === 0 ? (
+				<div className="dsr-empty">
+					{ isFetching && ! data
+						? __( 'Loading logs…', 'dsuite-redirects' )
+						: __( 'No redirect hits logged yet.', 'dsuite-redirects' ) }
+				</div>
+			) : (
+				<table className="dsr-table">
+					<thead>
+						<tr>
+							<th className="dsr-table__check">
+								<input
+									type="checkbox"
+									aria-label={ __( 'Select all on this page', 'dsuite-redirects' ) }
+									checked={ allSelected }
+									onChange={ () =>
+										setLogsTable( {
+											selected: allSelected ? [] : rows.map( ( row ) => row.id ),
+											selectAll: false,
+										} )
+									}
+								/>
+							</th>
+							{ groupBy ? (
+								<>
+									<th>{ getChips( true ).find( ( chip ) => chip.groupBy === groupBy )?.label }</th>
+									<th className="dsr-table__hits dsr-num">{ __( 'Hits', 'dsuite-redirects' ) }</th>
+								</>
+							) : (
+								<>
+									<th className="dsr-table__last">{ __( 'Date', 'dsuite-redirects' ) }</th>
+									<th>{ __( 'Redirect', 'dsuite-redirects' ) }</th>
+									<th>{ __( 'Visitor', 'dsuite-redirects' ) }</th>
+								</>
+							) }
+							<th className="dsr-table__actions">
+								<span className="screen-reader-text">{ __( 'Actions', 'dsuite-redirects' ) }</span>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ rows.map( ( row ) => {
+							const value = groupValue( row, groupBy );
+
+							return (
+								<tr key={ row.id }>
+									<td className="dsr-table__check">
+										<input
+											type="checkbox"
+											/* translators: %s: URL, IP or user agent */
+											aria-label={ sprintf( __( 'Select %s', 'dsuite-redirects' ), value ) }
+											checked={ selected.includes( row.id ) }
+											onChange={ () => toggleRow( row.id ) }
+										/>
+									</td>
+									{ groupBy ? (
+										<>
+											<td className="dsr-table__redirect">
+												<span className="dsr-table__source" title={ value }>
+													{ value }
+												</span>
+											</td>
+											<td
+												className="dsr-table__hits dsr-num"
+												data-label={ __( 'Hits', 'dsuite-redirects' ) }
+											>
+												{ row.count ?? 0 }
+											</td>
+										</>
+									) : (
+										<>
+											<td
+												className="dsr-table__last"
+												data-label={ __( 'Date', 'dsuite-redirects' ) }
+											>
+												{ row.created } { row.created_time }
+											</td>
+											<td className="dsr-table__redirect">
+												<span className="dsr-table__source" title={ row.url }>
+													{ row.url }
+												</span>
+												{ row.sent_to && (
+													<span className="dsr-table__target" title={ row.sent_to }>
+														→ { row.sent_to }
+													</span>
+												) }
+											</td>
+											<td className="dsr-table__redirect">
+												{ row.agent && (
+													<span className="dsr-table__target" title={ row.agent }>
+														{ row.agent }
+													</span>
+												) }
+												{ row.ip && <span className="dsr-table__target">{ row.ip }</span> }
+											</td>
+										</>
+									) }
+									<td className="dsr-table__actions">
+										{ ! groupBy && row.redirection_id ? (
+											<a
+												className="dsr-link"
+												href={ buildHash( 'redirects', {
+													'filterby[id]': String( row.redirection_id ),
+												} ) }
+											>
+												{ __( 'View redirect', 'dsuite-redirects' ) }
+											</a>
+										) : null }
+										{ groupBy && (
+											<button
+												type="button"
+												className="dsr-link"
+												onClick={ () =>
+													setLogsTable( {
+														filterBy: getShowFilter( groupBy, String( row.id ) ),
+														groupBy: '',
+														page: 0,
+														selected: [],
+														selectAll: false,
+													} )
+												}
+											>
+												{ __( 'Show all', 'dsuite-redirects' ) }
+											</button>
+										) }
+										{ canDelete && (
+											<button
+												type="button"
+												className="dsr-link dsr-link--danger"
+												onClick={ () =>
+													deleteItems(
+														[ row.id ],
+														__(
+															'Are you sure you want to delete this item?',
+															'dsuite-redirects'
+														)
+													)
+												}
+											>
+												{ __( 'Delete', 'dsuite-redirects' ) }
+											</button>
+										) }
+									</td>
+								</tr>
+							);
+						} ) }
+					</tbody>
+				</table>
+			) }
+
+			{ pages > 1 && (
+				<nav className="dsr-pagination" aria-label={ __( 'Pagination', 'dsuite-redirects' ) }>
+					<Button
+						disabled={ table.page === 0 }
+						onClick={ () => setLogsTable( { page: table.page - 1, selected: [] } ) }
+					>
+						{ __( 'Previous', 'dsuite-redirects' ) }
+					</Button>
+					<span>
+						{ sprintf(
+							/* translators: 1: current page, 2: total pages */
+							__( 'Page %1$d of %2$d', 'dsuite-redirects' ),
+							table.page + 1,
+							pages
+						) }
+					</span>
+					<Button
+						disabled={ table.page + 1 >= pages }
+						onClick={ () => setLogsTable( { page: table.page + 1, selected: [] } ) }
+					>
+						{ __( 'Next', 'dsuite-redirects' ) }
+					</Button>
+				</nav>
+			) }
+		</div>
 	);
 }
-
-export default Logs;

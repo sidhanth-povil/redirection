@@ -48,7 +48,7 @@ export default function Redirects() {
 		table,
 		setTable: setRedirectsTable,
 		allowedOrder: [ 'id', 'url', 'last_access', 'last_count', 'position' ],
-		allowedFilters: [ 'url', 'target', 'title', 'group', 'status', 'schedule' ],
+		allowedFilters: [ 'url', 'target', 'title', 'group', 'status', 'schedule', 'id' ],
 		defaultOrder: 'id',
 		pageName: 'redirect',
 	} );

@@ -35,16 +35,16 @@ function PageContent( { route }: PageContentProps ) {
 			return (
 				<>
 					{ has_page_access( 'import' ) && (
-						<>
+						<section className="dsr-card">
 							<h2 className="dsr-section-title">{ __( 'Import', 'dsuite-redirects' ) }</h2>
 							<ImportPage />
-						</>
+						</section>
 					) }
 					{ has_page_access( 'export' ) && (
-						<>
+						<section className="dsr-card">
 							<h2 className="dsr-section-title">{ __( 'Export', 'dsuite-redirects' ) }</h2>
 							<ExportPage />
-						</>
+						</section>
 					) }
 				</>
 			);

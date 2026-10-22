@@ -101,21 +101,33 @@ export default function Site() {
 				</p>
 			</div>
 
-			<RelocateSite relocate={ relocate } siteDomain={ siteDomain as string } onChange={ onChange } />
+			<section className="dsr-card">
+				<RelocateSite relocate={ relocate } siteDomain={ siteDomain as string } onChange={ onChange } />
+			</section>
 			{ relocate.length === 0 && (
-				<SiteAliases aliases={ aliases } siteDomain={ siteDomain as string } onChange={ onChange } />
+				<section className="dsr-card">
+					<SiteAliases aliases={ aliases } siteDomain={ siteDomain as string } onChange={ onChange } />
+				</section>
 			) }
 			{ relocate.length === 0 && (
-				<CanonicalSettings
-					https={ https }
-					siteDomain={ siteDomain as string }
-					preferredDomain={ preferredDomain }
-					onChange={ onChange }
-				/>
+				<section className="dsr-card">
+					<CanonicalSettings
+						https={ https }
+						siteDomain={ siteDomain as string }
+						preferredDomain={ preferredDomain }
+						onChange={ onChange }
+					/>
+				</section>
 			) }
-			{ relocate.length === 0 && <PermalinkSettings permalinks={ permalinks } onChange={ onChange } /> }
+			{ relocate.length === 0 && (
+				<section className="dsr-card">
+					<PermalinkSettings permalinks={ permalinks } onChange={ onChange } />
+				</section>
+			) }
 
-			<HttpHeaders headers={ headers } onChange={ onChange } />
+			<section className="dsr-card">
+				<HttpHeaders headers={ headers } onChange={ onChange } />
+			</section>
 
 			<input
 				className="button-primary"

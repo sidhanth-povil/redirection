@@ -124,7 +124,11 @@
 .dsr-app .dsr-table__actions {
 	width: 170px;
 	text-align: right;
-	white-space: nowrap;
+
+	// Links wrap rather than spill past the clipped table edge (four actions, longer translations).
+	.dsr-link {
+		white-space: nowrap;
+	}
 
 	.dsr-link + .dsr-link {
 		margin-left: var(--dsr-space-3);
