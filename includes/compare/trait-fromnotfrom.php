@@ -68,7 +68,7 @@ trait FromNotFrom {
 		// Action needs a target URL based on whether we matched or not
 		$target = $this->get_matched_target( $matched );
 
-		if ( $flags->is_regex() && $target !== false ) {
+		if ( ( $flags->is_regex() || $flags->is_wildcard() ) && $target !== false ) {
 			return $this->get_target_regex_url( $source_url, $target, $requested_url, $flags );
 		}
 

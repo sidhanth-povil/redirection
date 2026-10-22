@@ -39,6 +39,10 @@ class Url {
 	 * @return boolean
 	 */
 	public function is_match( $requested_url, SourceFlags $flags ) {
+		if ( $flags->is_wildcard() ) {
+			return preg_match( Wildcard::to_regex( $this->url, $flags->is_ignore_case() ), $requested_url ) === 1;
+		}
+
 		if ( $flags->is_regex() ) {
 			$regex = new Regex( $this->url, $flags->is_ignore_case() );
 

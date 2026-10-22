@@ -101,6 +101,13 @@ class Sanitize {
 			$data['regex'] = $flags->is_regex() ? 1 : 0;
 		}
 
+		if ( ! empty( $details['match_data']['source']['flag_wildcard'] ) && ! empty( $details['match_data']['source']['flag_regex'] ) ) {
+			return new WP_Error( 'redirect', __( 'A redirect can use a wildcard or a regular expression, not both.', 'dsuite-redirects' ) );
+		}
+
+		// Wildcard is never taken from the request: it is derived from the URL below.
+		unset( $data['match_data']['source']['flag_wildcard'] );
+
 		// If match_data is empty then don't save anything
 		// @phpstan-ignore isset.offset
 		if ( isset( $data['match_data']['source'] ) && count( $data['match_data']['source'] ) === 0 ) {
@@ -130,6 +137,15 @@ class Sanitize {
 
 		$data['match_type'] = isset( $details['match_type'] ) ? sanitize_text_field( $details['match_type'] ) : 'url';
 		$data['url'] = $this->get_url( $url, $data['regex'] === 1 ? true : false );
+
+		// A plain source containing * is a wildcard. It is stored as a regex row so the existing regex lookup fetches it.
+		$asked_for_regex = isset( $details['regex'] ) && intval( $details['regex'], 10 ) === 1;
+		if ( $data['regex'] === 0 && ! $asked_for_regex && is_string( $data['url'] ) && strpos( $data['url'], '*' ) !== false ) {
+			$data['regex'] = 1;
+			$match_data = is_array( $data['match_data'] ) ? $data['match_data'] : [];
+			$match_data['source'] = array_merge( $match_data['source'] ?? [], [ 'flag_wildcard' => true ] );
+			$data['match_data'] = $match_data;
+		}
 
 		if ( isset( $details['hits'] ) ) {
 			$data['last_count'] = intval( $details['hits'], 10 );

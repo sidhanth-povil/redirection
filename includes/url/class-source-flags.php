@@ -7,13 +7,14 @@ use Redirection\Settings\Settings;
 /**
  * Represent URL source flags.
  *
- * @phpstan-type FlagName 'flag_query'|'flag_case'|'flag_trailing'|'flag_regex'
+ * @phpstan-type FlagName 'flag_query'|'flag_case'|'flag_trailing'|'flag_regex'|'flag_wildcard'
  * @phpstan-type QueryType 'ignore'|'exact'|'pass'|'exactorder'
  * @phpstan-type FlagsJson array{
  *     flag_query: QueryType,
  *     flag_case: bool,
  *     flag_trailing: bool,
- *     flag_regex: bool
+ *     flag_regex: bool,
+ *     flag_wildcard?: bool
  * }
  * @phpstan-import-type RedirectionOptions from Settings
  */
@@ -27,6 +28,7 @@ class SourceFlags {
 	const FLAG_CASE = 'flag_case';
 	const FLAG_TRAILING = 'flag_trailing';
 	const FLAG_REGEX = 'flag_regex';
+	const FLAG_WILDCARD = 'flag_wildcard';
 
 	/**
 	 * Case insensitive matching
@@ -48,6 +50,13 @@ class SourceFlags {
 	 * @var boolean
 	 */
 	private $flag_regex = false;
+
+	/**
+	 * Simple `*` wildcard source (DSuite). Mutually exclusive with flag_regex.
+	 *
+	 * @var boolean
+	 */
+	private $flag_wildcard = false;
 
 	/**
 	 * Query parameter matching
@@ -116,6 +125,15 @@ class SourceFlags {
 			}
 		}
 
+		if ( isset( $json[ self::FLAG_WILDCARD ] ) && is_bool( $json[ self::FLAG_WILDCARD ] ) ) {
+			$this->flag_wildcard = $json[ self::FLAG_WILDCARD ];
+
+			// Wildcard rows are stored with regex=1 so the regex lookup fetches them; they are not a regex.
+			if ( $this->flag_wildcard ) {
+				$this->flag_regex = false;
+			}
+		}
+
 		// Keep track of what values have been set, so we know what to override with defaults later
 		/** @var array<FlagName> $intersected */
 		$intersected = array_values( array_intersect( array_keys( $json ), array_keys( $this->get_json() ) ) );
@@ -147,6 +165,15 @@ class SourceFlags {
 	 */
 	public function is_regex() {
 		return $this->flag_regex;
+	}
+
+	/**
+	 * Return `true` if the source is a `*` wildcard, `false` otherwise
+	 *
+	 * @return boolean
+	 */
+	public function is_wildcard() {
+		return $this->flag_wildcard;
 	}
 
 	/**
@@ -191,12 +218,19 @@ class SourceFlags {
 	 * @return FlagsJson
 	 */
 	public function get_json() {
-		return [
+		$json = [
 			self::FLAG_QUERY => $this->flag_query,
 			self::FLAG_CASE => $this->is_ignore_case(),
 			self::FLAG_TRAILING => $this->is_ignore_trailing(),
 			self::FLAG_REGEX => $this->is_regex(),
 		];
+
+		// Only present when set, so redirects without a wildcard keep upstream's exact JSON.
+		if ( $this->flag_wildcard ) {
+			$json[ self::FLAG_WILDCARD ] = true;
+		}
+
+		return $json;
 	}
 
 	/**

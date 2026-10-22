@@ -53,7 +53,7 @@ class Url extends Compare {
 	public function get_target_url( $original_url, $matched_url, \Redirection\Url\SourceFlags $flag, $is_matched ) {
 		$target = $this->url;
 
-		if ( $flag->is_regex() ) {
+		if ( ( $flag->is_regex() || $flag->is_wildcard() ) ) {
 			$target = $this->get_target_regex_url( $matched_url, $target, $original_url, $flag );
 		}
 

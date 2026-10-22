@@ -69,7 +69,7 @@ class Login extends Compare {
 			$target = $this->logged_out;
 		}
 
-		if ( $flags->is_regex() && $target !== false ) {
+		if ( ( $flags->is_regex() || $flags->is_wildcard() ) && $target !== false ) {
 			$target = $this->get_target_regex_url( $source_url, $target, $requested_url, $flags );
 		}
 

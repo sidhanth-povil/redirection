@@ -57,7 +57,7 @@ trait FromUrl {
 	public function get_target_url( $requested_url, $source_url, \Redirection\Url\SourceFlags $flags, $matched ) {
 		$target = $this->get_matched_target( $matched );
 
-		if ( $flags->is_regex() && $target !== false ) {
+		if ( ( $flags->is_regex() || $flags->is_wildcard() ) && $target !== false ) {
 			return $this->get_target_regex_url( $source_url, $target, $requested_url, $flags );
 		}
 

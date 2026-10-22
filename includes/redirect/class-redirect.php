@@ -1188,6 +1188,13 @@ class Redirect {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function is_wildcard() {
+		return $this->source_flags !== null && $this->source_flags->is_wildcard();
+	}
+
+	/**
 	 * @return string|null UTC start of the active window.
 	 */
 	public function get_start_at() {
