@@ -2,6 +2,7 @@
 
 namespace Redirection\Plugin;
 
+use Redirection\Alerts\Digest;
 use Redirection\Database\Database;
 use Redirection\Database\Status as DatabaseStatus;
 use Redirection\ImportExport\ExportService;
@@ -106,6 +107,7 @@ class Admin {
 		Database::apply_to_sites(
 			function () {
 				Flusher::clear();
+				Digest::clear();
 			}
 		);
 	}

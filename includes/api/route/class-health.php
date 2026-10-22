@@ -163,26 +163,12 @@ class Health extends BaseRoute {
 				break;
 			}
 
-			if ( ! $this->is_redirected( $row->url ) ) {
+			if ( ! RedirectItem::matches_any( $row->url ) ) {
 				$items[] = [ 'type' => '404', 'url' => $row->url, 'hits' => intval( $row->hits, 10 ) ];
 			}
 		}
 
 		return [ 'total' => intval( $total, 10 ), 'items' => $items ];
-	}
-
-	/**
-	 * @param string $url Requested URL.
-	 * @return bool
-	 */
-	private function is_redirected( $url ) {
-		foreach ( RedirectItem::get_for_matched_url( $url ) as $item ) {
-			if ( $item->get_match( $url ) !== false ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**

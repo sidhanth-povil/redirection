@@ -54,6 +54,39 @@ class Error extends Log {
 	}
 
 	/**
+	 * The most common referrer of each URL, in one query.
+	 *
+	 * @param list<string> $urls 404 URLs.
+	 * @return array<string, string> URL → top referrer ('' when none).
+	 */
+	public static function get_top_referrers( array $urls ) {
+		global $wpdb;
+
+		if ( count( $urls ) === 0 ) {
+			return [];
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $urls ), '%s' ) );
+		// Most hits first, so the first referrer seen for a URL is its top one.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
+				"SELECT url, referrer, COUNT(*) AS hits FROM {$wpdb->prefix}redirection_404 WHERE url IN ({$placeholders}) AND referrer IS NOT NULL AND referrer != '' GROUP BY url, referrer ORDER BY hits DESC",
+				$urls
+			)
+		);
+		$top = array_fill_keys( $urls, '' );
+
+		foreach ( (array) $rows as $row ) {
+			if ( $top[ $row->url ] === '' ) {
+				$top[ $row->url ] = (string) $row->referrer;
+			}
+		}
+
+		return $top;
+	}
+
+	/**
 	 * Get the CSV filename for this log object
 	 *
 	 * @return string
