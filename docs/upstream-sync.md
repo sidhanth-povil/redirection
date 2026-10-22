@@ -7,6 +7,7 @@ DSuite Redirects is a git fork of [johngodley/redirection](https://github.com/jo
 ```sh
 git remote add upstream https://github.com/johngodley/redirection.git
 git remote set-url --push upstream DISABLED   # we never push to upstream
+gh repo set-default sidhanth-povil/redirection   # otherwise gh (and `pnpm release`) targets johngodley/redirection
 ```
 
 ## Check for updates
