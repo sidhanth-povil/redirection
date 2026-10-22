@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useState, type ChangeEvent, type FormEvent } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Combobox, Drawer, Field, Segmented, type SegmentedOption } from 'ui';
+import { Badge, Button, Combobox, Drawer, Field, Segmented, type SegmentedOption } from 'ui';
 import { useGroupDropdown, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
 import { useSettingsStore } from 'stores';
 import TableRow from 'component/redirect-edit/table-row';
@@ -20,6 +20,7 @@ import {
 	getTarget,
 	hasSchedule,
 	hasSingleTarget,
+	isWildcard,
 	pickDefaultGroup,
 	scheduleError,
 	setTarget,
@@ -237,7 +238,10 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 				<Field
 					label={ __( 'Old URL', 'dsuite-redirects' ) }
 					htmlFor={ sourceId }
-					hint={ __( 'The address people visit now, for example /summer-sale', 'dsuite-redirects' ) }
+					hint={ __(
+						'The address people visit now, for example /summer-sale. Use * to match everything under a path, for example /blog/*',
+						'dsuite-redirects'
+					) }
 				>
 					<div className="dsr-input-group">
 						<span className="dsr-input-group__prefix" aria-hidden="true">
@@ -259,6 +263,16 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 						/>
 					</div>
 				</Field>
+
+				{ isWildcard( state ) && (
+					<p className="dsr-wildcard-note">
+						<Badge tone="accent">{ __( 'Wildcard', 'dsuite-redirects' ) }</Badge>
+						{ __(
+							'Matches everything where the * is. Put * in "Send visitors to" to carry that part over, for example /news/*',
+							'dsuite-redirects'
+						) }
+					</p>
+				) }
 
 				{ hasSingleTarget( state ) && (
 					<Field

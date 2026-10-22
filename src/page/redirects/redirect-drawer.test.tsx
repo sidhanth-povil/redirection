@@ -230,4 +230,17 @@ describe( 'RedirectDrawer', () => {
 			expect.anything()
 		);
 	} );
+
+	it( 'explains a wildcard source and drops the badge for regex', () => {
+		render( <RedirectDrawer item={ null } onClose={ jest.fn() } /> );
+
+		expect( screen.getByText( /Use \* to match everything under a path/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Wildcard' ) ).toBeNull();
+
+		fireEvent.change( screen.getByLabelText( 'Old URL' ), { target: { value: '/blog/*' } } );
+		expect( screen.getByText( 'Wildcard' ) ).toBeInTheDocument();
+
+		fireEvent.click( screen.getByLabelText( 'Regular expression' ) );
+		expect( screen.queryByText( 'Wildcard' ) ).toBeNull();
+	} );
 } );

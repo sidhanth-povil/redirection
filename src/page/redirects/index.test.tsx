@@ -83,6 +83,29 @@ const rows = [
 		end_at: null,
 		schedule_state: 'scheduled',
 	},
+	{
+		id: 4,
+		url: '/blog/*',
+		match_type: 'url',
+		action_type: 'url',
+		action_code: 301,
+		action_data: { url: '/news/*' },
+		match_data: {
+			source: {
+				flag_regex: false,
+				flag_case: false,
+				flag_trailing: false,
+				flag_query: 'exact',
+				flag_wildcard: true,
+			},
+		},
+		group_id: 1,
+		title: '',
+		position: 0,
+		enabled: true,
+		hits: 0,
+		last_access: '-',
+	},
 ];
 
 const remove = { mutate: jest.fn() };
@@ -90,7 +113,7 @@ const bulk = { mutate: jest.fn() };
 
 function setup( caps = ALL_CAPS ) {
 	window.Redirectioni10n = { per_page: '25', caps: { capabilities: caps, pages: [ 'redirect' ] } } as any;
-	( useRedirectList as jest.Mock ).mockReturnValue( { data: { items: rows, total: 3 }, isLoading: false } );
+	( useRedirectList as jest.Mock ).mockReturnValue( { data: { items: rows, total: 4 }, isLoading: false } );
 	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
 	( useRedirectDelete as jest.Mock ).mockReturnValue( remove );
 	( useRedirectBulkAction as jest.Mock ).mockReturnValue( bulk );
@@ -195,5 +218,12 @@ describe( 'Redirects page', () => {
 
 		fireEvent.click( screen.getByRole( 'button', { name: 'All' } ) );
 		expect( useTableStore.getState().redirects.filterBy ).toEqual( {} );
+	} );
+
+	it( 'marks wildcard redirects', () => {
+		setup();
+
+		const row = screen.getByText( '/blog/*' ).closest( 'tr' ) as HTMLElement;
+		expect( within( row ).getByText( 'Wildcard' ) ).toBeInTheDocument();
 	} );
 } );

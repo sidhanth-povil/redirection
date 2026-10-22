@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from 'ui';
 import type { Redirect } from 'types';
-import { describeTarget, scheduleBadge, typeBadge } from './describe';
+import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
 
 interface RedirectTableProps {
 	rows: Redirect[];
@@ -85,6 +85,9 @@ export default function RedirectTable( props: RedirectTableProps ) {
 									<Badge tone={ badge.tone } title={ String( badge.code ) }>
 										{ badge.label }
 									</Badge>
+									{ isWildcardRow( row ) && (
+										<Badge tone="accent">{ __( 'Wildcard', 'dsuite-redirects' ) }</Badge>
+									) }
 									{ schedule && <Badge tone={ schedule.tone }>{ schedule.label }</Badge> }
 									{ isDisabled && (
 										<Badge tone="neutral">{ __( 'Disabled', 'dsuite-redirects' ) }</Badge>

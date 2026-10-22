@@ -157,6 +157,15 @@ export function applySimpleType( state: DrawerState, type: SimpleType ): DrawerS
 }
 
 /**
+ * Mirrors the server's rule: a plain (non-regex) source containing `*` is saved as a wildcard.
+ *
+ * @param state Drawer state.
+ */
+export function isWildcard( state: DrawerState ): boolean {
+	return ! state.flag_regex && state.url.includes( '*' );
+}
+
+/**
  * A plain "old URL → new URL" redirect, edited with the destination search box.
  * @param state
  */

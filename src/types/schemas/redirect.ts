@@ -10,6 +10,8 @@ export const RedirectMatchDataSchema = z.object( {
 			flag_trailing: z.boolean(),
 			flag_case: z.boolean(),
 			flag_query: z.string(),
+			// DSuite: plain source containing `*`; derived by the server on save.
+			flag_wildcard: z.boolean().optional(),
 		} )
 		.optional(),
 	options: z.record( z.string(), z.unknown() ).optional(),

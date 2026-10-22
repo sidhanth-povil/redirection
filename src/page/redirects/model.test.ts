@@ -5,6 +5,7 @@ import {
 	createState,
 	getTarget,
 	hasSingleTarget,
+	isWildcard,
 	pickDefaultGroup,
 	scheduleError,
 	setTarget,
@@ -192,5 +193,15 @@ describe( 'schedule', () => {
 		expect( scheduleError( { ...base, start_at: '2026-11-28T09:00', end_at: '2026-11-28T09:00' } ) ).not.toBeNull();
 		expect( scheduleError( { ...base, start_at: '2026-11-28T09:00', end_at: '' } ) ).toBeNull();
 		expect( canSave( { ...base, start_at: '2026-11-28T09:00', end_at: '2026-12-02T09:00' } ) ).toBe( true );
+	} );
+} );
+
+describe( 'isWildcard', () => {
+	const base = createState( null, { url: '/blog/*', groupId: 1, flags: FLAGS } );
+
+	it( 'is a plain source containing *', () => {
+		expect( isWildcard( base ) ).toBe( true );
+		expect( isWildcard( { ...base, url: '/blog/' } ) ).toBe( false );
+		expect( isWildcard( { ...base, flag_regex: true } ) ).toBe( false );
 	} );
 } );

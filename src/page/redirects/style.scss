@@ -410,3 +410,14 @@
 	color: var(--dsr-danger-text);
 	font-size: 12px;
 }
+
+// --- Wildcard ---
+
+.dsr-app .dsr-wildcard-note {
+	display: flex;
+	align-items: center;
+	gap: var(--dsr-space-2);
+	margin: calc(var(--dsr-space-3) * -1) 0 0;
+	color: var(--dsr-text-muted);
+	font-size: 12px;
+}

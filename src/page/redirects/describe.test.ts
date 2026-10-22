@@ -1,5 +1,5 @@
 import type { Redirect } from 'types';
-import { describeTarget, scheduleBadge, typeBadge } from './describe';
+import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
 
 const row = ( overrides: Partial< Redirect > ): Redirect => ( {
 	id: 1,
@@ -64,5 +64,27 @@ describe( 'scheduleBadge', () => {
 			tone: 'neutral',
 			label: 'Expired',
 		} );
+	} );
+} );
+
+describe( 'isWildcardRow', () => {
+	it( 'reads the wildcard flag', () => {
+		expect( isWildcardRow( row( {} ) ) ).toBe( false );
+		expect(
+			isWildcardRow(
+				row( {
+					url: '/blog/*',
+					match_data: {
+						source: {
+							flag_regex: false,
+							flag_case: false,
+							flag_trailing: false,
+							flag_query: 'exact',
+							flag_wildcard: true,
+						},
+					},
+				} )
+			)
+		).toBe( true );
 	} );
 } );

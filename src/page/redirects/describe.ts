@@ -102,3 +102,7 @@ export function scheduleBadge( row: Redirect ): { tone: BadgeTone; label: string
 
 	return null;
 }
+
+export function isWildcardRow( row: Redirect ): boolean {
+	return row.match_data?.source?.flag_wildcard === true;
+}
