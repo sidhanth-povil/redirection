@@ -33,6 +33,7 @@
 		"test:unit:env": "wp-env run tests-cli --env-cwd=wp-content/plugins/dsuite-redirects composer run test-unit",
 		"test:js": "wp-scripts test-unit-js",
 		"test:e2e": "NODE_ENV=e2e jest --config=e2e-jest.js --testPathIgnorePatterns='/node_modules/|/client/' --testTimeout=30000 e2e",
+		"test:e2e:browser": "playwright test",
 		"wp-env:start": "wp-env start",
 		"wp-env:destroy": "wp-env destroy"
 	},
@@ -48,6 +49,7 @@
 	"homepage": "https://github.com/johngodley/redirection",
 	"devDependencies": {
 		"@hookform/resolvers": "^5.9.1",
+		"@playwright/test": "1.58.2",
 		"@redocly/cli": "^1.34.20",
 		"@tanstack/eslint-plugin-query": "^5.103.1",
 		"@testing-library/jest-dom": "^6.9.1",
