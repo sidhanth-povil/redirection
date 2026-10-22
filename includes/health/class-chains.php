@@ -2,12 +2,17 @@
 
 namespace Redirection\Health;
 
+use Redirection\Redirect\Schedule;
+use Redirection\Url\Matcher;
+
 /**
  * Finds redirect chains (A→B→C) and loops (A→B→A) among plain redirects.
- * Pure (no WordPress): edges come in with normalised keys, see load().
+ * find() and check() are pure (no WordPress): edges come in with normalised keys, see load().
  *
  * ponytail: regex/wildcard redirects are skipped, because following them means testing every URL against every
  * pattern; add pattern-aware walking if real data shows chains hiding behind regex.
+ * ponytail: keys are case- and slash-insensitive (upstream's match_url form), so a case-sensitive redirect whose
+ * target differs only in case is reported too; honour per-redirect flags if that shows up.
  *
  * @phpstan-type Edge array{id: int, source: string, target_key: string|null, target: string, hits: int}
  * @phpstan-type Walk array{status: 'ok'|'chain'|'loop', path: list<string>, final_target: string}
@@ -37,6 +42,73 @@ class Chains {
 				$this->map[ $edge['source'] ] = $edge;
 			}
 		}
+	}
+
+	/**
+	 * Enabled, live, plain URL redirects. Computed per request with no cache: one query plus an O(n) walk.
+	 * ponytail: no cache; if /health gets slow on big sites, add a transient cleared on redirect changes.
+	 *
+	 * @return Chains
+	 */
+	public static function load() {
+		global $wpdb;
+
+		$sql = "SELECT id, match_url, action_data, last_count FROM {$wpdb->prefix}redirection_items
+			WHERE status='enabled' AND regex=0 AND match_type='url' AND action_type='url'";
+
+		if ( Schedule::columns_ready() ) {
+			$now = Schedule::now();
+			$sql .= $wpdb->prepare( ' AND (start_at IS NULL OR start_at <= %s) AND (end_at IS NULL OR end_at > %s)', $now, $now );
+		}
+
+		$edges = [];
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		foreach ( (array) $wpdb->get_results( $sql . ' ORDER BY position, id' ) as $row ) {
+			$target = is_string( $row->action_data ) ? $row->action_data : '';
+
+			if ( $target === '' ) {
+				continue;
+			}
+
+			$edges[] = [
+				'id' => intval( $row->id, 10 ),
+				'source' => $row->match_url,
+				'target_key' => self::target_key( $target ),
+				'target' => $target,
+				'hits' => intval( $row->last_count, 10 ),
+			];
+		}
+
+		return new Chains( $edges );
+	}
+
+	/**
+	 * @param string $url Source URL as typed.
+	 * @return string The same key upstream stores in match_url.
+	 */
+	public static function source_key( $url ) {
+		return ( new Matcher( $url ) )->get_url();
+	}
+
+	/**
+	 * @param string $target Target URL as typed.
+	 * @return string|null Key of a relative or same-host target, null for anywhere else.
+	 */
+	public static function target_key( $target ) {
+		$parts = wp_parse_url( $target );
+
+		if ( ! is_array( $parts ) ) {
+			return null;
+		}
+
+		$home = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+
+		if ( isset( $parts['host'] ) && strtolower( $parts['host'] ) !== strtolower( $home ) ) {
+			return null;
+		}
+
+		return self::source_key( ( $parts['path'] ?? '/' ) . ( isset( $parts['query'] ) ? '?' . $parts['query'] : '' ) );
 	}
 
 	/**

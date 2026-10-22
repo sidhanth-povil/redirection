@@ -5,6 +5,7 @@ namespace Redirection\Api;
 use Redirection\Api\Route\Error;
 use Redirection\Api\Route\Export;
 use Redirection\Api\Route\Group;
+use Redirection\Api\Route\Health;
 use Redirection\Api\Route\Import;
 use Redirection\Api\Route\Log;
 use Redirection\Api\Route\Plugin;
@@ -54,5 +55,6 @@ class Api {
 		$this->routes[] = new Plugin( REDIRECTION_API_NAMESPACE );
 		$this->routes[] = new Import( REDIRECTION_API_NAMESPACE );
 		$this->routes[] = new Export( REDIRECTION_API_NAMESPACE );
+		$this->routes[] = new Health( REDIRECTION_API_NAMESPACE );
 	}
 }
