@@ -316,4 +316,13 @@ describe( 'RedirectDrawer check before saving', () => {
 		expect( screen.queryByRole( 'alert' ) ).toBeNull();
 		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeEnabled();
 	} );
+
+	it( 'warns without blocking when the destination leads into an existing loop', async () => {
+		checkReturns( { status: 'chain', path: [ '/old', '/a', '/b', '/a' ] } );
+		openWith( '/a' );
+
+		expect( await screen.findByText( /already loops: \/old → \/a → \/b → \/a/ ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /Point straight/ } ) ).toBeNull();
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeEnabled();
+	} );
 } );

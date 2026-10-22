@@ -76,7 +76,25 @@ export default function Precheck( { result, source, onUseTarget }: PrecheckProps
 			);
 
 		case 'chain': {
-			const finalTarget = result.final_target ?? '';
+			// No final target: the destination leads into a loop elsewhere. Worth knowing, but not this redirect's fault.
+			if ( result.final_target === undefined ) {
+				return (
+					<div className="dsr-notice dsr-notice--warning" role="status">
+						<p>
+							{ sprintf(
+								/* translators: %s: the redirects visitors pass through, e.g. /a → /b → /a */
+								__(
+									'The destination already loops: %s. Fix that loop from Overview.',
+									'dsuite-redirects'
+								),
+								path
+							) }
+						</p>
+					</div>
+				);
+			}
+
+			const finalTarget = result.final_target;
 
 			return (
 				<div className="dsr-notice dsr-notice--warning" role="status">

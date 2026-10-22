@@ -158,4 +158,31 @@ class HealthApiTest extends Redirection_Api_Test {
 		$this->assertSame( 403, $this->callApi( 'health' )->get_status() );
 		$this->assertSame( 403, $this->callApi( 'check', [ 'source' => '/a', 'target' => '/b' ], 'POST' )->get_status() );
 	}
+
+	public function testQueryStringsAreNotFollowed() {
+		$this->create( '/b', '/a?ref=x' );
+		$this->create( '/a', '/c' );
+		$this->create( '/page?lang=fr', '/fr' );
+		$this->create( '/x', '/page' );
+
+		$this->assertSame( 0, $this->health()['counts']['chains'] );
+		$this->assertSame( 'ok', $this->check( [ 'source' => '/shop', 'target' => '/shop?view=grid' ] )['status'] );
+		$this->assertSame( 'ok', $this->check( [ 'source' => '/page?lang=de', 'target' => '/de' ] )['status'] );
+	}
+
+	public function testWwwAndBareHostAreTheSameSite() {
+		$host = wp_parse_url( home_url(), PHP_URL_HOST );
+		$this->create( '/a', 'http://www.' . $host . '/b' );
+		$this->create( '/b', '/c' );
+
+		$this->assertSame( 1, $this->health()['counts']['chains'] );
+	}
+
+	public function testRanksByGroupSoRecent404sAreNotBuriedByOldChains() {
+		Red_404_Log::create( 'domain', '/missing', '1.1.1.1', [] );
+		$this->create( '/a', '/b', [ 'hits' => 9999 ] );
+		$this->create( '/b', '/c' );
+
+		$this->assertSame( [ '404', 'chain' ], array_column( $this->health()['attention'], 'type' ) );
+	}
 }

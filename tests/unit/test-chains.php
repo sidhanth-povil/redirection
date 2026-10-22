@@ -118,4 +118,20 @@ class ChainsTest extends TestCase {
 		// Editing 7 to point elsewhere: its old row is neither a duplicate nor part of a loop.
 		$this->assertSame( [ 'status' => 'ok' ], $chains->check( '/a', '/z', '/z', 7 ) );
 	}
+
+	public function testLeadingIntoAnExistingLoopIsAWarningNotABlock() {
+		$chains = new Chains( [ $this->edge( 1, '/a', '/b' ), $this->edge( 2, '/b', '/a' ) ] );
+
+		$result = $chains->check( '/x', '/a', '/a' );
+
+		$this->assertSame( 'chain', $result['status'] );
+		$this->assertSame( [ '/x', '/a', '/b', '/a' ], $result['path'] );
+		$this->assertArrayNotHasKey( 'final_target', $result );
+	}
+
+	public function testEditingTheFirstOfTwoDuplicatesStillReportsTheSecond() {
+		$chains = new Chains( [ $this->edge( 7, '/a', '/b' ), $this->edge( 8, '/a', '/c' ) ] );
+
+		$this->assertSame( [ 'status' => 'duplicate', 'existing_id' => 8 ], $chains->check( '/a', '/z', '/z', 7 ) );
+	}
 }

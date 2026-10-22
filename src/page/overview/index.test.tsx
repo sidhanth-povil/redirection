@@ -129,6 +129,12 @@ describe( 'Overview', () => {
 		expect( screen.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'shows when a redirect stops in site time', () => {
+		setup();
+
+		expect( row( '/promo' ) ).toHaveTextContent( 'Stops on 2026-10-25 10:00' );
+	} );
+
 	it( 'opens an ending redirect on its dates to extend it', () => {
 		setup();
 

@@ -80,8 +80,8 @@ class Health extends BaseRoute {
 		$source = (string) $request['source'];
 		$target = (string) $request['target'];
 
-		// Wildcards are matched as patterns, which the chain walk skips.
-		if ( strpos( $source, '*' ) !== false ) {
+		// Wildcards are matched as patterns and query sources by their query, which the chain walk skips.
+		if ( strpos( $source, '*' ) !== false || ! Chains::is_followable( $source ) ) {
 			return [ 'status' => Chains::STATUS_OK ];
 		}
 
@@ -119,11 +119,13 @@ class Health extends BaseRoute {
 			];
 		}
 
-		// A loop breaks the page for every visitor, so loops come first; then whatever is hit most.
+		// A loop breaks the page for every visitor, so loops come first; this week's 404s next. Within a group, the
+		// most hit first (404 hits are this week's, redirect hits lifetime, so groups aren't compared by hits).
+		$rank = array_flip( [ 'loop', '404', 'chain', 'expiring' ] );
 		usort(
 			$attention,
-			static function ( $first, $second ) {
-				return [ $first['type'] !== 'loop', $second['hits'] ] <=> [ $second['type'] !== 'loop', $first['hits'] ];
+			static function ( $first, $second ) use ( $rank ) {
+				return [ $rank[ $first['type'] ], $second['hits'] ] <=> [ $rank[ $second['type'] ], $first['hits'] ];
 			}
 		);
 

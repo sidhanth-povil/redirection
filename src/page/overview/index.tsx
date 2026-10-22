@@ -60,7 +60,7 @@ function describeItem( item: AttentionItem ): { tone: BadgeTone; label: string; 
 				meta: sprintf(
 					/* translators: %s: date and time the redirect stops */
 					__( 'Stops on %s', 'dsuite-redirects' ),
-					new Date( item.end_at ?? '' ).toLocaleString()
+					( item.end_at ?? '' ).slice( 0, 16 ).replace( 'T', ' ' )
 				),
 			};
 	}
