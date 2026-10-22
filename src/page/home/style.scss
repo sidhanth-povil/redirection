@@ -41,14 +41,6 @@
 }
 
 /**
- * Adds a bit more space to the top of redirect 'add new' section
- */
-
-.addTop {
-	margin-top: 20px;
-}
-
-/**
  * Mobile version of stuff
  */
 @media screen and (max-width: 782px) {
@@ -67,10 +59,6 @@
 	.plugin-importer button {
 		width: 100%;
 	}
-
-	p.search-box input[name="s"] {
-		margin-top: 20px;
-	}
 }
 
 /**
@@ -84,38 +72,6 @@
 	margin-top: 15px;
 	width: 100%;
 	background-color: #fff !important;
-}
-
-.redirect-edit .table-actions,
-.edit-groups .table-actions,
-.redirect-groups .table-actions {
-	margin-left: 1px;
-	margin-top: 2px;
-	display: flex;
-	align-items: center;
-	justify-content: flex-start;
-
-	.button {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 32px;
-		height: 32px;
-	}
-
-	button.redirection-edit_advanced {
-		text-decoration: none;
-		font-size: 16px;
-		border: none;
-		background: none;
-		padding: 0;
-		margin: 0;
-		cursor: pointer;
-
-		svg {
-			padding-top: 2px;
-		}
-	}
 }
 
 .error {
@@ -148,8 +104,4 @@
 	a:hover {
 		text-decoration: underline;
 	}
-}
-
-.red-upgrade {
-	margin-bottom: 50px;
 }
