@@ -54,6 +54,69 @@ class Error extends Log {
 	}
 
 	/**
+	 * Grouped by URL, each row also says when it was last seen and where visitors mostly came from.
+	 *
+	 * @param string               $group Group type ('ip'|'url'|'agent').
+	 * @param array<string, mixed> $params Filter params.
+	 * @phpstan-return array{items: list<object>, total: int}
+	 * @return array
+	 */
+	public static function get_grouped( $group, array $params ) {
+		global $wpdb;
+
+		$result = parent::get_grouped( $group, $params );
+		$urls = array_column( $result['items'], 'url' );
+
+		if ( $group !== 'url' || count( $urls ) === 0 ) {
+			return $result;
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $urls ), '%s' ) );
+		$last_seen = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
+				"SELECT url, MAX(created) AS last_seen FROM {$wpdb->prefix}redirection_404 WHERE url IN ({$placeholders}) GROUP BY url",
+				$urls
+			),
+			OBJECT_K
+		);
+		$referrers = self::get_top_referrers( $urls );
+
+		/** @var \stdClass $row Rows are plain database objects. */
+		foreach ( $result['items'] as $row ) {
+			$row->last_seen = isset( $last_seen[ $row->url ] ) ? $last_seen[ $row->url ]->last_seen : '';
+			$row->referrer = $referrers[ $row->url ] ?? '';
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Adds `since` (days) and `ignored` (whether a "do nothing" redirect exists for the URL).
+	 *
+	 * @param array<string, mixed> $filter Array of filter params.
+	 * @return list<string>
+	 */
+	protected static function get_query_filter( array $filter ) {
+		global $wpdb;
+
+		// @phpstan-ignore argument.type
+		$where = parent::get_query_filter( $filter );
+
+		if ( isset( $filter['since'] ) && intval( $filter['since'], 10 ) > 0 ) {
+			// 404 rows store site-local time (current_time( 'mysql' )).
+			$where[] = $wpdb->prepare( 'created >= %s', wp_date( 'Y-m-d H:i:s', time() - intval( $filter['since'], 10 ) * DAY_IN_SECONDS ) );
+		}
+
+		if ( isset( $filter['ignored'] ) && in_array( $filter['ignored'], [ '0', '1' ], true ) ) {
+			$ignored = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type='nothing' AND status='enabled'";
+			$where[] = 'url ' . ( $filter['ignored'] === '1' ? 'IN' : 'NOT IN' ) . " ({$ignored})";
+		}
+
+		return $where;
+	}
+
+	/**
 	 * The most common referrer of each URL, in one query.
 	 *
 	 * @param list<string> $urls 404 URLs.
