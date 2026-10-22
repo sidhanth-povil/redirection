@@ -3,6 +3,7 @@ import { useSettings, usePluginDelete } from 'lib/api/hooks';
 import { useSettingsStore } from 'stores';
 import OptionsForm from './options-form';
 import DeletePlugin from './delete-plugin';
+import Alerts from './alerts';
 
 function Options() {
 	// Direct property access instead of destructuring
@@ -26,6 +27,7 @@ function Options() {
 
 	return (
 		<div>
+			{ loadStatus === 'success' && <Alerts /> }
 			{ loadStatus === 'success' && <OptionsForm /> }
 
 			<hr />

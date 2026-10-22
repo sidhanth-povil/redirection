@@ -2,6 +2,7 @@
 
 namespace Redirection\Plugin;
 
+use Redirection\Alerts\Digest;
 use Redirection\Database\Status as DatabaseStatus;
 use Redirection\Module\Module;
 use Redirection\Module\Plugin;
@@ -64,6 +65,12 @@ class Front {
 		}
 
 		add_action( Flusher::DELETE_HOOK, [ $this, 'clean_redirection_logs' ] );
+		add_action(
+			Digest::HOOK,
+			static function () {
+				Digest::run();
+			}
+		);
 		add_filter( 'redirection_url_target', [ $this, 'transform_url' ] );
 
 		$options = Settings::get();

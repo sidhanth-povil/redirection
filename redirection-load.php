@@ -204,6 +204,12 @@ if ( red_is_refactor_enabled() ) {
 				$flusher->flush();
 			}
 		);
+		add_action(
+			Redirection\Alerts\Digest::HOOK,
+			function () {
+				Redirection\Alerts\Digest::run();
+			}
+		);
 	}
 } elseif ( red_is_admin() || red_is_wpcli() ) {
 	require_once __DIR__ . '/redirection-admin.php';

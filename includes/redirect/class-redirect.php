@@ -1188,6 +1188,22 @@ class Redirect {
 	}
 
 	/**
+	 * Whether a live redirect now handles a URL. Used to leave already-fixed 404s out of Overview and the digest.
+	 *
+	 * @param string $url Requested URL.
+	 * @return bool
+	 */
+	public static function matches_any( $url ) {
+		foreach ( self::get_for_matched_url( $url ) as $item ) {
+			if ( $item->get_match( $url ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function is_wildcard() {

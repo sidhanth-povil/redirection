@@ -95,10 +95,10 @@ const initialErrorsTable: TableState = {
 	orderby: '',
 	direction: 'desc',
 	selected: [],
-	filterBy: {},
+	filterBy: { since: '7', ignored: '0' },
 	displayType: 'standard',
 	displaySelected: [ 'date', 'url', 'agent', 'ip' ],
-	groupBy: '',
+	groupBy: 'url',
 };
 
 interface PersistedTableDisplay {

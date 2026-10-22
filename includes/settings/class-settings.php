@@ -2,6 +2,7 @@
 
 namespace Redirection\Settings;
 
+use Redirection\Alerts\Digest;
 use Redirection\Core\Capabilities;
 use Redirection\Group\Group;
 use Redirection\Module\Module;
@@ -49,6 +50,7 @@ use Redirection\Url\SourceFlags;
  *    flag_case: bool,
  *    flag_trailing: bool,
  *    flag_regex: bool,
+ *    dsr_alerts: array{enabled: bool, frequency: 'daily'|'weekly', recipients: list<string>, min_hits: int},
  *    database_stage?: array{stage?: string|false, stages?: array<mixed>, status?: string|false},
  *    location?: string
  * }
@@ -300,6 +302,7 @@ class Settings {
 			'cache_key' => 0,
 			'plugin_update' => 'prompt',
 			'update_notice' => 0,
+			Digest::SETTINGS_KEY => Digest::defaults(),
 		];
 
 		$defaults = array_merge( $defaults, $flags->get_json() );
@@ -321,6 +324,7 @@ class Settings {
 
 		$options = self::apply_settings( $settings );
 		update_option( self::OPTION_KEY, apply_filters( 'redirection_save_options', $options ) );
+		Digest::schedule( $options[ Digest::SETTINGS_KEY ] );
 
 		// Clear the cache after saving to ensure fresh data on next get()
 		self::$options_cache = null;
@@ -342,6 +346,10 @@ class Settings {
 
 		if ( isset( $settings['database'] ) ) {
 			$options['database'] = sanitize_text_field( $settings['database'] );
+		}
+
+		if ( isset( $settings[ Digest::SETTINGS_KEY ] ) ) {
+			$options[ Digest::SETTINGS_KEY ] = Digest::sanitize( $settings[ Digest::SETTINGS_KEY ] );
 		}
 
 		if ( array_key_exists( 'database_stage', $settings ) ) {
