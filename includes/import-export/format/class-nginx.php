@@ -134,6 +134,12 @@ class Nginx extends FormatHandler {
 			return $this->get_error_location( $item->get_url(), $item->get_action_code(), $source, $regex );
 		}
 
+		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+		if ( $item->is_wildcard() ) {
+			// A wildcard is exported as its compiled regex, with each * in the target as $1, $2...
+			return $this->get_redirect( \Redirection\Url\Wildcard::to_pattern( $item->get_url() ), \Redirection\Url\Wildcard::to_replacement( $item->get_action_data() ), $this->get_redirect_code( $item ), $source, true );
+		}
+
 		return $this->get_redirect( $item->get_url(), $item->get_action_data(), $this->get_redirect_code( $item ), $source, $regex );
 	}
 

@@ -123,6 +123,13 @@ class HtaccessRuleBuilder {
 		$lines = [];
 		$url = $item->get_url();
 
+		// A wildcard is exported as its compiled regex, with each * in the target as $1, $2...
+		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+		$is_wildcard = $item->is_wildcard();
+		if ( $is_wildcard ) {
+			$target_url = \Redirection\Url\Wildcard::to_replacement( $target_url );
+		}
+
 		if ( $item->is_regex() === false && strpos( $url, '?' ) !== false ) {
 			$url_parts = wp_parse_url( $url );
 
@@ -141,7 +148,7 @@ class HtaccessRuleBuilder {
 
 		$from = $this->encoder->encode_from( $url, $item->source_flags !== null && $item->source_flags->is_ignore_trailing() );
 		if ( $item->is_regex() ) {
-			$from = $this->encoder->encode_regex( $item->get_url() );
+			$from = $this->encoder->encode_regex( $is_wildcard ? \Redirection\Url\Wildcard::to_pattern( $item->get_url() ) : $item->get_url() );
 		}
 
 		if ( $to !== '' ) {
@@ -157,6 +164,11 @@ class HtaccessRuleBuilder {
 	 * @return string
 	 */
 	private function get_from( $item, $use_from_encoding ) {
+		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+		if ( $item->is_wildcard() ) {
+			return $this->encoder->encode_regex( \Redirection\Url\Wildcard::to_pattern( ltrim( $item->get_url(), '/' ) ) );
+		}
+
 		if ( $item->is_regex() ) {
 			return $this->encoder->encode_regex( ltrim( $item->get_url(), '/' ) );
 		}

@@ -258,6 +258,14 @@ class RedirectsFile extends FormatHandler {
 	 * @return string|false
 	 */
 	private function get_export_source( $item ) {
+		// _redirects supports one trailing splat, which is exactly a single trailing * wildcard.
+		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+		if ( $item->is_wildcard() ) {
+			$url = $item->get_url();
+
+			return substr_count( $url, '*' ) === 1 && substr( $url, -1 ) === '*' ? $url : false;
+		}
+
 		if ( ! $item->is_regex() ) {
 			return $item->get_url();
 		}
@@ -282,6 +290,12 @@ class RedirectsFile extends FormatHandler {
 	 */
 	private function get_export_target( $item ) {
 		$target = $item->get_action_data();
+
+		// @phpstan-ignore method.notFound (Red_Item aliases Redirection\Redirect\Redirect at runtime; phpstan also sees the legacy models/ class)
+		if ( $item->is_wildcard() ) {
+			// One capture: the first * is the splat; any further * would be empty, which _redirects can't express.
+			return substr_count( $target, '*' ) <= 1 ? str_replace( '*', ':splat', $target ) : false;
+		}
 
 		if ( ! $item->is_regex() ) {
 			return $target;

@@ -35,6 +35,10 @@ class HtaccessRuleBuilderTest extends TestCase {
 				return $this->args['url'];
 			}
 
+			public function is_wildcard() {
+				return $this->args['wildcard'] ?? false;
+			}
+
 			public function is_regex() {
 				return $this->args['regex'] ?? false;
 			}

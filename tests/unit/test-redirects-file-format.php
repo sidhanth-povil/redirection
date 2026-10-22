@@ -56,6 +56,10 @@ class RedirectsFileFormatTest extends TestCase {
 				return $this->args['action_data'] ?? '';
 			}
 
+			public function is_wildcard() {
+				return $this->args['wildcard'] ?? false;
+			}
+
 			public function is_regex() {
 				return $this->args['regex'] ?? false;
 			}

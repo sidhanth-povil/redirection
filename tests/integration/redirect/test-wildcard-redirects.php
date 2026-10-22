@@ -117,4 +117,23 @@ class WildcardRedirectsTest extends Redirection_Api_Test {
 		$this->assertFalse( $json['match_data']['source']['flag_regex'] );
 		$this->assertSame( '/blog/*', $json['url'] );
 	}
+
+	public function testServerConfigExportsTheCompiledWildcard() {
+		$section = $this->create( '/blog/*', '/news/*' );
+		$multi = $this->create( '/shop/*/item-*', '/products/*/*' );
+		$items = [ Red_Item::get_by_id( $section->get_id() ), Red_Item::get_by_id( $multi->get_id() ) ];
+
+		$apache = ( new \Redirection\ImportExport\Format\Apache() )->get_data( $items, [] );
+		$this->assertStringContainsString( 'blog/(.*)', $apache );
+		$this->assertStringContainsString( '/news/$1', $apache );
+		$this->assertStringNotContainsString( '/news/*', $apache );
+
+		$nginx = ( new \Redirection\ImportExport\Format\Nginx() )->get_data( $items, [] );
+		$this->assertStringContainsString( 'blog/(.*)', $nginx );
+		$this->assertStringContainsString( '/news/$1', $nginx );
+
+		$netlify = ( new \Redirection\ImportExport\Format\RedirectsFile() )->get_data( $items, [] );
+		$this->assertStringContainsString( '/blog/* /news/:splat 301', $netlify );
+		$this->assertStringNotContainsString( '/shop/', $netlify );
+	}
 }
