@@ -1,11 +1,12 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { useGroupDropdown, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
+import { useGroupDropdown, useRedirectCheck, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
 import type { Redirect } from 'types';
 import RedirectDrawer from './redirect-drawer';
 
 jest.mock( 'lib/api/hooks', () => ( {
 	useGroupDropdown: jest.fn(),
+	useRedirectCheck: jest.fn(),
 	useRedirectCreate: jest.fn(),
 	useRedirectUpdate: jest.fn(),
 } ) );
@@ -26,6 +27,7 @@ beforeEach( () => {
 	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
 	( useRedirectCreate as jest.Mock ).mockReturnValue( create );
 	( useRedirectUpdate as jest.Mock ).mockReturnValue( update );
+	( useRedirectCheck as jest.Mock ).mockReturnValue( { data: undefined, isPlaceholderData: false } );
 	window.localStorage.clear();
 } );
 
@@ -244,5 +246,74 @@ describe( 'RedirectDrawer', () => {
 
 		fireEvent.click( screen.getByLabelText( 'Regular expression' ) );
 		expect( screen.queryByText( 'Wildcard' ) ).toBeNull();
+	} );
+} );
+
+describe( 'RedirectDrawer check before saving', () => {
+	function checkReturns( data: object ) {
+		( useRedirectCheck as jest.Mock ).mockReturnValue( { data, isPlaceholderData: false } );
+	}
+
+	function openWith( target: string ) {
+		render( <RedirectDrawer item={ null } initialUrl="/old" onClose={ jest.fn() } /> );
+		fireEvent.change( screen.getByLabelText( 'Send visitors to' ), { target: { value: target } } );
+	}
+
+	it( 'checks the typed redirect, and the one being edited by id', () => {
+		render( <RedirectDrawer item={ redirect307 } onClose={ jest.fn() } /> );
+
+		expect( useRedirectCheck ).toHaveBeenLastCalledWith( { source: '/promo', target: '/sale', id: 5 }, true );
+	} );
+
+	// The check runs once typing pauses, so results appear after the debounce.
+	it( 'offers to point a chain straight to its final destination', async () => {
+		checkReturns( { status: 'chain', path: [ '/old', '/middle', '/final' ], final_target: '/final' } );
+		openWith( '/middle' );
+
+		expect( await screen.findByText( /\/old → \/middle → \/final/ ) ).toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Point straight to /final' } ) );
+
+		expect( screen.getByLabelText( 'Send visitors to' ) ).toHaveValue( '/final' );
+	} );
+
+	it( 'blocks saving a loop', async () => {
+		checkReturns( { status: 'loop', path: [ '/old', '/back', '/old' ] } );
+		openWith( '/back' );
+
+		expect( await screen.findByRole( 'alert' ) ).toHaveTextContent( '/old → /back → /old' );
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
+	} );
+
+	it( 'links to the redirect that already uses the old URL', async () => {
+		checkReturns( { status: 'duplicate', existing_id: 9 } );
+		openWith( '/new' );
+
+		expect( await screen.findByRole( 'link', { name: /View it/ } ) ).toHaveAttribute(
+			'href',
+			'#/redirects?filterby%5Burl%5D=%2Fold'
+		);
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeEnabled();
+	} );
+
+	it( 'confirms a clean redirect', async () => {
+		checkReturns( { status: 'ok' } );
+		openWith( '/new' );
+
+		expect( await screen.findByText( 'No chains or loops.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'skips the check for wildcards and regex, which it cannot follow', async () => {
+		checkReturns( { status: 'loop', path: [ '/x', '/x' ] } );
+		render( <RedirectDrawer item={ null } initialUrl="/blog/*" onClose={ jest.fn() } /> );
+		fireEvent.change( screen.getByLabelText( 'Send visitors to' ), { target: { value: '/news/*' } } );
+
+		await waitFor( () =>
+			expect( useRedirectCheck ).toHaveBeenLastCalledWith(
+				{ source: '/blog/*', target: '/news/*', id: 0 },
+				false
+			)
+		);
+		expect( screen.queryByRole( 'alert' ) ).toBeNull();
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeEnabled();
 	} );
 } );

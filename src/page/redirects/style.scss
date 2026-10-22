@@ -421,3 +421,10 @@
 	color: var(--dsr-text-muted);
 	font-size: 12px;
 }
+
+// The drawer's check before saving: a quiet green line when the redirect is clean.
+.dsr-app .dsr-precheck {
+	margin: 0;
+	color: var(--dsr-success-text);
+	font-size: 13px;
+}
