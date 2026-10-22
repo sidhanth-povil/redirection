@@ -142,7 +142,10 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const saving = create.isPending || update.isPending;
 	const error = ( item ? update.error : create.error )?.message;
 	const simpleType = simpleTypeOf( state );
-	const warnings = getWarningFromState( state );
+	// Upstream warns that `*` looks like regex; for a wildcard that advice is wrong, so check the source without its stars.
+	const warnings = getWarningFromState(
+		isWildcard( state ) ? { ...state, url: state.url.replace( /\*/g, '' ) } : state
+	);
 
 	const requestClose = useCallback( () => {
 		if ( touched && ! window.confirm( __( 'Discard your changes?', 'dsuite-redirects' ) ) ) {

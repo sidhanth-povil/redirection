@@ -239,6 +239,8 @@ describe( 'RedirectDrawer', () => {
 
 		fireEvent.change( screen.getByLabelText( 'Old URL' ), { target: { value: '/blog/*' } } );
 		expect( screen.getByText( 'Wildcard' ) ).toBeInTheDocument();
+		// Upstream's "enable regex" nudge is wrong advice for a wildcard.
+		expect( screen.queryByText( /enable the "regex" option/ ) ).toBeNull();
 
 		fireEvent.click( screen.getByLabelText( 'Regular expression' ) );
 		expect( screen.queryByText( 'Wildcard' ) ).toBeNull();
