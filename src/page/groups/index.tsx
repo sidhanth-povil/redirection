@@ -158,7 +158,9 @@ export default function Groups() {
 
 	const onDelete = ( group: Group ) => {
 		/* translators: %s: group name */
-		if ( window.confirm( sprintf( __( 'Delete the group %s and its redirects?', 'dsuite-redirects' ), group.name ) ) ) {
+		const message = sprintf( __( 'Delete the group %s and its redirects?', 'dsuite-redirects' ), group.name );
+
+		if ( window.confirm( message ) ) {
 			bulk.mutate( { action: 'delete', items: [ group.id ] } );
 		}
 	};
@@ -214,13 +216,19 @@ export default function Groups() {
 										{ canViewRedirects && (
 											<a
 												className="dsr-link"
-												href={ buildHash( 'redirects', { 'filterby[group]': String( group.id ) } ) }
+												href={ buildHash( 'redirects', {
+													'filterby[group]': String( group.id ),
+												} ) }
 											>
 												{ __( 'View redirects', 'dsuite-redirects' ) }
 											</a>
 										) }
 										{ canEdit && (
-											<button type="button" className="dsr-link" onClick={ () => setEditing( group.id ) }>
+											<button
+												type="button"
+												className="dsr-link"
+												onClick={ () => setEditing( group.id ) }
+											>
 												{ __( 'Edit', 'dsuite-redirects' ) }
 											</button>
 										) }

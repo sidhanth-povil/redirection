@@ -30,9 +30,15 @@ function getChips( hasIp: boolean ): Chip[] {
 	];
 }
 
-/** What a grouped row is grouped on. */
+/**
+ * What a grouped row is grouped on.
+ *
+ * @param row     Log row.
+ * @param groupBy `ip`, `agent` or `url`.
+ */
 function groupValue( row: Log, groupBy: string ): string {
-	const value = groupBy === 'ip' ? row.ip : groupBy === 'agent' ? row.agent : row.url;
+	const values: Record< string, string | null | undefined > = { ip: row.ip, agent: row.agent };
+	const value = groupBy in values ? values[ groupBy ] : row.url;
 
 	return value ?? String( row.id );
 }
@@ -253,7 +259,10 @@ export default function Logs() {
 										</>
 									) : (
 										<>
-											<td className="dsr-table__last" data-label={ __( 'Date', 'dsuite-redirects' ) }>
+											<td
+												className="dsr-table__last"
+												data-label={ __( 'Date', 'dsuite-redirects' ) }
+											>
 												{ row.created } { row.created_time }
 											</td>
 											<td className="dsr-table__redirect">
