@@ -9,6 +9,8 @@ export default defineConfig( {
 	retries: 0,
 	workers: 1,
 	reporter: 'list',
+	// Inside node_modules (already gitignored) so test runs never dirty the tree; the release script needs it clean.
+	outputDir: 'node_modules/.cache/playwright-results',
 	use: {
 		baseURL: process.env.WP_BASE_URL ?? 'http://localhost:8888',
 		trace: 'retain-on-failure',

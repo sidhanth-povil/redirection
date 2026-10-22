@@ -54,4 +54,4 @@ pnpm lint:ts && pnpm test:js && pnpm build
 pnpm test:unit:env && pnpm test:integration
 ```
 
-Then load every page in wp-env, check a redirect and a 404 still log, and merge with `git merge --no-ff`. Ship as usual with `pnpm plugin:zip` and bump the version in `dsuite-redirects.php`.
+Then load every page in wp-env, check a redirect and a 404 still log, and merge with `git merge --no-ff`. Ship it: bump the version (`package.json`, `dsuite-redirects.php` header and `REDIRECTION_VERSION`, `readme.txt`), merge to trunk, push, then `pnpm release`. Our tags are `vX.Y.Z`; upstream's are bare numbers, so they never collide.
