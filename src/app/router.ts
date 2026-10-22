@@ -1,7 +1,16 @@
 import { __ } from '@wordpress/i18n';
 import { useMemo, useSyncExternalStore } from 'react';
 
-export type RouteName = 'redirects' | 'groups' | '404s' | 'logs' | 'site' | 'import-export' | 'settings' | 'support';
+export type RouteName =
+	| 'overview'
+	| 'redirects'
+	| 'groups'
+	| '404s'
+	| 'logs'
+	| 'site'
+	| 'import-export'
+	| 'settings'
+	| 'support';
 
 export interface Route {
 	name: RouteName;
@@ -12,10 +21,13 @@ interface RouteDef {
 	name: RouteName;
 	/** Upstream page names covered by this route: used for capabilities and old `sub=` links. */
 	pages: string[];
+	/** Upstream pages that grant access when the route has no page of its own. */
+	access?: string[];
 }
 
 /** Sidebar order. */
 export const ROUTES: RouteDef[] = [
+	{ name: 'overview', pages: [], access: [ 'redirect' ] },
 	{ name: 'redirects', pages: [ 'redirect' ] },
 	{ name: 'groups', pages: [ 'groups' ] },
 	{ name: '404s', pages: [ '404s' ] },
@@ -26,10 +38,15 @@ export const ROUTES: RouteDef[] = [
 	{ name: 'support', pages: [ 'support' ] },
 ];
 
-export const DEFAULT_ROUTE: RouteName = 'redirects';
+export const DEFAULT_ROUTE: RouteName = 'overview';
+
+/** Where table pages and filter links without a page land. */
+const REDIRECTS_ROUTE: RouteName = 'redirects';
 
 export function getRouteLabel( name: RouteName ): string {
 	switch ( name ) {
+		case 'overview':
+			return __( 'Overview', 'dsuite-redirects' );
 		case 'redirects':
 			return __( 'Redirects', 'dsuite-redirects' );
 		case 'groups':
@@ -86,17 +103,17 @@ export function buildHash( name: RouteName, query: Record< string, string > = {}
 }
 
 export function pageForRoute( name: RouteName ): string {
-	return findRoute( name )?.pages[ 0 ] ?? 'redirect';
+	return findRoute( name )?.pages[ 0 ] ?? findRoute( name )?.access?.[ 0 ] ?? 'redirect';
 }
 
 export function routeForPage( page: string ): RouteName {
-	return ROUTES.find( ( route ) => route.pages.includes( page ) )?.name ?? DEFAULT_ROUTE;
+	return ROUTES.find( ( route ) => route.pages.includes( page ) )?.name ?? REDIRECTS_ROUTE;
 }
 
 export function allowedRoutes( allowedPages: string[] ): RouteName[] {
-	return ROUTES.filter( ( route ) => route.pages.some( ( page ) => allowedPages.includes( page ) ) ).map(
-		( route ) => route.name
-	);
+	return ROUTES.filter( ( route ) =>
+		[ ...route.pages, ...( route.access ?? [] ) ].some( ( page ) => allowedPages.includes( page ) )
+	).map( ( route ) => route.name );
 }
 
 export function resolveRoute( name: RouteName, allowed: RouteName[] ): RouteName | null {
@@ -128,7 +145,7 @@ export function legacyUrlToHashUrl( href: string ): string | null {
 	if ( sub !== null ) {
 		name = ROUTES.find( ( route ) => route.pages.includes( sub ) )?.name ?? null;
 	} else if ( params.toString() !== '' ) {
-		name = DEFAULT_ROUTE;
+		name = REDIRECTS_ROUTE;
 	}
 
 	if ( name === null ) {

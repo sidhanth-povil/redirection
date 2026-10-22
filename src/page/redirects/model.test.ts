@@ -11,6 +11,7 @@ import {
 	setTarget,
 	simpleTypeOf,
 	toPayload,
+	withTarget,
 } from './model';
 
 const FLAGS = { flag_regex: false, flag_trailing: true, flag_case: true, flag_query: 'ignore' };
@@ -203,5 +204,14 @@ describe( 'isWildcard', () => {
 		expect( isWildcard( base ) ).toBe( true );
 		expect( isWildcard( { ...base, url: '/blog/' } ) ).toBe( false );
 		expect( isWildcard( { ...base, flag_regex: true } ) ).toBe( false );
+	} );
+} );
+
+describe( 'withTarget', () => {
+	it( 'saves the redirect unchanged apart from its target, as the drawer would', () => {
+		expect( withTarget( urlRedirect, '/final' ) ).toEqual( {
+			...toPayload( createState( urlRedirect, { url: '', groupId: 0, flags: FLAGS } ) ),
+			action_data: { url: '/final' },
+		} );
 	} );
 } );

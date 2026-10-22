@@ -181,6 +181,23 @@ export function setTarget( state: DrawerState, url: string ): DrawerState {
 	return { ...state, action_data: { ...state.action_data, url } };
 }
 
+/**
+ * The redirect saved with a new target, exactly as the drawer would save it. Overview's Flatten uses it.
+ *
+ * @param item Stored redirect.
+ * @param url  New target.
+ */
+export function withTarget( item: Redirect, url: string ): CreateRedirectInput {
+	// Defaults only fill in a new redirect; createState reads everything else from the item.
+	const defaults: Defaults = {
+		url: item.url,
+		groupId: item.group_id,
+		flags: { flag_regex: false, flag_trailing: false, flag_case: false, flag_query: 'exact' },
+	};
+
+	return toPayload( setTarget( createState( item, defaults ), url ) );
+}
+
 export function canSave( state: DrawerState ): boolean {
 	if ( state.url.trim() === '' || state.group_id <= 0 || scheduleError( state ) !== null ) {
 		return false;

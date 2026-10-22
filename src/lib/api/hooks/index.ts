@@ -8,6 +8,9 @@
 export * from './use-redirect-list';
 export * from './use-redirect-mutations';
 
+// Health (Overview and the drawer's check)
+export * from './use-health';
+
 // Groups
 export * from './use-group-list';
 export * from './use-group-mutations';

@@ -14,6 +14,12 @@ export const queryKeys = {
 		list: ( params: any ) => [ ...queryKeys.redirects.lists(), params ] as const,
 		detail: ( id: number ) => [ ...queryKeys.redirects.all, 'detail', id ] as const,
 	},
+	health: {
+		all: [ 'health' ] as const,
+		get: () => [ ...queryKeys.health.all, 'get' ] as const,
+		check: ( params: { source: string; target: string; id: number } ) =>
+			[ ...queryKeys.health.all, 'check', params ] as const,
+	},
 	groups: {
 		all: [ 'groups' ] as const,
 		lists: () => [ ...queryKeys.groups.all, 'list' ] as const,
