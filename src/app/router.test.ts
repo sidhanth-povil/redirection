@@ -14,8 +14,8 @@ const ADMIN = 'http://example.test/wp-admin/admin.php';
 
 describe( 'parseHash', () => {
 	it( 'falls back to the default route for an empty or unknown hash', () => {
-		expect( parseHash( '' ) ).toEqual( { name: 'redirects', query: {} } );
-		expect( parseHash( '#/nope?x=1' ) ).toEqual( { name: 'redirects', query: {} } );
+		expect( parseHash( '' ) ).toEqual( { name: 'overview', query: {} } );
+		expect( parseHash( '#/nope?x=1' ) ).toEqual( { name: 'overview', query: {} } );
 	} );
 
 	it( 'reads the route and its query', () => {
@@ -47,6 +47,8 @@ describe( 'buildHash', () => {
 describe( 'page mapping', () => {
 	it( 'maps routes to upstream page names and back', () => {
 		expect( pageForRoute( 'redirects' ) ).toBe( 'redirect' );
+		expect( pageForRoute( 'overview' ) ).toBe( 'redirect' );
+		expect( routeForPage( 'redirect' ) ).toBe( 'redirects' );
 		expect( pageForRoute( 'logs' ) ).toBe( 'log' );
 		expect( pageForRoute( 'settings' ) ).toBe( 'options' );
 		expect( routeForPage( 'export' ) ).toBe( 'import-export' );
@@ -58,6 +60,10 @@ describe( 'page mapping', () => {
 describe( 'access', () => {
 	it( 'keeps only routes the user can see, in sidebar order', () => {
 		expect( allowedRoutes( [ 'support', '404s', 'export' ] ) ).toEqual( [ '404s', 'import-export', 'support' ] );
+	} );
+
+	it( 'shows Overview first to anyone who can see redirects', () => {
+		expect( allowedRoutes( [ '404s', 'redirect' ] ) ).toEqual( [ 'overview', 'redirects', '404s' ] );
 	} );
 
 	it( 'falls back to the first allowed route', () => {

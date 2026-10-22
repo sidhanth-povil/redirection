@@ -4,6 +4,7 @@ import {
 	useExport,
 	useGroupDropdown,
 	useRedirectBulkAction,
+	useRedirectCheck,
 	useRedirectCreate,
 	useRedirectDelete,
 	useRedirectList,
@@ -19,6 +20,7 @@ jest.mock( 'lib/api/hooks', () => ( {
 	useGroupDropdown: jest.fn(),
 	useRedirectDelete: jest.fn(),
 	useRedirectBulkAction: jest.fn(),
+	useRedirectCheck: jest.fn(),
 	useExport: jest.fn(),
 	useRedirectCreate: jest.fn(),
 	useRedirectUpdate: jest.fn(),
@@ -120,6 +122,7 @@ function setup( caps = ALL_CAPS ) {
 	( useExport as jest.Mock ).mockReturnValue( { mutate: jest.fn() } );
 	( useRedirectCreate as jest.Mock ).mockReturnValue( { mutate: jest.fn(), isPending: false, error: null } );
 	( useRedirectUpdate as jest.Mock ).mockReturnValue( { mutate: jest.fn(), isPending: false, error: null } );
+	( useRedirectCheck as jest.Mock ).mockReturnValue( { data: undefined } );
 
 	return render( <Redirects /> );
 }

@@ -11,6 +11,7 @@ import ImportPage from 'page/import';
 import ExportPage from 'page/export';
 import Groups from 'page/groups';
 import Redirects from 'page/redirects';
+import Overview from 'page/overview';
 
 interface PageContentProps {
 	route: RouteName;
@@ -18,6 +19,9 @@ interface PageContentProps {
 
 function PageContent( { route }: PageContentProps ) {
 	switch ( route ) {
+		case 'overview':
+			return <Overview />;
+
 		case 'support':
 			return <Support />;
 

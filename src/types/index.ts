@@ -11,6 +11,7 @@ export * from './schemas/group';
 export * from './schemas/settings';
 export * from './schemas/log';
 export * from './schemas/io';
+export * from './schemas/health';
 
 // API response schemas
 export * from './schemas/api-responses';

@@ -30,6 +30,7 @@ import {
 	type SimpleType,
 } from './model';
 import { searchContent } from './search-content';
+import Precheck, { useSaveCheck } from './precheck';
 import './style.scss';
 
 const ADVANCED_KEY = 'dsr_advanced_open';
@@ -140,6 +141,8 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const timezone = window.Redirectioni10n?.timezone || 'UTC';
 
 	const saving = create.isPending || update.isPending;
+	const check = useSaveCheck( state, item?.id ?? 0 );
+	const isSaveable = canSave( state ) && ! check.isBlocked;
 	const error = ( item ? update.error : create.error )?.message;
 	const simpleType = simpleTypeOf( state );
 	// Upstream warns that `*` looks like regex; for a wildcard that advice is wrong, so check the source without its stars.
@@ -158,7 +161,7 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const onSave = ( event: FormEvent ) => {
 		event.preventDefault();
 
-		if ( ! canSave( state ) || saving ) {
+		if ( ! isSaveable || saving ) {
 			return;
 		}
 
@@ -225,7 +228,7 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 			footer={
 				<>
 					<Button onClick={ requestClose }>{ __( 'Cancel', 'dsuite-redirects' ) }</Button>
-					<Button variant="primary" type="submit" form={ formId } disabled={ ! canSave( state ) || saving }>
+					<Button variant="primary" type="submit" form={ formId } disabled={ ! isSaveable || saving }>
 						{ saving ? __( 'Saving…', 'dsuite-redirects' ) : __( 'Save redirect', 'dsuite-redirects' ) }
 					</Button>
 				</>
@@ -292,6 +295,14 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 							onChange={ ( url ) => change( ( prev ) => setTarget( prev, url ) ) }
 						/>
 					</Field>
+				) }
+
+				{ check.result && (
+					<Precheck
+						result={ check.result }
+						source={ state.url.trim() }
+						onUseTarget={ ( url ) => change( ( prev ) => setTarget( prev, url ) ) }
+					/>
 				) }
 
 				<Segmented

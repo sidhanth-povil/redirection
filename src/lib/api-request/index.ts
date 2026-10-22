@@ -20,6 +20,11 @@ export const RedirectionApi = {
 		create: ( data: any, query?: TableParams ) => postApiRequest( 'redirection/v1/redirect', data, query ),
 		matchPost: ( text: string ) => getApiRequest( 'redirection/v1/redirect/post', { text } ),
 	},
+	health: {
+		get: () => getApiRequest( 'redirection/v1/health' ),
+		check: ( data: { source: string; target: string; id: number } ) =>
+			postApiRequest( 'redirection/v1/check', data ),
+	},
 	group: {
 		list: ( data: TableParams ) => getApiRequest( 'redirection/v1/group', data ),
 		dropdown: () => getApiRequest( 'redirection/v1/group/dropdown' ),
