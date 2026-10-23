@@ -58,12 +58,15 @@ class Wildcard {
 	/**
 	 * The target as a regex replacement (`*` → `$1`, `$2`…) with literal `\` and `$` escaped.
 	 *
-	 * @param string $target Target URL.
+	 * @param string                          $target Target URL.
+	 * @param (callable(string): string)|null $encode Applied to each literal part first, e.g. to percent-encode for server config.
 	 * @return string
 	 */
-	public static function to_replacement( $target ) {
+	public static function to_replacement( $target, $encode = null ) {
 		$parts = array_map(
-			static function ( $part ) {
+			static function ( $part ) use ( $encode ) {
+				$part = $encode !== null ? $encode( $part ) : $part;
+
 				return str_replace( [ '\\', '$' ], [ '\\\\', '\\$' ], $part );
 			},
 			explode( '*', $target )

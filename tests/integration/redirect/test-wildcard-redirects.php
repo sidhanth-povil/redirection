@@ -140,6 +140,14 @@ class WildcardRedirectsTest extends Redirection_Api_Test {
 		$this->assertStringNotContainsString( '/shop/', $netlify );
 	}
 
+	public function testNginxExportEncodesAWildcardTargetSoItCannotAddDirectives() {
+		$item = $this->create( '/old/*', '/new/* 301; } server { listen 80; } #"' );
+		$nginx = ( new \Redirection\ImportExport\Format\Nginx() )->get_data( [ Red_Item::get_by_id( $item->get_id() ) ], [] );
+
+		$this->assertStringContainsString( 'rewrite "^/old/(.*)$" /new/$1%20301%3B%20%7D%20server%20%7B%20listen%2080%3B%20%7D%20#%22 permanent;', $nginx );
+		$this->assertStringNotContainsString( 'listen 80', $nginx );
+	}
+
 	public function testJsonRoundTripKeepsAWildcard() {
 		$json = Red_Item::get_by_id( $this->create( '/blog/*', '/news/*' )->get_id() )->to_json();
 		$this->assertFalse( $json['regex'] );
