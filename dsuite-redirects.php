@@ -2,7 +2,7 @@
 /*
 Plugin Name: DSuite Redirects
 Description: Manage redirects, schedule campaign redirects and catch 404s, built for marketing teams. Based on Redirection by John Godley.
-Version: 1.0.0
+Version: 1.0.1
 Author: DSuite
 Text Domain: dsuite-redirects
 Requires PHP: 7.4
@@ -23,7 +23,7 @@ if ( dsr_original_redirection_active( (array) get_option( 'active_plugins', [] )
 
 define( 'REDIRECTION_DB_VERSION', '4.2' );     // DB schema version. Only change if DB needs changing
 define( 'REDIRECTION_FILE', __FILE__ );
-define( 'REDIRECTION_VERSION', '1.0.0' );
+define( 'REDIRECTION_VERSION', '1.0.1' );
 define( 'REDIRECTION_MIN_WP', '6.6' );
 
 if ( ! defined( 'REDIRECTION_FLYING_SOLO' ) ) {

@@ -142,7 +142,16 @@ class Nginx extends FormatHandler {
 			$case = isset( $source['flag_case'] ) && $source['flag_case'] ? '(?i)' : '';
 			$from = $case . \Redirection\Url\Wildcard::to_pattern( $item->get_url() );
 
-			return 'rewrite "' . str_replace( '"', '\\"', $from ) . '" ' . \Redirection\Url\Wildcard::to_replacement( $item->get_action_data() ) . ' ' . $this->get_redirect_code( $item ) . ';';
+			// The target is unquoted, so its literal parts are percent-encoded like get_redirect() does: a space, ; or }
+			// in a target must not end the directive and add new ones.
+			$to = \Redirection\Url\Wildcard::to_replacement(
+				$item->get_action_data(),
+				static function ( $part ) {
+					return ( new \Red_Url_Encode( $part ) )->get_as_target();
+				}
+			);
+
+			return 'rewrite "' . str_replace( '"', '\\"', $from ) . '" ' . $to . ' ' . $this->get_redirect_code( $item ) . ';';
 		}
 
 		return $this->get_redirect( $item->get_url(), $item->get_action_data(), $this->get_redirect_code( $item ), $source, $regex );
