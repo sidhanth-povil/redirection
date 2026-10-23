@@ -1,6 +1,6 @@
 {
 	"name": "dsuite-redirects",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "DSuite Redirects: redirect manager for marketing teams. Fork of Redirection.",
 	"main": "dsuite-redirects.php",
 	"browser": {

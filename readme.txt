@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv3
 
 Redirect manager for marketing teams. Fork of Redirection by John Godley.
@@ -173,6 +173,9 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.0.1 - 23rd October 2026 =
+* Security: wildcard redirect targets are percent-encoded in the nginx export, so a target can no longer add nginx directives
 
 = 1.0.0 - 22nd October 2026 =
 First DSuite Redirects release, based on Redirection 5.10.1.
