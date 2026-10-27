@@ -79,3 +79,150 @@
 	color: var(--dsr-text-muted);
 	font-size: 13px;
 }
+
+// --- Traffic chart ---
+
+.dsr-app .dsr-traffic {
+	margin: 0;
+}
+
+.dsr-app .dsr-traffic__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: var(--dsr-space-4);
+	margin-bottom: var(--dsr-space-4);
+}
+
+.dsr-app .dsr-traffic__totals {
+	display: flex;
+	gap: var(--dsr-space-5);
+	margin: var(--dsr-space-1) 0 0;
+	color: var(--dsr-text-muted);
+	font-size: 13px;
+
+	strong {
+		color: var(--dsr-text);
+		font-size: 20px;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+}
+
+// The total doubles as the legend: its dot is the bar colour.
+.dsr-app .dsr-traffic__total::before {
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	margin-right: var(--dsr-space-2);
+	border-radius: 2px;
+	background: var(--dsr-traffic-colour);
+}
+
+.dsr-app .dsr-traffic__total--redirects,
+.dsr-app .dsr-traffic__bar--redirects {
+	--dsr-traffic-colour: var(--dsr-accent);
+}
+
+.dsr-app .dsr-traffic__total--errors,
+.dsr-app .dsr-traffic__bar--errors {
+	--dsr-traffic-colour: var(--dsr-warning-text);
+}
+
+.dsr-app .dsr-traffic__notice {
+	margin: 0 0 var(--dsr-space-3);
+	padding: var(--dsr-space-2) var(--dsr-space-3);
+	border-radius: var(--dsr-radius-sm);
+	background: var(--dsr-info-bg);
+	color: var(--dsr-info-text);
+	font-size: 13px;
+}
+
+.dsr-app .dsr-traffic__plot {
+	display: flex;
+	gap: var(--dsr-space-1);
+	height: 200px;
+	padding-bottom: var(--dsr-space-6);
+	border-bottom: 1px solid var(--dsr-border);
+}
+
+.dsr-app .dsr-traffic__day {
+	display: flex;
+	position: relative;
+	flex: 1;
+	flex-direction: column;
+	min-width: 0;
+	border-radius: var(--dsr-radius-sm);
+	outline: none;
+
+	&:hover,
+	&:focus-visible {
+		background: var(--dsr-surface-muted);
+	}
+
+	&:focus-visible {
+		box-shadow: var(--dsr-focus-ring);
+	}
+}
+
+.dsr-app .dsr-traffic__bars {
+	display: flex;
+	flex: 1;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 2px;
+}
+
+.dsr-app .dsr-traffic__bar {
+	width: min(40%, 18px);
+	min-height: 1px;
+	border-radius: 3px 3px 0 0;
+	background: var(--dsr-traffic-colour);
+}
+
+.dsr-app .dsr-traffic__label {
+	position: absolute;
+	right: 0;
+	bottom: calc(-1 * var(--dsr-space-6));
+	left: 0;
+	overflow: hidden;
+	color: var(--dsr-text-subtle);
+	font-size: 11px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+// Thirty labels don't fit: label every fifth day, counted back from today.
+.dsr-app .dsr-traffic__plot--30 .dsr-traffic__day:not(:nth-last-child(5n + 1)) .dsr-traffic__label {
+	visibility: hidden;
+}
+
+.dsr-app .dsr-traffic__tooltip {
+	position: absolute;
+	z-index: 2;
+	bottom: calc(100% + var(--dsr-space-2));
+	left: 50%;
+	padding: var(--dsr-space-1) var(--dsr-space-2);
+	transform: translateX(-50%);
+	border-radius: var(--dsr-radius-sm);
+	background: var(--dsr-text);
+	box-shadow: var(--dsr-shadow-md);
+	color: var(--dsr-surface);
+	font-size: 12px;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+// Keep the first and last days' tooltips inside the card.
+.dsr-app .dsr-traffic__day:first-child .dsr-traffic__tooltip {
+	left: 0;
+	transform: none;
+}
+
+.dsr-app .dsr-traffic__day:last-child .dsr-traffic__tooltip {
+	right: 0;
+	left: auto;
+	transform: none;
+}

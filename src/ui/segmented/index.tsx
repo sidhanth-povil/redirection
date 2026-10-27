@@ -5,6 +5,7 @@ export interface SegmentedOption< T extends string > {
 	value: T;
 	label: string;
 	hint?: string;
+	disabled?: boolean;
 }
 
 interface SegmentedProps< T extends string > {
@@ -46,6 +47,7 @@ export function Segmented< T extends string >( {
 							name={ name }
 							value={ option.value }
 							checked={ value === option.value }
+							disabled={ option.disabled }
 							onChange={ () => onChange( option.value ) }
 						/>
 						<span className="dsr-segmented__label">{ option.label }</span>
