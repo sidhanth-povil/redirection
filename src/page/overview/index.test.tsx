@@ -1,12 +1,20 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { useGroupDropdown, useHealth, useRedirectCheck, useRedirectCreate, useRedirectUpdate } from 'lib/api/hooks';
+import {
+	useGroupDropdown,
+	useHealth,
+	useRedirectCheck,
+	useRedirectCreate,
+	useRedirectUpdate,
+	useTraffic,
+} from 'lib/api/hooks';
 import Overview from 'page/overview';
 
 // `stores` resolves to an automock in src/__mocks__; the drawer needs the real settings state.
 jest.mock( 'stores', () => jest.requireActual( '../../stores' ) );
 jest.mock( 'lib/api/hooks', () => ( {
 	useHealth: jest.fn(),
+	useTraffic: jest.fn(),
 	useGroupDropdown: jest.fn(),
 	useRedirectCheck: jest.fn(),
 	useRedirectCreate: jest.fn(),
@@ -38,7 +46,13 @@ const redirect = ( id: number, url: string, target: string ) => ( {
 	hits: 3,
 } );
 
-const counts = { active: 12, new404s: 4, chains: 1, loops: 2, scheduled: 1 };
+const counts = { active: 12, new404s: 4, chains: 1, loops: 2, scheduled: 1, unused: 6 };
+
+const traffic = {
+	days: [ { date: '2026-10-27', redirects: 12, errors: 3 } ],
+	top: [ { id: 9, hits: 12, redirect: redirect( 9, '/old-page', '/new-page' ) } ],
+	retention: { redirect: 0, error: 0 },
+};
 
 const attention = [
 	{ type: 'loop', id: 7, hits: 9, path: [ '/a', '/b', '/a' ], redirect: redirect( 7, '/a', '/b' ) },
@@ -63,11 +77,12 @@ const attention = [
 const update = { mutate: jest.fn(), isPending: false, error: null };
 const refetch = jest.fn();
 
-function setup( data: any = { counts, attention } ) {
+function setup( data: any = { counts, attention }, trafficData: any = traffic ) {
 	window.Redirectioni10n = {
 		caps: { capabilities: [ 'redirection_cap_redirect_add' ], pages: [ 'redirect' ] },
 	} as any;
 	( useHealth as jest.Mock ).mockReturnValue( { data, isLoading: false, refetch } );
+	( useTraffic as jest.Mock ).mockReturnValue( { data: trafficData } );
 	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
 	( useRedirectCheck as jest.Mock ).mockReturnValue( { data: undefined } );
 	( useRedirectCreate as jest.Mock ).mockReturnValue( { mutate: jest.fn(), isPending: false, error: null } );
@@ -142,5 +157,41 @@ describe( 'Overview', () => {
 
 		expect( screen.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Ends' ) ).toBeInTheDocument();
+	} );
+
+	it( 'counts unused redirects and links to them', () => {
+		setup();
+
+		const tile = within( screen.getByRole( 'list', { name: 'Summary' } ) )
+			.getByText( 'No hits in a year' )
+			.closest( 'li' ) as HTMLElement;
+		expect( tile ).toHaveTextContent( '6' );
+		expect( within( tile ).getByRole( 'link' ) ).toHaveAttribute( 'href', '#/redirects?filterby%5Baccess%5D=year' );
+	} );
+
+	it( 'lists the top redirects and opens one in the drawer', () => {
+		setup();
+
+		const top = screen.getByRole( 'region', { name: 'Top redirects' } );
+		expect( top ).toHaveTextContent( '/new-page' );
+		expect( top ).toHaveTextContent( '12' );
+
+		fireEvent.click( within( top ).getByRole( 'button', { name: /\/old-page/ } ) );
+		expect( screen.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'says when no redirect was used in the range', () => {
+		setup( undefined, { ...traffic, top: [] } );
+
+		expect( screen.getByText( 'No redirects were used in this range.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'loads 7 days of traffic, then 30 when asked', () => {
+		setup();
+		expect( useTraffic ).toHaveBeenLastCalledWith( 7 );
+
+		fireEvent.click( screen.getByLabelText( '30 days' ) );
+
+		expect( useTraffic ).toHaveBeenLastCalledWith( 30 );
 	} );
 } );

@@ -39,6 +39,7 @@ export const HealthResponseSchema = z.object( {
 		chains: z.number(),
 		loops: z.number(),
 		scheduled: z.number(),
+		unused: z.number(),
 	} ),
 	attention: z.array( AttentionItemSchema ),
 } );

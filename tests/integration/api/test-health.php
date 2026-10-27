@@ -262,4 +262,16 @@ class HealthApiTest extends Redirection_Api_Test {
 
 		$this->assertSame( [ 'redirect' => -1, 'error' => 30 ], $this->traffic( 7 )['retention'] );
 	}
+
+	public function testCountsRedirectsWithNoHitInAYear() {
+		global $wpdb;
+
+		$this->create( '/never', '/a' );
+		$stale = $this->create( '/stale', '/b' );
+		$recent = $this->create( '/recent', '/c' );
+		$wpdb->update( "{$wpdb->prefix}redirection_items", [ 'last_access' => gmdate( 'Y-m-d H:i:s', time() - 400 * DAY_IN_SECONDS ) ], [ 'id' => $stale->get_id() ] );
+		$wpdb->update( "{$wpdb->prefix}redirection_items", [ 'last_access' => gmdate( 'Y-m-d H:i:s' ) ], [ 'id' => $recent->get_id() ] );
+
+		$this->assertSame( 2, $this->health()['counts']['unused'] );
+	}
 }

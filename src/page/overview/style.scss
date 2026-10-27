@@ -39,6 +39,30 @@
 	font-size: 13px;
 }
 
+.dsr-app .dsr-kpi__link {
+	align-self: flex-start;
+	font-size: 13px;
+}
+
+.dsr-app .dsr-overview__columns {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--dsr-space-6);
+	align-items: start;
+}
+
+@container dsr (max-width: 781px) {
+	.dsr-app .dsr-overview__columns {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.dsr-app .dsr-top__hits {
+	color: var(--dsr-text);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
 .dsr-app .dsr-attention__list {
 	margin: 0;
 	padding: 0;
@@ -68,7 +92,9 @@
 }
 
 .dsr-app .dsr-attention__title {
+	max-width: 100%;
 	overflow: hidden;
+	text-align: left;
 	color: var(--dsr-text);
 	font-weight: 600;
 	text-overflow: ellipsis;

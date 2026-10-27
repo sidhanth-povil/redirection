@@ -158,6 +158,7 @@ class Health extends BaseRoute {
 				'chains' => count( $found['chains'] ),
 				'loops' => count( $found['loops'] ),
 				'scheduled' => $has_schedule ? $this->count_scheduled() : 0,
+				'unused' => $this->count_unused(),
 			],
 			'attention' => array_slice( $attention, 0, self::MAX_ATTENTION ),
 		];
@@ -311,6 +312,17 @@ class Health extends BaseRoute {
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		return intval( $wpdb->get_var( $sql ), 10 );
+	}
+
+	/**
+	 * Same rule as the redirect list's `access=year` filter, which Overview links to.
+	 *
+	 * @return int Redirects with no hit in a year, never-hit ones included.
+	 */
+	private function count_unused() {
+		global $wpdb;
+
+		return intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_items WHERE last_access < DATE_SUB(NOW(),INTERVAL 1 YEAR)" ), 10 );
 	}
 
 	/**

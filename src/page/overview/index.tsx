@@ -1,11 +1,14 @@
 import { useState, type ReactNode } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useHealth, useRedirectUpdate } from 'lib/api/hooks';
+import { useHealth, useRedirectUpdate, useTraffic } from 'lib/api/hooks';
+import { buildHash } from 'app/router';
 import { has_capability, CAP_REDIRECT_ADD } from 'lib/capabilities';
 import { Badge, Button, type BadgeTone } from 'ui';
-import type { AttentionItem, Redirect } from 'types';
+import type { AttentionItem, Redirect, TrafficRange } from 'types';
 import RedirectDrawer from 'page/redirects/redirect-drawer';
 import { withTarget } from 'page/redirects/model';
+import TrafficChart from './traffic-chart';
+import TopRedirects from './top-redirects';
 import './style.scss';
 
 interface DrawerTarget {
@@ -16,6 +19,7 @@ interface DrawerTarget {
 interface Tile {
 	label: string;
 	value: number;
+	link?: { href: string; label: string };
 }
 
 function hits( count: number ): string {
@@ -70,6 +74,8 @@ export default function Overview() {
 	const { data, isLoading, refetch } = useHealth();
 	const update = useRedirectUpdate();
 	const [ drawer, setDrawer ] = useState< DrawerTarget | null >( null );
+	const [ days, setDays ] = useState< TrafficRange >( 7 );
+	const traffic = useTraffic( days );
 	const canEdit = has_capability( CAP_REDIRECT_ADD );
 
 	if ( ! data ) {
@@ -82,6 +88,14 @@ export default function Overview() {
 		{ label: __( 'New 404s (7 days)', 'dsuite-redirects' ), value: counts.new404s },
 		{ label: __( 'Chains & loops', 'dsuite-redirects' ), value: counts.chains + counts.loops },
 		{ label: __( 'Scheduled (7 days)', 'dsuite-redirects' ), value: counts.scheduled },
+		{
+			label: __( 'No hits in a year', 'dsuite-redirects' ),
+			value: counts.unused,
+			link: {
+				href: buildHash( 'redirects', { 'filterby[access]': 'year' } ),
+				label: __( 'Review', 'dsuite-redirects' ),
+			},
+		},
 	];
 
 	const action = ( item: AttentionItem ): ReactNode => {
@@ -134,41 +148,54 @@ export default function Overview() {
 					<li key={ tile.label } className="dsr-kpi">
 						<span className="dsr-kpi__value">{ tile.value }</span>
 						<span className="dsr-kpi__label">{ tile.label }</span>
+						{ tile.link && (
+							<a className="dsr-link dsr-kpi__link" href={ tile.link.href }>
+								{ tile.link.label }
+							</a>
+						) }
 					</li>
 				) ) }
 			</ul>
 
-			<section className="dsr-attention" aria-labelledby="dsr-attention-title">
-				<h2 id="dsr-attention-title" className="dsr-section-title">
-					{ __( 'Needs attention', 'dsuite-redirects' ) }
-				</h2>
+			<TrafficChart traffic={ traffic.data } days={ days } onDaysChange={ setDays } />
 
-				{ attention.length === 0 ? (
-					<div className="dsr-empty">{ __( 'All clear. Nothing needs attention.', 'dsuite-redirects' ) }</div>
-				) : (
-					<ul className="dsr-attention__list">
-						{ attention.map( ( item ) => {
-							const { tone, label, title, meta } = describeItem( item );
+			<div className="dsr-overview__columns">
+				<TopRedirects top={ traffic.data?.top } onOpen={ ( item ) => setDrawer( { item, url: '' } ) } />
 
-							return (
-								<li
-									key={ item.type + ( item.type === '404' ? item.url : item.id ) }
-									className="dsr-attention__item"
-								>
-									<Badge tone={ tone }>{ label }</Badge>
-									<div className="dsr-attention__text">
-										<span className="dsr-attention__title" title={ title }>
-											{ title }
-										</span>
-										<span className="dsr-attention__meta">{ meta }</span>
-									</div>
-									{ action( item ) }
-								</li>
-							);
-						} ) }
-					</ul>
-				) }
-			</section>
+				<section className="dsr-attention" aria-labelledby="dsr-attention-title">
+					<h2 id="dsr-attention-title" className="dsr-section-title">
+						{ __( 'Needs attention', 'dsuite-redirects' ) }
+					</h2>
+
+					{ attention.length === 0 ? (
+						<div className="dsr-empty">
+							{ __( 'All clear. Nothing needs attention.', 'dsuite-redirects' ) }
+						</div>
+					) : (
+						<ul className="dsr-attention__list">
+							{ attention.map( ( item ) => {
+								const { tone, label, title, meta } = describeItem( item );
+
+								return (
+									<li
+										key={ item.type + ( item.type === '404' ? item.url : item.id ) }
+										className="dsr-attention__item"
+									>
+										<Badge tone={ tone }>{ label }</Badge>
+										<div className="dsr-attention__text">
+											<span className="dsr-attention__title" title={ title }>
+												{ title }
+											</span>
+											<span className="dsr-attention__meta">{ meta }</span>
+										</div>
+										{ action( item ) }
+									</li>
+								);
+							} ) }
+						</ul>
+					) }
+				</section>
+			</div>
 
 			{ drawer && (
 				<RedirectDrawer
