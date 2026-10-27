@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { buildHash } from 'app/router';
 import { Segmented } from 'ui';
@@ -8,6 +8,8 @@ interface TrafficChartProps {
 	traffic: TrafficResponse | undefined;
 	days: TrafficRange;
 	onDaysChange: ( days: TrafficRange ) => void;
+	isError?: boolean;
+	onRetry?: () => void;
 }
 
 type Day = TrafficResponse[ 'days' ][ number ];
@@ -44,13 +46,22 @@ function LoggingOff( { message }: { message: string } ) {
 	);
 }
 
-export default function TrafficChart( { traffic, days, onDaysChange }: TrafficChartProps ) {
+export default function TrafficChart( { traffic, days, onDaysChange, isError = false, onRetry }: TrafficChartProps ) {
 	const [ active, setActive ] = useState< number | null >( null );
 
 	if ( ! traffic ) {
 		return (
 			<section className="dsr-card dsr-traffic">
-				<p className="dsr-empty">{ __( 'Loading…', 'dsuite-redirects' ) }</p>
+				{ isError ? (
+					<p className="dsr-empty">
+						{ __( 'Could not load traffic.', 'dsuite-redirects' ) }{ ' ' }
+						<button type="button" className="dsr-link" onClick={ onRetry }>
+							{ __( 'Try again', 'dsuite-redirects' ) }
+						</button>
+					</p>
+				) : (
+					<p className="dsr-empty">{ __( 'Loading…', 'dsuite-redirects' ) }</p>
+				) }
 			</section>
 		);
 	}
@@ -63,6 +74,7 @@ export default function TrafficChart( { traffic, days, onDaysChange }: TrafficCh
 	const totalRedirects = traffic.days.reduce( ( sum, day ) => sum + day.redirects, 0 );
 	const totalErrors = traffic.days.reduce( ( sum, day ) => sum + day.errors, 0 );
 	const height = ( value: number ) => `${ ( value / max ) * 100 }%`;
+	const activeDay = active === null ? undefined : traffic.days[ active ];
 
 	return (
 		<section className="dsr-card dsr-traffic" aria-labelledby="dsr-traffic-title">
@@ -122,7 +134,9 @@ export default function TrafficChart( { traffic, days, onDaysChange }: TrafficCh
 					<div
 						key={ day.date }
 						className="dsr-traffic__day"
-						// eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- keyboard users reach each day's tooltip.
+						// A named image so screen readers announce the day; focusable so keyboard users get the tooltip.
+						role="img"
+						// eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- see role above.
 						tabIndex={ 0 }
 						aria-label={ describeDay( day ) }
 						onFocus={ () => setActive( index ) }
@@ -142,13 +156,20 @@ export default function TrafficChart( { traffic, days, onDaysChange }: TrafficCh
 						<span className="dsr-traffic__label" aria-hidden="true">
 							{ dayLabel( day.date ) }
 						</span>
-						{ active === index && (
-							<span role="tooltip" className="dsr-traffic__tooltip">
-								{ describeDay( day ) }
-							</span>
-						) }
 					</div>
 				) ) }
+				{ activeDay && active !== null && (
+					<span
+						role="tooltip"
+						className="dsr-traffic__tooltip"
+						// Centre of the day, as a share of the plot; CSS clamps it inside the card.
+						style={
+							{ '--dsr-tip-x': `${ ( ( active + 0.5 ) / traffic.days.length ) * 100 }%` } as CSSProperties
+						}
+					>
+						{ describeDay( activeDay ) }
+					</span>
+				) }
 			</div>
 
 			<table className="screen-reader-text">

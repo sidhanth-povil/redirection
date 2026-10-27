@@ -71,3 +71,19 @@ test( 'shows a day on focus', () => {
 
 	expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( /27.*12 redirects.*3 404 hits/ );
 } );
+
+test( 'offers a retry when traffic fails to load', () => {
+	const onRetry = jest.fn();
+	render( <TrafficChart traffic={ undefined } isError days={ 7 } onDaysChange={ jest.fn() } onRetry={ onRetry } /> );
+
+	expect( screen.queryByText( 'Loading…' ) ).toBeNull();
+	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+	expect( onRetry ).toHaveBeenCalled();
+} );
+
+test( 'announces each day as an image with its values', () => {
+	render( <TrafficChart traffic={ week() } days={ 7 } onDaysChange={ jest.fn() } /> );
+
+	expect( screen.getAllByRole( 'img' ) ).toHaveLength( 7 );
+	expect( screen.getAllByRole( 'img' )[ 6 ] ).toHaveAccessibleName( /27.*12 redirects.*3 404 hits/ );
+} );

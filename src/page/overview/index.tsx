@@ -158,10 +158,20 @@ export default function Overview() {
 				) ) }
 			</ul>
 
-			<TrafficChart traffic={ traffic.data } days={ days } onDaysChange={ setDays } />
+			<TrafficChart
+				traffic={ traffic.data }
+				days={ days }
+				onDaysChange={ setDays }
+				isError={ traffic.isError }
+				onRetry={ () => traffic.refetch() }
+			/>
 
 			<div className="dsr-overview__columns">
-				<TopRedirects top={ traffic.data?.top } onOpen={ ( item ) => setDrawer( { item, url: '' } ) } />
+				<TopRedirects
+					top={ traffic.data?.top }
+					isError={ traffic.isError }
+					onOpen={ ( item ) => setDrawer( { item, url: '' } ) }
+				/>
 
 				<section className="dsr-attention" aria-labelledby="dsr-attention-title">
 					<h2 id="dsr-attention-title" className="dsr-section-title">

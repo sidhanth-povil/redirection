@@ -173,6 +173,7 @@
 
 .dsr-app .dsr-traffic__plot {
 	display: flex;
+	position: relative;
 	gap: var(--dsr-space-1);
 	height: 200px;
 	padding-bottom: var(--dsr-space-6);
@@ -223,8 +224,8 @@
 	white-space: nowrap;
 }
 
-// Thirty labels don't fit: label every fifth day, counted back from today.
-.dsr-app .dsr-traffic__plot--30 .dsr-traffic__day:not(:nth-last-child(5n + 1)) .dsr-traffic__label {
+// Thirty labels don't fit: label every fifth day, counted back from today (of-type: the tooltip is a span sibling).
+.dsr-app .dsr-traffic__plot--30 .dsr-traffic__day:not(:nth-last-of-type(5n + 1)) .dsr-traffic__label {
 	visibility: hidden;
 }
 
@@ -232,28 +233,19 @@
 	position: absolute;
 	z-index: 2;
 	top: 0;
-	left: 50%;
+	// Centred over the day, but never past the plot's edges.
+	left: clamp(0px, calc(var(--dsr-tip-x) - 75px), calc(100% - 150px));
+	box-sizing: border-box;
+	width: 150px;
 	padding: var(--dsr-space-1) var(--dsr-space-2);
-	transform: translateX(-50%);
 	border-radius: var(--dsr-radius-sm);
 	background: var(--dsr-text);
 	box-shadow: var(--dsr-shadow-md);
 	color: var(--dsr-surface);
 	font-size: 12px;
-	white-space: nowrap;
+	line-height: 1.4;
+	text-align: center;
 	pointer-events: none;
-}
-
-// Keep the first and last days' tooltips inside the card.
-.dsr-app .dsr-traffic__day:first-child .dsr-traffic__tooltip {
-	left: 0;
-	transform: none;
-}
-
-.dsr-app .dsr-traffic__day:last-child .dsr-traffic__tooltip {
-	right: 0;
-	left: auto;
-	transform: none;
 }
 
 // --- Help ---

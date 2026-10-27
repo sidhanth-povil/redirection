@@ -77,12 +77,12 @@ const attention = [
 const update = { mutate: jest.fn(), isPending: false, error: null };
 const refetch = jest.fn();
 
-function setup( data: any = { counts, attention }, trafficData: any = traffic ) {
+function setup( data: any = { counts, attention }, trafficResult: any = { data: traffic } ) {
 	window.Redirectioni10n = {
 		caps: { capabilities: [ 'redirection_cap_redirect_add' ], pages: [ 'redirect' ] },
 	} as any;
 	( useHealth as jest.Mock ).mockReturnValue( { data, isLoading: false, refetch } );
-	( useTraffic as jest.Mock ).mockReturnValue( { data: trafficData } );
+	( useTraffic as jest.Mock ).mockReturnValue( trafficResult );
 	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
 	( useRedirectCheck as jest.Mock ).mockReturnValue( { data: undefined } );
 	( useRedirectCreate as jest.Mock ).mockReturnValue( { mutate: jest.fn(), isPending: false, error: null } );
@@ -181,7 +181,7 @@ describe( 'Overview', () => {
 	} );
 
 	it( 'says when no redirect was used in the range', () => {
-		setup( undefined, { ...traffic, top: [] } );
+		setup( undefined, { data: { ...traffic, top: [] } } );
 
 		expect( screen.getByText( 'No redirects were used in this range.' ) ).toBeInTheDocument();
 	} );
@@ -193,5 +193,12 @@ describe( 'Overview', () => {
 		fireEvent.click( screen.getByLabelText( '30 days' ) );
 
 		expect( useTraffic ).toHaveBeenLastCalledWith( 30 );
+	} );
+
+	it( 'says when top redirects could not load', () => {
+		setup( undefined, { data: undefined, isError: true, refetch: jest.fn() } );
+
+		expect( screen.getAllByText( 'Could not load traffic.' ).length ).toBeGreaterThan( 0 );
+		expect( screen.queryByText( 'Loading…' ) ).toBeNull();
 	} );
 } );

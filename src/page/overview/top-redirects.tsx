@@ -5,6 +5,7 @@ import { describeTarget } from 'page/redirects/describe';
 interface TopRedirectsProps {
 	top: TrafficResponse[ 'top' ] | undefined;
 	onOpen: ( redirect: Redirect ) => void;
+	isError?: boolean;
 }
 
 /**
@@ -12,11 +13,18 @@ interface TopRedirectsProps {
  * @param root0
  * @param root0.top
  * @param root0.onOpen
+ * @param root0.isError
  */
-export default function TopRedirects( { top, onOpen }: TopRedirectsProps ) {
+export default function TopRedirects( { top, onOpen, isError = false }: TopRedirectsProps ) {
 	const body = () => {
 		if ( ! top ) {
-			return <p className="dsr-empty">{ __( 'Loading…', 'dsuite-redirects' ) }</p>;
+			return (
+				<p className="dsr-empty">
+					{ isError
+						? __( 'Could not load traffic.', 'dsuite-redirects' )
+						: __( 'Loading…', 'dsuite-redirects' ) }
+				</p>
+			);
 		}
 
 		if ( top.length === 0 ) {
