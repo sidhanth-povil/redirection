@@ -108,8 +108,13 @@
 
 // --- Traffic chart ---
 
-.dsr-app .dsr-traffic {
+// .dsr-card brings a bottom margin; the overview's flex gap already spaces sections.
+.dsr-app .dsr-card.dsr-traffic {
 	margin: 0;
+}
+
+.dsr-app .dsr-traffic .dsr-segmented__label {
+	white-space: nowrap;
 }
 
 .dsr-app .dsr-traffic__header {
@@ -210,13 +215,11 @@
 
 .dsr-app .dsr-traffic__label {
 	position: absolute;
-	right: 0;
 	bottom: calc(-1 * var(--dsr-space-6));
-	left: 0;
-	overflow: hidden;
+	left: 50%;
+	transform: translateX(-50%);
 	color: var(--dsr-text-subtle);
 	font-size: 11px;
-	text-align: center;
 	white-space: nowrap;
 }
 
@@ -228,7 +231,7 @@
 .dsr-app .dsr-traffic__tooltip {
 	position: absolute;
 	z-index: 2;
-	bottom: calc(100% + var(--dsr-space-2));
+	top: 0;
 	left: 50%;
 	padding: var(--dsr-space-1) var(--dsr-space-2);
 	transform: translateX(-50%);

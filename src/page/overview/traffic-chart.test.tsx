@@ -69,5 +69,5 @@ test( 'shows a day on focus', () => {
 
 	fireEvent.focus( container.querySelectorAll( '.dsr-traffic__day' )[ 6 ] );
 
-	expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( /27.*12 redirects.*3 404s/ );
+	expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( /27.*12 redirects.*3 404 hits/ );
 } );

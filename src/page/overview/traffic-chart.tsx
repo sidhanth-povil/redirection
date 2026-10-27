@@ -23,13 +23,13 @@ function dayLabel( date: string ): string {
 
 function describeDay( day: Day ): string {
 	return sprintf(
-		/* translators: 1: date, 2: e.g. "12 redirects", 3: e.g. "3 404s" */
+		/* translators: 1: date, 2: e.g. "12 redirects", 3: e.g. "3 404 hits" */
 		__( '%1$s: %2$s · %3$s', 'dsuite-redirects' ),
 		dayLabel( day.date ),
 		/* translators: %d: number of redirected visits */
 		sprintf( _n( '%d redirect', '%d redirects', day.redirects, 'dsuite-redirects' ), day.redirects ),
 		/* translators: %d: number of 404 visits */
-		sprintf( _n( '%d 404', '%d 404s', day.errors, 'dsuite-redirects' ), day.errors )
+		sprintf( _n( '%d 404 hit', '%d 404 hits', day.errors, 'dsuite-redirects' ), day.errors )
 	);
 }
 
