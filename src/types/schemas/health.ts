@@ -46,6 +46,19 @@ export const HealthResponseSchema = z.object( {
 export type HealthResponse = z.infer< typeof HealthResponseSchema >;
 
 /**
+ * GET /health/traffic: hits per site-local day, oldest first, from the logs. Retention is the logs' expiry in days
+ * (-1 = not logged, 0 = kept forever), so the chart can say why a range is empty.
+ */
+export const TrafficResponseSchema = z.object( {
+	days: z.array( z.object( { date: z.string(), redirects: z.number(), errors: z.number() } ) ),
+	top: z.array( z.object( { id: z.number(), hits: z.number(), redirect: RedirectSchema } ) ),
+	retention: z.object( { redirect: z.number(), error: z.number() } ),
+} );
+
+export type TrafficResponse = z.infer< typeof TrafficResponseSchema >;
+export type TrafficRange = 7 | 30;
+
+/**
  * POST /check: the drawer's check before saving.
  */
 export const CheckResponseSchema = z.object( {

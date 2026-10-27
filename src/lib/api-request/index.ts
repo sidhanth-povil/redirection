@@ -22,6 +22,7 @@ export const RedirectionApi = {
 	},
 	health: {
 		get: () => getApiRequest( 'redirection/v1/health' ),
+		traffic: ( days: number ) => getApiRequest( 'redirection/v1/health/traffic', { days } ),
 		check: ( data: { source: string; target: string; id: number } ) =>
 			postApiRequest( 'redirection/v1/check', data ),
 	},

@@ -17,6 +17,7 @@ export const queryKeys = {
 	health: {
 		all: [ 'health' ] as const,
 		get: () => [ ...queryKeys.health.all, 'get' ] as const,
+		traffic: ( days: number ) => [ ...queryKeys.health.all, 'traffic', days ] as const,
 		check: ( params: { source: string; target: string; id: number } ) =>
 			[ ...queryKeys.health.all, 'check', params ] as const,
 	},

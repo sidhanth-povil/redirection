@@ -6,6 +6,7 @@ use Redirection\Api\Route as BaseRoute;
 use Redirection\Health\Chains;
 use Redirection\Redirect\Redirect as RedirectItem;
 use Redirection\Redirect\Schedule;
+use Redirection\Settings\Settings;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -19,6 +20,8 @@ class Health extends BaseRoute {
 	// Some of the top 404s may already be fixed by a redirect, so fetch more than are shown.
 	const MAX_404_CANDIDATES = 30;
 	const MAX_ATTENTION = 50;
+	const TRAFFIC_RANGES = [ 7, 30 ];
+	const MAX_TOP = 5;
 
 	/**
 	 * @param non-falsy-string $api_namespace REST namespace.
@@ -32,6 +35,25 @@ class Health extends BaseRoute {
 					'methods' => WP_REST_Server::READABLE,
 					'callback' => [ $this, 'route_health' ],
 					'permission_callback' => [ $this, 'permission_callback_manage' ],
+				],
+			]
+		);
+
+		register_rest_route(
+			$api_namespace,
+			'/health/traffic',
+			[
+				[
+					'methods' => WP_REST_Server::READABLE,
+					'callback' => [ $this, 'route_traffic' ],
+					'permission_callback' => [ $this, 'permission_callback_manage' ],
+					'args' => [
+						'days' => [
+							'type' => 'integer',
+							'required' => true,
+							'enum' => self::TRAFFIC_RANGES,
+						],
+					],
 				],
 			]
 		);
@@ -139,6 +161,85 @@ class Health extends BaseRoute {
 			],
 			'attention' => array_slice( $attention, 0, self::MAX_ATTENTION ),
 		];
+	}
+
+	/**
+	 * Hits per site-local day from the logs, oldest first, and the most hit redirects in the same days.
+	 * The logs only hold what their retention keeps, so the retention goes back too.
+	 *
+	 * @param WP_REST_Request<array<string, mixed>> $request Request.
+	 * @return array{days: list<array{date: string, redirects: int, errors: int}>, top: list<array<string, mixed>>, retention: array{redirect: int, error: int}}
+	 */
+	public function route_traffic( WP_REST_Request $request ) {
+		global $wpdb;
+
+		$today = new \DateTimeImmutable( 'today', wp_timezone() );
+		$dates = [];
+
+		for ( $back = intval( $request['days'], 10 ) - 1; $back >= 0; $back-- ) {
+			$dates[] = $today->modify( "-{$back} days" )->format( 'Y-m-d' );
+		}
+
+		// Log rows store site-local time (current_time( 'mysql' )), so DATE(created) is already the site's day.
+		$since = $dates[0] . ' 00:00:00';
+		$redirects = $this->count_by_day( 'redirection_logs', $since );
+		$errors = $this->count_by_day( 'redirection_404', $since );
+
+		$days = array_map(
+			static function ( $date ) use ( $redirects, $errors ) {
+				return [
+					'date' => $date,
+					'redirects' => $redirects[ $date ] ?? 0,
+					'errors' => $errors[ $date ] ?? 0,
+				];
+			},
+			$dates
+		);
+
+		$rows = (array) $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT redirection_id AS id, COUNT(*) AS hits FROM {$wpdb->prefix}redirection_logs
+				WHERE created >= %s AND redirection_id > 0 GROUP BY redirection_id ORDER BY hits DESC, id LIMIT %d",
+				$since,
+				self::MAX_TOP
+			)
+		);
+		$json = $this->get_redirect_json( array_map( 'intval', array_column( $rows, 'id' ) ) );
+		$top = [];
+
+		// A deleted redirect keeps its log rows; it has nothing to open, so it is left out.
+		foreach ( $rows as $row ) {
+			if ( isset( $json[ intval( $row->id, 10 ) ] ) ) {
+				$top[] = [ 'id' => intval( $row->id, 10 ), 'hits' => intval( $row->hits, 10 ), 'redirect' => $json[ intval( $row->id, 10 ) ] ];
+			}
+		}
+
+		$settings = Settings::get();
+
+		return [
+			'days' => $days,
+			'top' => $top,
+			'retention' => [
+				'redirect' => intval( $settings['expire_redirect'], 10 ),
+				'error' => intval( $settings['expire_404'], 10 ),
+			],
+		];
+	}
+
+	/**
+	 * @param 'redirection_logs'|'redirection_404' $table Log table, without prefix.
+	 * @param string                               $since Site-local start, inclusive.
+	 * @return array<string, int> Y-m-d → rows.
+	 */
+	private function count_by_day( $table, $since ) {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is one of two literals.
+			$wpdb->prepare( "SELECT DATE(created) AS day, COUNT(*) AS hits FROM {$wpdb->prefix}{$table} WHERE created >= %s GROUP BY day", $since )
+		);
+
+		return array_map( 'intval', array_column( (array) $rows, 'hits', 'day' ) );
 	}
 
 	/**
