@@ -9,6 +9,7 @@ import RedirectDrawer from 'page/redirects/redirect-drawer';
 import { withTarget } from 'page/redirects/model';
 import TrafficChart from './traffic-chart';
 import TopRedirects from './top-redirects';
+import HelpCards from './help-cards';
 import './style.scss';
 
 interface DrawerTarget {
@@ -196,6 +197,8 @@ export default function Overview() {
 					) }
 				</section>
 			</div>
+
+			<HelpCards />
 
 			{ drawer && (
 				<RedirectDrawer

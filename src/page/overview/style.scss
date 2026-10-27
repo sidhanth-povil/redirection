@@ -252,3 +252,54 @@
 	left: auto;
 	transform: none;
 }
+
+// --- Help ---
+
+.dsr-app .dsr-help__header {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--dsr-space-3);
+}
+
+.dsr-app .dsr-help__cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: var(--dsr-space-4);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dsr-app .dsr-help__card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-2);
+	margin: 0;
+	padding: var(--dsr-space-4) var(--dsr-space-5);
+	border: 1px solid var(--dsr-border);
+	border-radius: var(--dsr-radius-lg);
+	background: var(--dsr-surface);
+	box-shadow: var(--dsr-shadow-sm);
+	color: var(--dsr-text-muted);
+	font-size: 13px;
+	line-height: 1.55;
+
+	p {
+		margin: 0;
+		font-size: inherit;
+	}
+
+	.dsr-link {
+		margin-top: auto;
+		padding-top: var(--dsr-space-1);
+		align-self: flex-start;
+	}
+}
+
+.dsr-app .dsr-help__title {
+	margin: 0;
+	color: var(--dsr-text);
+	font-size: 14px;
+	font-weight: 600;
+}
