@@ -274,4 +274,13 @@ class HealthApiTest extends Redirection_Api_Test {
 
 		$this->assertSame( 2, $this->health()['counts']['unused'] );
 	}
+
+	public function testTrafficIsCachedBriefly() {
+		$this->log( 'redirection_logs', 0, 1 );
+		$this->assertSame( 1, $this->traffic( 7 )['days'][6]['redirects'] );
+
+		$this->log( 'redirection_logs', 0, 1 );
+		$this->assertSame( 1, $this->traffic( 7 )['days'][6]['redirects'] );
+		$this->assertSame( 2, $this->traffic( 30 )['days'][29]['redirects'] );
+	}
 }

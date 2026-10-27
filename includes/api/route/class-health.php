@@ -22,6 +22,9 @@ class Health extends BaseRoute {
 	const MAX_ATTENTION = 50;
 	const TRAFFIC_RANGES = [ 7, 30 ];
 	const MAX_TOP = 5;
+	// ponytail: the top-redirects GROUP BY reads every log row in the range; cached rather than indexed so no ALTER
+	// runs on a big log table. A (created, redirection_id) index in DsrUpgrader if a busy site still stalls.
+	const TRAFFIC_CACHE_SECONDS = 5 * MINUTE_IN_SECONDS;
 
 	/**
 	 * @param non-falsy-string $api_namespace REST namespace.
@@ -172,12 +175,38 @@ class Health extends BaseRoute {
 	 * @return array{days: list<array{date: string, redirects: int, errors: int}>, top: list<array<string, mixed>>, retention: array{redirect: int, error: int}}
 	 */
 	public function route_traffic( WP_REST_Request $request ) {
+		$days = intval( $request['days'], 10 );
+		$key = 'dsr_traffic_' . $days;
+		$traffic = get_transient( $key );
+
+		if ( ! is_array( $traffic ) ) {
+			$traffic = $this->get_traffic( $days );
+			set_transient( $key, $traffic, self::TRAFFIC_CACHE_SECONDS );
+		}
+
+		/** @var array{days: list<array{date: string, redirects: int, errors: int}>, top: list<array<string, mixed>>} $traffic */
+		$settings = Settings::get();
+
+		// Not cached: turning logging on or off in Settings shows straight away.
+		return $traffic + [
+			'retention' => [
+				'redirect' => intval( $settings['expire_redirect'], 10 ),
+				'error' => intval( $settings['expire_404'], 10 ),
+			],
+		];
+	}
+
+	/**
+	 * @param int $days Days back, today included.
+	 * @return array{days: list<array{date: string, redirects: int, errors: int}>, top: list<array<string, mixed>>}
+	 */
+	private function get_traffic( $days ) {
 		global $wpdb;
 
 		$today = new \DateTimeImmutable( 'today', wp_timezone() );
 		$dates = [];
 
-		for ( $back = intval( $request['days'], 10 ) - 1; $back >= 0; $back-- ) {
+		for ( $back = $days - 1; $back >= 0; $back-- ) {
 			$dates[] = $today->modify( "-{$back} days" )->format( 'Y-m-d' );
 		}
 
@@ -186,7 +215,7 @@ class Health extends BaseRoute {
 		$redirects = $this->count_by_day( 'redirection_logs', $since );
 		$errors = $this->count_by_day( 'redirection_404', $since );
 
-		$days = array_map(
+		$rows_by_day = array_map(
 			static function ( $date ) use ( $redirects, $errors ) {
 				return [
 					'date' => $date,
@@ -215,15 +244,9 @@ class Health extends BaseRoute {
 			}
 		}
 
-		$settings = Settings::get();
-
 		return [
-			'days' => $days,
+			'days' => $rows_by_day,
 			'top' => $top,
-			'retention' => [
-				'redirect' => intval( $settings['expire_redirect'], 10 ),
-				'error' => intval( $settings['expire_404'], 10 ),
-			],
 		];
 	}
 
