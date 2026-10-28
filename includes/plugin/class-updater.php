@@ -5,16 +5,21 @@ namespace Redirection\Plugin;
 /**
  * Updates from the plugin's GitHub releases. The Update URI header points at github.com, so WordPress asks the
  * update_plugins_github.com filter instead of wordpress.org, and shows the result as a normal dashboard update.
+ *
+ * Releases are found through github.com's own redirects rather than the GitHub API. The API allows 60 requests an hour
+ * per server address, which sites on shared hosting run out of, and then nobody hears about updates.
  */
 class Updater {
 	const REPOSITORY = 'sidhanth-povil/redirection';
-	const RELEASE_API = 'https://api.github.com/repos/' . self::REPOSITORY . '/releases/latest';
+	const RELEASES = 'https://github.com/' . self::REPOSITORY . '/releases/';
+	// Redirects to releases/tag/<latest tag>
+	const LATEST_URL = self::RELEASES . 'latest';
 	const ASSET_NAME = 'dsuite-redirects.zip';
 	const CACHE_KEY = 'dsr_github_release';
 
-	// GitHub allows 60 unauthenticated API requests an hour per address
 	const CACHE_SECONDS = 12 * HOUR_IN_SECONDS;
 	const RETRY_SECONDS = HOUR_IN_SECONDS;
+	const TIMEOUT = 10;
 
 	/**
 	 * @param array<string, mixed>|false $update Update data from an earlier filter, or false.
@@ -28,7 +33,7 @@ class Updater {
 		}
 
 		$release = self::get_cached_release();
-		if ( $release === [] ) {
+		if ( ! isset( $release['version'] ) ) {
 			return $update;
 		}
 
@@ -53,7 +58,7 @@ class Updater {
 		}
 
 		$release = self::get_cached_release();
-		if ( $release === [] ) {
+		if ( ! isset( $release['version'] ) ) {
 			return $result;
 		}
 
@@ -72,6 +77,32 @@ class Updater {
 				),
 			],
 		];
+	}
+
+	/**
+	 * Says on the Plugins page when the last update check failed, instead of quietly reporting no update.
+	 *
+	 * @param list<string> $meta Row links.
+	 * @param string       $plugin_file Plugin basename.
+	 * @return list<string>
+	 */
+	public static function row_meta( $meta, $plugin_file ) {
+		if ( $plugin_file !== plugin_basename( REDIRECTION_FILE ) || ! current_user_can( 'update_plugins' ) ) {
+			return $meta;
+		}
+
+		$release = get_site_transient( self::CACHE_KEY );
+		if ( ! is_array( $release ) || ! isset( $release['error'] ) ) {
+			return $meta;
+		}
+
+		$meta[] = sprintf(
+			'<span style="color:#b32d2e">%s</span>',
+			/* translators: %s: why the check failed */
+			esc_html( sprintf( __( 'Update check failed: %s. Dashboard > Updates > Check again retries.', 'dsuite-redirects' ), (string) $release['error'] ) )
+		);
+
+		return $meta;
 	}
 
 	/**
@@ -97,68 +128,86 @@ class Updater {
 	}
 
 	/**
-	 * @return array{version: string, url: string, package: string}|array{}
+	 * @return array{version: string, url: string, package: string}|array{error: string}
 	 */
 	private static function get_cached_release() {
 		$release = get_site_transient( self::CACHE_KEY );
 
-		if ( ! is_array( $release ) ) {
+		if ( ! is_array( $release ) || ( ! isset( $release['version'] ) && ! isset( $release['error'] ) ) ) {
 			$release = self::get_release();
-			// An empty array caches a failed check, so an outage doesn't send a request on every page
-			set_site_transient( self::CACHE_KEY, $release, $release === [] ? self::RETRY_SECONDS : self::CACHE_SECONDS );
+			// A failed check is cached too, so an outage doesn't send a request on every page
+			set_site_transient( self::CACHE_KEY, $release, isset( $release['error'] ) ? self::RETRY_SECONDS : self::CACHE_SECONDS );
 		}
 
-		/** @var array{version: string, url: string, package: string}|array{} $release */
+		/** @var array{version: string, url: string, package: string}|array{error: string} $release */
 		return $release;
 	}
 
 	/**
-	 * The latest release, or an empty array when there isn't a usable one.
+	 * The latest release with its zip, or why there isn't a usable one.
 	 *
-	 * @return array{version: string, url: string, package: string}|array{}
+	 * @return array{version: string, url: string, package: string}|array{error: string}
 	 */
 	private static function get_release() {
-		$response = wp_safe_remote_get(
-			self::RELEASE_API,
+		$latest = self::head( self::LATEST_URL );
+		if ( is_string( $latest ) ) {
+			return [ 'error' => $latest ];
+		}
+
+		// Only this repository's releases are ever followed
+		$tag = '';
+		if ( preg_match( '#^' . preg_quote( self::RELEASES, '#' ) . 'tag/([^/?\#]+)$#', $latest['location'], $matches ) === 1 ) {
+			$tag = rawurldecode( $matches[1] );
+		}
+
+		$version = ltrim( $tag, 'v' );
+		if ( preg_match( '/^\d+(\.\d+)*$/', $version ) !== 1 ) {
+			/* translators: %s: where GitHub pointed */
+			return [ 'error' => sprintf( __( 'GitHub did not point to a release (%s)', 'dsuite-redirects' ), $latest['location'] ) ];
+		}
+
+		$package = self::RELEASES . 'download/' . rawurlencode( $tag ) . '/' . self::ASSET_NAME;
+		$zip = self::head( $package );
+		if ( is_string( $zip ) ) {
+			/* translators: 1: zip file name, 2: version tag */
+			return [ 'error' => sprintf( __( 'release %2$s has no %1$s', 'dsuite-redirects' ), self::ASSET_NAME, $tag ) ];
+		}
+
+		return [
+			'version' => $version,
+			'url' => self::RELEASES . 'tag/' . rawurlencode( $tag ),
+			'package' => $package,
+		];
+	}
+
+	/**
+	 * A github.com address that should redirect: where to, or why it didn't.
+	 *
+	 * @param string $url Address on github.com.
+	 * @return array{location: string}|string
+	 */
+	private static function head( $url ) {
+		$response = wp_safe_remote_head(
+			$url,
 			[
-				'timeout' => 10,
-				'headers' => [ 'Accept' => 'application/vnd.github+json' ],
+				'timeout' => self::TIMEOUT,
+				'redirection' => 0,
 			]
 		);
 
-		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
-			return [];
+		if ( is_wp_error( $response ) ) {
+			return $response->get_error_message();
 		}
 
-		$json = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! is_array( $json ) || ! isset( $json['tag_name'], $json['assets'] ) || ! is_array( $json['assets'] ) ) {
-			return [];
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		$location = wp_remote_retrieve_header( $response, 'location' );
+		$location = is_array( $location ) ? (string) end( $location ) : $location;
+
+		if ( $code < 300 || $code > 399 || $location === '' ) {
+			/* translators: %d: HTTP status code */
+			return sprintf( __( 'GitHub answered %d', 'dsuite-redirects' ), $code );
 		}
 
-		$version = ltrim( (string) $json['tag_name'], 'v' );
-		if ( preg_match( '/^\d+(\.\d+)*$/', $version ) !== 1 ) {
-			return [];
-		}
-
-		// Only this repository's own release download is ever installed
-		$prefix = 'https://github.com/' . self::REPOSITORY . '/releases/download/';
-
-		foreach ( $json['assets'] as $asset ) {
-			if ( ! is_array( $asset ) || ! isset( $asset['name'], $asset['browser_download_url'] ) ) {
-				continue;
-			}
-
-			$url = (string) $asset['browser_download_url'];
-
-			if ( $asset['name'] === self::ASSET_NAME && strpos( $url, $prefix ) === 0 ) {
-				return [
-					'version' => $version,
-					'url' => 'https://github.com/' . self::REPOSITORY . '/releases/tag/' . rawurlencode( (string) $json['tag_name'] ),
-					'package' => $url,
-				];
-			}
-		}
-
-		return [];
+		return [ 'location' => $location ];
 	}
 }
