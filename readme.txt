@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3
 
 Redirect manager for marketing teams. Fork of Redirection by John Godley.
@@ -173,6 +173,10 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.1.1 - 28th October 2026 =
+* Overview help: new Start here cards for first-time users (finding your way around, adding a redirect, campaign links with UTM tags, fixing 404s, checking a redirect works)
+* Overview help: new cards on moving a whole section, pages that change address, and bulk changes; the Groups card explains re-enabling a group
 
 = 1.1.0 - 28th October 2026 =
 * New: Overview traffic chart for the last 7 or 30 days, with redirected visits and 404s per day
