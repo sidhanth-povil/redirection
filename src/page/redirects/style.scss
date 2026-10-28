@@ -173,7 +173,8 @@
 	color: var(--dsr-text-subtle);
 }
 
-.dsr-app .dsr-num {
+// Under .dsr-table so it outranks the table's `th { text-align: left }`.
+.dsr-app .dsr-table .dsr-num {
 	text-align: right;
 	font-variant-numeric: tabular-nums;
 }

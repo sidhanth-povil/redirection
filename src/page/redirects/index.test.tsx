@@ -229,4 +229,13 @@ describe( 'Redirects page', () => {
 		const row = screen.getByText( '/blog/*' ).closest( 'tr' ) as HTMLElement;
 		expect( within( row ).getByText( 'Wildcard' ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows the unused filter from Overview and clears it', () => {
+		useTableStore.getState().setRedirectsTable( { filterBy: { access: 'year' } } );
+		setup();
+
+		fireEvent.click( screen.getByRole( 'button', { name: /No hits in a year/ } ) );
+
+		expect( useTableStore.getState().redirects.filterBy ).toEqual( {} );
+	} );
 } );

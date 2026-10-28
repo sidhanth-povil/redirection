@@ -19,6 +19,11 @@
 	}
 }
 
+.dsr-app .dsr-segmented__option:has(.dsr-segmented__input:disabled) {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
 .dsr-app .dsr-segmented__options {
 	display: flex;
 	overflow: hidden;

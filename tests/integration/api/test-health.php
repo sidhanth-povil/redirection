@@ -10,6 +10,7 @@ class HealthApiTest extends Redirection_Api_Test {
 		global $wpdb;
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}redirection_items" );
 		$wpdb->query( "DELETE FROM {$wpdb->prefix}redirection_404" );
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}redirection_logs" );
 
 		$this->group = Red_Group::create( 'health', 1 );
 		$this->setNonce();
@@ -157,6 +158,7 @@ class HealthApiTest extends Redirection_Api_Test {
 
 		$this->assertSame( 403, $this->callApi( 'health' )->get_status() );
 		$this->assertSame( 403, $this->callApi( 'check', [ 'source' => '/a', 'target' => '/b' ], 'POST' )->get_status() );
+		$this->assertSame( 403, $this->callApi( 'health/traffic', [ 'days' => 7 ] )->get_status() );
 	}
 
 	public function testQueryStringsAreNotFollowed() {
@@ -184,5 +186,101 @@ class HealthApiTest extends Redirection_Api_Test {
 		$this->create( '/b', '/c' );
 
 		$this->assertSame( [ '404', 'chain' ], array_column( $this->health()['attention'], 'type' ) );
+	}
+
+	/**
+	 * A log row at a site-local time, as the loggers store it (current_time( 'mysql' )).
+	 */
+	private function log( $table, $days_ago, $redirect_id = 0, $time = '12:00:00' ) {
+		global $wpdb;
+
+		$row = [
+			'created' => wp_date( 'Y-m-d', time() - $days_ago * DAY_IN_SECONDS ) . ' ' . $time,
+			'url' => '/logged',
+		];
+
+		if ( $table === 'redirection_logs' ) {
+			$row['redirection_id'] = $redirect_id;
+		}
+
+		$wpdb->insert( $wpdb->prefix . $table, $row );
+	}
+
+	private function traffic( $days ) {
+		$response = $this->callApi( 'health/traffic', [ 'days' => $days ] );
+		$this->assertSame( 200, $response->get_status() );
+
+		return $response->get_data();
+	}
+
+	public function testTrafficIsOneZeroFilledRowPerSiteDayOldestFirst() {
+		update_option( 'timezone_string', 'Pacific/Auckland' );
+		$this->log( 'redirection_logs', 0, 1, '00:30:00' );
+		$this->log( 'redirection_logs', 0, 1 );
+		$this->log( 'redirection_logs', 2, 1 );
+		$this->log( 'redirection_404', 0 );
+		$this->log( 'redirection_logs', 8, 1 );
+
+		$week = $this->traffic( 7 )['days'];
+
+		$this->assertCount( 7, $week );
+		$this->assertSame( wp_date( 'Y-m-d' ), $week[6]['date'] );
+		$this->assertSame( wp_date( 'Y-m-d', time() - 6 * DAY_IN_SECONDS ), $week[0]['date'] );
+		$this->assertSame( [ 'date' => wp_date( 'Y-m-d' ), 'redirects' => 2, 'errors' => 1 ], $week[6] );
+		$this->assertSame( 1, $week[4]['redirects'] );
+		$this->assertSame( 3, array_sum( array_column( $week, 'redirects' ) ) );
+
+		$month = $this->traffic( 30 )['days'];
+		$this->assertCount( 30, $month );
+		$this->assertSame( 4, array_sum( array_column( $month, 'redirects' ) ) );
+	}
+
+	public function testTrafficOnlyOffersSevenOrThirtyDays() {
+		$this->assertSame( 400, $this->callApi( 'health/traffic', [ 'days' => 14 ] )->get_status() );
+	}
+
+	public function testTrafficListsTopRedirectsByHitsInTheWindow() {
+		$quiet = $this->create( '/quiet', '/a', [ 'hits' => 500 ] );
+		$busy = $this->create( '/busy', '/b' );
+		$this->log( 'redirection_logs', 1, $quiet->get_id() );
+		$this->log( 'redirection_logs', 20, $quiet->get_id() );
+		$this->log( 'redirection_logs', 20, $quiet->get_id() );
+		$this->log( 'redirection_logs', 0, $busy->get_id() );
+		$this->log( 'redirection_logs', 1, $busy->get_id() );
+		$this->log( 'redirection_logs', 1, 0 );
+
+		$top = $this->traffic( 7 )['top'];
+
+		$this->assertSame( [ $busy->get_id(), $quiet->get_id() ], array_column( $top, 'id' ) );
+		$this->assertSame( [ 2, 1 ], array_column( $top, 'hits' ) );
+		$this->assertSame( '/busy', $top[0]['redirect']['url'] );
+		$this->assertSame( [ $quiet->get_id(), $busy->get_id() ], array_column( $this->traffic( 30 )['top'], 'id' ) );
+	}
+
+	public function testTrafficReportsLogRetention() {
+		Red_Options::save( [ 'expire_redirect' => -1, 'expire_404' => 30 ] );
+
+		$this->assertSame( [ 'redirect' => -1, 'error' => 30 ], $this->traffic( 7 )['retention'] );
+	}
+
+	public function testCountsRedirectsWithNoHitInAYear() {
+		global $wpdb;
+
+		$this->create( '/never', '/a' );
+		$stale = $this->create( '/stale', '/b' );
+		$recent = $this->create( '/recent', '/c' );
+		$wpdb->update( "{$wpdb->prefix}redirection_items", [ 'last_access' => gmdate( 'Y-m-d H:i:s', time() - 400 * DAY_IN_SECONDS ) ], [ 'id' => $stale->get_id() ] );
+		$wpdb->update( "{$wpdb->prefix}redirection_items", [ 'last_access' => gmdate( 'Y-m-d H:i:s' ) ], [ 'id' => $recent->get_id() ] );
+
+		$this->assertSame( 2, $this->health()['counts']['unused'] );
+	}
+
+	public function testTrafficIsCachedBriefly() {
+		$this->log( 'redirection_logs', 0, 1 );
+		$this->assertSame( 1, $this->traffic( 7 )['days'][6]['redirects'] );
+
+		$this->log( 'redirection_logs', 0, 1 );
+		$this->assertSame( 1, $this->traffic( 7 )['days'][6]['redirects'] );
+		$this->assertSame( 2, $this->traffic( 30 )['days'][29]['redirects'] );
 	}
 }

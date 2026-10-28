@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wp-plugin-lib/api-fetch';
 import { RedirectionApi } from 'lib/api-request';
-import { CheckResponseSchema, HealthResponseSchema } from 'types';
+import { CheckResponseSchema, HealthResponseSchema, TrafficResponseSchema, type TrafficRange } from 'types';
 import { queryKeys } from '../query-keys';
 import { handleApiError } from '../errors';
 import { useMessageStore } from 'stores';
@@ -19,6 +19,27 @@ export function useHealth() {
 			} catch ( error ) {
 				const handledError = handleApiError( error );
 				useMessageStore.getState().addError( handledError.message || 'Failed to load the overview' );
+				throw handledError;
+			}
+		},
+	} );
+}
+
+/**
+ * Overview's traffic chart and top redirects for the last `days` days.
+ *
+ * @param days - 7 or 30.
+ */
+export function useTraffic( days: TrafficRange ) {
+	return useQuery( {
+		queryKey: queryKeys.health.traffic( days ),
+		placeholderData: keepPreviousData,
+		queryFn: async () => {
+			try {
+				return TrafficResponseSchema.parse( await apiFetch( RedirectionApi.health.traffic( days ) ) );
+			} catch ( error ) {
+				const handledError = handleApiError( error );
+				useMessageStore.getState().addError( handledError.message || 'Failed to load traffic' );
 				throw handledError;
 			}
 		},

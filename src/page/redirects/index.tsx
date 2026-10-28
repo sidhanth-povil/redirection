@@ -236,6 +236,17 @@ export default function Redirects() {
 							{ chip.label }
 						</button>
 					) ) }
+					{ /* Arrives from Overview's "No hits in a year" tile; shown so the narrowed list explains itself. */ }
+					{ filterBy.access === 'year' && (
+						<button
+							type="button"
+							className="dsr-chip"
+							aria-pressed="true"
+							onClick={ () => setFilter( { access: '' } ) }
+						>
+							{ __( 'No hits in a year', 'dsuite-redirects' ) } ×
+						</button>
+					) }
 				</div>
 
 				{ groups.length > 1 && (
