@@ -25,6 +25,54 @@ class Log_Redirect_Test extends WP_UnitTestCase {
 		$this->assertEquals( $expected, $csv );
 	}
 
+	public function testCredentialsRedactedFromLog() {
+		global $wpdb;
+
+		// A password reset link holds a working key for the account
+		$id = Red_Redirect_Log::create( 'domain', '/wp-login.php?action=rp&key=SECRETKEY&login=victim', '192.168.1.1', [
+			'referrer' => 'https://example.org/?token=SECRETTOKEN&page=2',
+			'target' => '/next?_wpnonce=SECRETNONCE',
+		] );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}redirection_logs WHERE id=%d", $id ) );
+		$stored = $row->url . ' ' . $row->referrer . ' ' . $row->sent_to;
+
+		$this->assertStringNotContainsString( 'SECRET', $stored );
+		$this->assertStringNotContainsString( 'victim', $stored );
+		$this->assertStringContainsString( 'action=rp', $row->url );
+		$this->assertStringContainsString( 'page=2', $row->referrer );
+	}
+
+	public function testCredentialsRedactedFromLoggedHeaders() {
+		global $wpdb;
+
+		$id = Red_Redirect_Log::create( 'domain', '/a', '192.168.1.1', [ 'request_data' => [ 'headers' => [ 'Referer' => '/r?key=SECRETKEY', 'X-Big' => str_repeat( 'a', 5000 ) ] ] ] );
+		$data = $wpdb->get_var( $wpdb->prepare( "SELECT request_data FROM {$wpdb->prefix}redirection_logs WHERE id=%d", $id ) );
+
+		$this->assertStringNotContainsString( 'SECRET', $data );
+		$this->assertLessThan( 1000, strlen( $data ) );
+	}
+
+	public function testRedactionCoversArrayNamesSeparatorsAndEncodedNames() {
+		$this->assertStringNotContainsString( 'SECRET', Red_Redirect_Log::redact_url( '/a?pass[0]=SECRET1&x=1' ) );
+		$this->assertStringNotContainsString( 'SECRET', Red_Redirect_Log::redact_url( '/a?x=1;token=SECRET2' ) );
+		$this->assertStringNotContainsString( 'SECRET', Red_Redirect_Log::redact_url( '/a?rp_key=SECRET3&new_password=SECRET4' ) );
+
+		global $wpdb;
+		$id = Red_Redirect_Log::create( 'domain', '/a', '1.1.1.1', [ 'referrer' => '/r?pa%73s=SECRET5', 'target' => '/t?to%6Ben=SECRET6' ] );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT referrer, sent_to FROM {$wpdb->prefix}redirection_logs WHERE id=%d", $id ) );
+		$this->assertStringNotContainsString( 'SECRET', $row->referrer . ' ' . $row->sent_to );
+	}
+
+	public function testCredentialsRedactedFrom404Log() {
+		global $wpdb;
+
+		$id = Red_404_Log::create( 'domain', '/missing?password=SECRETPASS&x=1', '192.168.1.1', [ 'referrer' => '/r?access_token=SECRETTOKEN' ] );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}redirection_404 WHERE id=%d", $id ) );
+
+		$this->assertStringNotContainsString( 'SECRET', $row->url . ' ' . $row->referrer );
+		$this->assertStringContainsString( 'x=1', $row->url );
+	}
+
 	public function testValidLog() {
 		$log = Red_Redirect_Log::create( 'domain', 'url', '192.168.1.1', [
 			'agent' => 'agent',

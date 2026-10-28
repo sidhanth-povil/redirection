@@ -5,6 +5,7 @@ namespace Redirection\ImportExport\Importer;
 use Redirection\ImportExport\ImportGroup;
 use Redirection\ImportExport\ImportRedirect;
 use Redirection\ImportExport\FormatHandler;
+use Redirection\Redirect\Redirect;
 
 /**
  * @phpstan-import-type ImportResult from FormatHandler
@@ -113,7 +114,15 @@ class WordpressOldSlugs extends Plugin {
 			return false;
 		}
 
-		return $this->mapper->wordpress_old_slug( $new, $redirect->meta_value );
+		$item = $this->mapper->wordpress_old_slug( $new, $redirect->meta_value );
+
+		// WordPress only follows an old slug when nothing else has the URL, and an import must not take over a page
+		// or redirect the post's author cannot edit
+		if ( $item !== false && Redirect::is_url_owned_elsewhere( $item['url'], intval( $redirect->post_id, 10 ), 0 ) ) {
+			return false;
+		}
+
+		return $item;
 	}
 
 	/**

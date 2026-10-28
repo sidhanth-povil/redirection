@@ -296,6 +296,45 @@ class ImportImportCsvTest extends Redirection_Api_Test {
 		}
 	}
 
+	public function testImportCannotCreateGroupsWithoutGroupAdd() {
+		global $wpdb;
+
+		$count = intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_groups" ), 10 );
+		$this->setEditor();
+		$this->add_capability( Redirection_Capabilities::CAP_IO_MANAGE );
+
+		// Importing only redirects still creates the groups they name, which needs the group add capability
+		$group = new \Redirection\ImportExport\ImportGroup( 0, [] );
+		$from_file = $group->get_group( 999999, [ 'name' => 'From file', 'module_id' => 2 ] );
+		$fallback = $group->get_group( 999998 );
+		$this->clear_capability();
+
+		$this->assertFalse( $from_file );
+		$this->assertFalse( $fallback );
+		$this->assertSame( $count, intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_groups" ), 10 ) );
+	}
+
+	public function testWordPressOldSlugSkipsUrlOfAnotherPage() {
+		global $wpdb;
+
+		$this->set_permalink_structure( '/%postname%/' );
+		$group = Red_Group::create( 'import-test-group', 1 );
+		self::factory()->post->create( [ 'post_status' => 'publish', 'post_type' => 'page', 'post_name' => 'pricing' ] );
+		$author_post = self::factory()->post->create( [ 'post_status' => 'publish', 'post_type' => 'post', 'post_name' => 'author-landing' ] );
+		$renamed_post = self::factory()->post->create( [ 'post_status' => 'publish', 'post_type' => 'post', 'post_name' => 'ctl-new' ] );
+
+		// An author once used the slug of a page they cannot edit
+		update_post_meta( $author_post, '_wp_old_slug', 'pricing' );
+		update_post_meta( $renamed_post, '_wp_old_slug', 'ctl-old' );
+
+		$result = PluginRegistry::get_importer( 'wordpress-old-slugs' )->import_plugin( $group->get_id(), [] );
+		$sources = $wpdb->get_col( $wpdb->prepare( "SELECT url FROM {$wpdb->prefix}redirection_items WHERE group_id=%d", $group->get_id() ) );
+		$this->set_permalink_structure( '' );
+
+		$this->assertEquals( 1, $result['created'] );
+		$this->assertEquals( [ '/ctl-old/' ], $sources );
+	}
+
 	public function testWordPressOldSlugImporterSupportsPublicCustomPostTypes() {
 		$permalink_structure = get_option( 'permalink_structure' );
 		$group = Red_Group::create( 'import-test-group', 1 );

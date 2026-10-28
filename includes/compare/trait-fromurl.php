@@ -88,7 +88,7 @@ trait FromUrl {
 	 */
 	private function load_data( $values ) {
 		if ( is_string( $values ) ) {
-			$values = unserialize( $values ); // phpcs:ignore
+			$values = unserialize( $values, [ 'allowed_classes' => false ] ); // phpcs:ignore
 		}
 
 		if ( isset( $values['url'] ) ) {

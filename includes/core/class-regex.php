@@ -64,10 +64,29 @@ class Regex {
 	 */
 	public function replace( $replace_pattern, $target ) {
 		$regex = $this->get_regex();
+
+		$found = [];
+		$is_absolute = self::is_absolute_url( $replace_pattern ) && @preg_match( $regex, $target, $found, PREG_OFFSET_CAPTURE ) === 1;
+
+		// Request text before the match would end up in front of an absolute target and change its host, so drop it
+		if ( $is_absolute && $found[0][1] > 0 ) {
+			$target = substr( $target, $found[0][1] );
+		}
+
 		$result = @preg_replace( $regex, $replace_pattern, $target );
 
 		if ( is_null( $result ) ) {
 			return $target;
+		}
+
+		// Text after the match is kept so a prefix rule carries the rest of the path, but it must not change the
+		// target's host: /foo@evil.com would give https://good.com@evil.com. Then only the match is replaced
+		if ( $is_absolute ) {
+			$only = @preg_replace( $regex, $replace_pattern, $found[0][0], 1 );
+
+			if ( is_string( $only ) && self::get_authority( $result ) !== self::get_authority( $only ) ) {
+				$result = $only;
+			}
 		}
 
 		// Space encode the target
@@ -79,6 +98,26 @@ class Regex {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Does the URL name its own host, with a scheme or as protocol relative? A browser treats a backslash as a slash.
+	 *
+	 * @param string $url URL.
+	 * @return bool
+	 */
+	public static function is_absolute_url( $url ) {
+		return preg_match( '@^([a-z][a-z0-9+.-]*:|[/\\\\]{2})@i', $url ) === 1;
+	}
+
+	/**
+	 * The parts of a URL that decide where it goes.
+	 *
+	 * @param string $url URL.
+	 * @return array<string, mixed>
+	 */
+	private static function get_authority( $url ) {
+		return array_intersect_key( (array) parse_url( $url ), array_flip( [ 'scheme', 'host', 'port', 'user', 'pass' ] ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 	}
 
 	/**

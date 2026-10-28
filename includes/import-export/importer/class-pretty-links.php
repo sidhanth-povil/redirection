@@ -43,7 +43,8 @@ class PrettyLinks extends Plugin {
 			'match_type'  => 'url',
 			'action_type' => 'url',
 			'title'       => $link->name,
-			'action_code' => $link->redirect_type,
+			// redirect_type can also be 'cloak' or 'pixel', which are not HTTP codes
+			'action_code' => intval( $link->redirect_type, 10 ),
 		);
 	}
 

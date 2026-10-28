@@ -135,14 +135,14 @@ class Admin {
 	public function update_nag() {
 		$options = Settings::get();
 
-		// Is the site configured to upgrade automatically?
-		if ( $options['plugin_update'] === 'admin' ) {
-			$this->automatic_upgrade();
+		// Only a user who can upgrade the database starts one, automatic or not
+		if ( ! Capabilities::has_access( Capabilities::CAP_OPTION_MANAGE ) ) {
 			return;
 		}
 
-		// Can the user perform a manual database upgrade?
-		if ( ! Capabilities::has_access( Capabilities::CAP_OPTION_MANAGE ) ) {
+		// Is the site configured to upgrade automatically?
+		if ( $options['plugin_update'] === 'admin' ) {
+			$this->automatic_upgrade();
 			return;
 		}
 
@@ -347,6 +347,19 @@ class Admin {
 	}
 
 	/**
+	 * Settings for the admin page, limited to what the user's capabilities allow, as REST /setting does. The source
+	 * flags are kept for everyone because the redirect form uses them as its defaults.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get_localized_settings() {
+		$options = Settings::get();
+		$flags = array_intersect_key( $options, array_flip( [ 'flag_query', 'flag_case', 'flag_trailing', 'flag_regex' ] ) );
+
+		return array_merge( $flags, Settings::filter_by_capability( $options ) );
+	}
+
+	/**
 	 * @return void
 	 */
 	public function redirection_head() {
@@ -441,7 +454,7 @@ class Admin {
 				'per_page' => $this->get_per_page(),
 				'timezone' => wp_timezone_string(),
 				'locale' => implode( '-', array_slice( explode( '-', str_replace( '_', '-', get_locale() ) ), 0, 2 ) ),
-				'settings' => $options,
+				'settings' => $this->get_localized_settings(),
 				'preload' => $preload,
 				'versions' => implode( "\n", $versions ),
 				'version' => REDIRECTION_VERSION,

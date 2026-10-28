@@ -2,6 +2,8 @@
 
 namespace Redirection\Url;
 
+use Redirection\Compare\Compare;
+
 /**
  * Transform URL shortcodes
  *
@@ -53,6 +55,7 @@ class Transform {
 		}
 
 		// Support deprecated tags
+		$original = $url;
 		$url = $this->transform_deprecated( $url );
 		$url = do_shortcode( $url );
 
@@ -60,7 +63,8 @@ class Transform {
 		// phpcs:ignore
 		$shortcode_tags = array_merge( [], $shortcode_copy );
 
-		return $url;
+		// The URL can hold request text, and an empty shortcode in it must not make a relative URL point at another site
+		return Compare::keep_target_relative( $original, $url );
 	}
 
 	/**

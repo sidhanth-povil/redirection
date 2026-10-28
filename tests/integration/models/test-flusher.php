@@ -54,6 +54,22 @@ class FlusherTest extends WP_UnitTestCase {
 		return intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_logs" ), 10 );
 	}
 
+	public function testKeepsLogsInsideRetentionInSiteTime() {
+		global $wpdb;
+
+		// Logs store site time; a site behind UTC must not lose rows that are still inside the retention
+		update_option( 'timezone_string', 'America/Los_Angeles' );
+		$this->setScheduleExpire( 7 );
+		$wpdb->query( "DELETE FROM {$wpdb->prefix}redirection_logs" );
+		$wpdb->insert( $wpdb->prefix . 'redirection_logs', [ 'url' => 'recent', 'created' => wp_date( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS + 2 * HOUR_IN_SECONDS ) ] );
+		$wpdb->insert( $wpdb->prefix . 'redirection_logs', [ 'url' => 'old', 'created' => wp_date( 'Y-m-d H:i:s', time() - 7 * DAY_IN_SECONDS - 2 * HOUR_IN_SECONDS ) ] );
+
+		( new Red_Flusher() )->flush();
+		update_option( 'timezone_string', '' );
+
+		$this->assertSame( [ 'recent' ], $wpdb->get_col( "SELECT url FROM {$wpdb->prefix}redirection_logs" ) );
+	}
+
 	public function testNothingScheduled() {
 		Red_Flusher::clear();
 		$this->assertEquals( 0, wp_next_scheduled( Red_Flusher::DELETE_HOOK ) );

@@ -8,6 +8,31 @@ class RedirectCacheTest extends WP_UnitTestCase {
 		return $cache;
 	}
 
+	public function testMatchedEntriesExpire() {
+		global $wp_object_cache;
+
+		$original = $wp_object_cache;
+		$cache = $this->get_cache();
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_object_cache = new class() extends WP_Object_Cache {
+			public $expires = [];
+
+			public function set( $key, $data, $group = 'default', $expire = 0 ) {
+				$this->expires[ $group ][] = $expire;
+				return parent::set( $key, $data, $group, $expire );
+			}
+		};
+
+		// Each visitor URL is its own key, so an entry that never expires lets visitors fill a persistent cache
+		$item = new Red_Item( [ 'match_type' => 'url' ] );
+		$cache->set( '/cat?utm=1', $item, [ $item ] );
+		$expires = $wp_object_cache->expires['redirection'];
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_object_cache = $original;
+
+		$this->assertGreaterThan( 0, $expires[0] );
+	}
+
 	public function testCanCache() {
 		$cache = $this->get_cache();
 

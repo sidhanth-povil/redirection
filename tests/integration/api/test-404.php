@@ -288,6 +288,30 @@ class RedirectionApi404Test extends Redirection_Api_Test {
 		$this->assertEquals( 'Mozilla/5.0 Firefox', $result->data['items'][1]['agent'] );
 	}
 
+	public function testDeleteBulkGroupedDeletesOnlyTheSelectedValue() {
+		global $wpdb;
+		$wpdb->query( "TRUNCATE {$wpdb->prefix}redirection_404" );
+		$this->setNonce();
+
+		Red_404_Log::create( 'domain', '/url1', '10.0.0.1', [ 'agent' => 'Mozilla' ] );
+		Red_404_Log::create( 'domain', '/url2', '10.0.0.12', [ 'agent' => 'Mozilla/5.0 Chrome' ] );
+
+		// A selected row is one value; a partial match would delete rows that were not selected
+		$this->callApi( 'bulk/404/delete', [ 'items' => [ '10.0.0' ], 'groupBy' => 'ip' ], 'POST' );
+		$this->callApi( 'bulk/404/delete', [ 'items' => [ 'Mozilla' ], 'groupBy' => 'agent' ], 'POST' );
+		$result = $this->callApi( '404' );
+
+		$this->assertEquals( [ 'Mozilla/5.0 Chrome' ], array_column( $result->data['items'], 'agent' ) );
+	}
+
+	public function testNonStringFilterIsNotAServerError() {
+		$this->setNonce();
+
+		$result = $this->callApi( '404', [ 'filterBy' => [ 'url' => [ 'x' ], 'ip' => [ '1' ] ] ] );
+
+		$this->assertNotEquals( 500, $result->status );
+	}
+
 	public function testDeleteMultipleBulkGroupedByUrl() {
 		global $wpdb;
 		$wpdb->query( "TRUNCATE {$wpdb->prefix}redirection_404" );

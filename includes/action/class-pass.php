@@ -13,7 +13,14 @@ class Pass extends Url {
 	 * @return void
 	 */
 	public function process_external( $url ) {
-		// This is entirely at the user's risk. The $url is set by the user
+		// The fetched page is not this site's, so it must not run script as this site. This also covers
+		// pass-throughs saved before creating one needed unfiltered_html
+		if ( ! headers_sent() ) {
+			header( 'Content-Security-Policy: sandbox' );
+			header( 'X-Content-Type-Options: nosniff' );
+		}
+
+		// The $url is set by a user with unfiltered_html
 		// phpcs:ignore
 		echo wp_remote_fopen( $url );
 	}

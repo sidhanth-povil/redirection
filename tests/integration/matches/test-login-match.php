@@ -1,6 +1,23 @@
 <?php
 
+class LoginMatchWakeMarker {
+	public static $woke = false;
+
+	public function __wakeup() {
+		self::$woke = true;
+	}
+}
+
 class LoginMatchTest extends WP_UnitTestCase {
+	public function testLoadNeverCreatesObjects() {
+		// Stored match data is plain data; an object in it must never be created
+		LoginMatchWakeMarker::$woke = false;
+		$match = new Login_Match();
+		$match->load( serialize( array( 'logged_in' => new LoginMatchWakeMarker(), 'logged_out' => '' ) ) );
+
+		$this->assertFalse( LoginMatchWakeMarker::$woke );
+	}
+
 	public function testTargetSanitized() {
 		$match = new Login_Match();
 		$saved = array(

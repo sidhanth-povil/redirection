@@ -13,7 +13,8 @@ class HtaccessSanitizer {
 	public function sanitize_regex( $url ) {
 		$url = (string) preg_replace( "/[\r\n\t].*?$/s", '', $url );
 		$url = (string) preg_replace( '/[^\PC\s]/u', '', $url );
-		$url = str_replace( ' ', '\\s', $url );
+		// Apache splits arguments on any ASCII space (vertical tab and form feed too), which could add flags to a rule
+		$url = (string) preg_replace( '/\s/', '\\s', $url );
 		$url = str_replace( '%24', '$', $url );
 		$url = ltrim( $url, '/' );
 		$url = (string) preg_replace( '@^\^/@', '^', $url );

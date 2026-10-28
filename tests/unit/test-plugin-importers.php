@@ -203,6 +203,42 @@ class PluginImporterUnitTest extends TestCase {
 		$this->assertSame( [], $importer->get_items() );
 	}
 
+	public function testRankMathImporterSkipsInactiveRedirects() {
+		global $wpdb;
+
+		$sources = serialize( [ [ 'pattern' => 'source', 'comparison' => 'exact' ] ] );
+		$wpdb = $this->get_wpdb();
+		$wpdb->results = [
+			(object) [ 'sources' => $sources, 'url_to' => '/active', 'header_code' => 301, 'status' => 'active' ],
+			(object) [ 'sources' => $sources, 'url_to' => '/inactive', 'header_code' => 301, 'status' => 'inactive' ],
+			(object) [ 'sources' => $sources, 'url_to' => '/trashed', 'header_code' => 301, 'status' => 'trashed' ],
+		];
+
+		$importer = new class() extends RankMath {
+			public function get_items() {
+				return $this->get_redirect_items();
+			}
+		};
+
+		// Turned off or deleted in Rank Math must not come in as live redirects
+		$this->assertSame( [ '/active' ], array_column( array_column( $importer->get_items(), 'action_data' ), 'url' ) );
+	}
+
+	public function testPrettyLinksImporterUsesANumericCode() {
+		global $wpdb;
+
+		$wpdb = $this->get_wpdb();
+		$wpdb->results = [ (object) [ 'slug' => 'go', 'url' => 'https://example.org/', 'name' => 'Go', 'redirect_type' => 'cloak' ] ];
+
+		$importer = new class() extends \Redirection\ImportExport\Importer\PrettyLinks {
+			public function get_items() {
+				return $this->get_redirect_items();
+			}
+		};
+
+		$this->assertIsInt( $importer->get_items()[0]['action_code'] );
+	}
+
 	public function testSlimSeoImporterRejectsDisabledOrIncompleteRedirects() {
 		$mapper = $this->get_mapper();
 

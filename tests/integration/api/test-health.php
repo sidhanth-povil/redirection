@@ -275,6 +275,39 @@ class HealthApiTest extends Redirection_Api_Test {
 		$this->assertSame( 2, $this->health()['counts']['unused'] );
 	}
 
+	public function testRedirectOnlyDelegateGetsNo404Data() {
+		Red_404_Log::create( 'domain', '/missing?token=private', '1.1.1.1', [] );
+		$this->log( 'redirection_404', 0 );
+
+		// Fill the traffic cache as a user who may see 404s
+		$this->assertSame( 2, $this->traffic( 7 )['days'][6]['errors'] );
+
+		$this->setEditor();
+		$this->add_capability( Redirection_Capabilities::CAP_REDIRECT_MANAGE );
+		$health = $this->health();
+		$traffic = $this->traffic( 7 );
+		$this->clear_capability();
+
+		$this->assertSame( 0, $health['counts']['new404s'] );
+		$this->assertSame( [], $this->of_type( $health, '404' ) );
+		$this->assertSame( 0, array_sum( array_column( $traffic['days'], 'errors' ) ) );
+	}
+
+	public function testTrafficIsNotCachedWhenTheQueryFails() {
+		global $wpdb;
+
+		$missing = function ( $query ) use ( $wpdb ) {
+			return str_replace( $wpdb->prefix . 'redirection_logs', $wpdb->prefix . 'redirection_missing', $query );
+		};
+		add_filter( 'query', $missing );
+		$wpdb->suppress_errors( true );
+		$this->traffic( 7 );
+		$wpdb->suppress_errors( false );
+		remove_filter( 'query', $missing );
+
+		$this->assertFalse( get_transient( 'dsr_traffic_7' ) );
+	}
+
 	public function testTrafficIsCachedBriefly() {
 		$this->log( 'redirection_logs', 0, 1 );
 		$this->assertSame( 1, $this->traffic( 7 )['days'][6]['redirects'] );

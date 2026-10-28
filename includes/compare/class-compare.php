@@ -198,12 +198,12 @@ abstract class Compare {
 				return $target_url;
 			}
 
-			return $this->keep_target_relative( $target_url, \Redirection\Url\Wildcard::apply_target( $target_url, array_slice( $matches, 1 ) ) );
+			return self::keep_target_relative( $target_url, \Redirection\Url\Wildcard::apply_target( $target_url, array_slice( $matches, 1 ) ) );
 		}
 
 		$regex = new Regex( $source_url, $flags->is_ignore_case() );
 
-		return $this->keep_target_relative( $target_url, $regex->replace( $target_url, $requested_url ) );
+		return self::keep_target_relative( $target_url, $regex->replace( $target_url, $requested_url ) );
 	}
 
 	/**
@@ -213,19 +213,27 @@ abstract class Compare {
 	 * the replaced target becomes `//example.com/path`, which a browser treats as a protocol relative URL
 	 * pointing at `example.com`. Collapse the leading separators so the target stays on this site.
 	 *
+	 * A relative target without a leading slash, such as `topics`, keeps the request text before the match, and
+	 * that can also start with `//`.
+	 *
 	 * @param string $target_url Target URL, before the replacement.
 	 * @param string $replaced Target URL, after the replacement.
 	 * @return string
 	 */
-	private function keep_target_relative( $target_url, $replaced ) {
+	public static function keep_target_relative( $target_url, $replaced ) {
 		// Only applies to a target the user has written as relative to this site
-		if ( substr( $target_url, 0, 1 ) !== '/' || substr( $target_url, 0, 2 ) === '//' ) {
+		if ( Regex::is_absolute_url( $target_url ) ) {
 			return $replaced;
 		}
 
 		// A browser treats a backslash as a slash, and both WordPress and the browser remove control
 		// characters, so check the target as it will finally be seen
 		$check = (string) preg_replace( '/[\x00-\x20\x7F]/', '', str_replace( '\\', '/', $replaced ) );
+
+		// A target such as $1 can take a scheme from the request, which makes it absolute too
+		if ( Regex::is_absolute_url( $check ) && substr( $check, 0, 2 ) !== '//' ) {
+			return '/' . ltrim( $replaced, "/\\\x00..\x20\x7F" );
+		}
 
 		if ( substr( $check, 0, 2 ) !== '//' ) {
 			return $replaced;

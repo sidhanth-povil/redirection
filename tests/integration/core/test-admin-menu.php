@@ -13,6 +13,14 @@ class AdminMenuTest extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
+	public function testUpdatesNeverComeFromWordPressOrg() {
+		// Without an Update URI WordPress would offer any wordpress.org plugin with the same slug as an update
+		$uri = get_plugin_data( REDIRECTION_FILE, false, false )['UpdateURI'];
+
+		$this->assertNotEmpty( $uri );
+		$this->assertStringNotContainsString( 'wordpress.org', $uri );
+	}
+
 	public function testRegistersTopLevelMenuWithoutSubmenu() {
 		global $menu, $submenu;
 		$menu = [];

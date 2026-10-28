@@ -625,15 +625,37 @@ class Redirect {
 	}
 
 	/**
-	 * Disable all redirects that match the URL
+	 * Disable all redirects in a group that match the URL
 	 *
 	 * @param string $url URL to match.
+	 * @param int    $group_id Group ID.
 	 * @return void
 	 */
-	public static function disable_where_matches( $url ) {
+	public static function disable_where_matches( $url, $group_id ) {
 		global $wpdb;
 
-		$wpdb->update( $wpdb->prefix . 'redirection_items', [ 'status' => 'disabled' ], [ 'url' => $url ] );
+		$wpdb->update( $wpdb->prefix . 'redirection_items', [ 'status' => 'disabled' ], [ 'url' => $url, 'group_id' => intval( $group_id, 10 ) ] );
+	}
+
+	/**
+	 * Does another post, or an enabled redirect outside the group, already own this URL? Content authors rename
+	 * their own posts, and an automatic redirect must not take over a URL they cannot edit.
+	 *
+	 * @param string $url Site-relative URL.
+	 * @param int    $post_id The post the redirect is for.
+	 * @param int    $group_id Group the automatic redirect goes in.
+	 * @return bool
+	 */
+	public static function is_url_owned_elsewhere( $url, $post_id, $group_id ) {
+		global $wpdb;
+
+		// $url is a path from the site root, which already holds any subdirectory home_url() would add again
+		$owner = url_to_postid( (string) preg_replace( '@^(https?://[^/]+).*$@i', '$1', home_url() ) . $url );
+		if ( $owner !== 0 && $owner !== intval( $post_id, 10 ) ) {
+			return true;
+		}
+
+		return intval( $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_items WHERE url=%s AND status='enabled' AND group_id != %d", $url, $group_id ) ), 10 ) > 0;
 	}
 
 	/**

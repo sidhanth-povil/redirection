@@ -107,11 +107,11 @@ class Redirect extends Log {
 		}
 
 		if ( isset( $details['target'] ) ) {
-			$insert['sent_to'] = $details['target'];
+			$insert['sent_to'] = substr( sanitize_text_field( self::redact_url( rawurldecode( (string) $details['target'] ) ) ), 0, self::MAX_URL_LENGTH );
 		}
 
 		if ( isset( $details['redirect_by'] ) ) {
-			$insert['redirect_by'] = strtolower( substr( $details['redirect_by'], 0, 50 ) );
+			$insert['redirect_by'] = strtolower( substr( sanitize_text_field( (string) $details['redirect_by'] ), 0, 50 ) );
 		}
 
 		$insert = apply_filters( 'redirection_log_data', $insert );
@@ -141,11 +141,11 @@ class Redirect extends Log {
 		$where = parent::get_query_filter( $filter );
 
 		/** @var array{target?: string, redirect_by?: string} $filter */
-		if ( isset( $filter['target'] ) ) {
+		if ( isset( $filter['target'] ) && is_string( $filter['target'] ) ) {
 			$where[] = $wpdb->prepare( 'sent_to LIKE %s', '%' . $wpdb->esc_like( trim( $filter['target'] ) ) . '%' );
 		}
 
-		if ( isset( $filter['redirect_by'] ) ) {
+		if ( isset( $filter['redirect_by'] ) && is_string( $filter['redirect_by'] ) ) {
 			$where[] = $wpdb->prepare( 'redirect_by = %s', $filter['redirect_by'] );
 		}
 

@@ -114,7 +114,7 @@ class Log extends Filtered {
 					$delete_by = 'url-exact';
 
 					if ( in_array( $params['groupBy'], [ 'ip', 'agent' ], true ) ) {
-						$delete_by = sanitize_text_field( $params['groupBy'] );
+						$delete_by = sanitize_text_field( $params['groupBy'] ) . '-exact';
 					}
 
 					\Red_Redirect_Log::delete_all( [ 'filterBy' => [ $delete_by => $item ] ] ); // @phpstan-ignore-line

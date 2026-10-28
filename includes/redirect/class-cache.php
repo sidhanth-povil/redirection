@@ -203,7 +203,8 @@ class Cache {
 		$converted = $this->convert_to_rows( $rows );
 		$value = count( $converted ) === 0 ? self::EMPTY_VALUE : $converted;
 
-		wp_cache_set( $cache_key, $value, 'redirection', $value === self::EMPTY_VALUE ? HOUR_IN_SECONDS : 0 );
+		// Every entry expires: keys come from visitor URLs, and a redirect save leaves the old ones orphaned
+		wp_cache_set( $cache_key, $value, 'redirection', $value === self::EMPTY_VALUE ? HOUR_IN_SECONDS : DAY_IN_SECONDS );
 
 		return true;
 	}

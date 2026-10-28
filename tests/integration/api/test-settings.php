@@ -264,14 +264,111 @@ class RedirectionApiSettingsTest extends Redirection_Api_Test {
 		$this->assertEquals( 30, $result->data['settings']['expire_redirect'] );
 	}
 
+	private function get_site_dir() {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		$dir = trailingslashit( get_home_path() ) . 'dsr-htaccess-test/';
+		wp_mkdir_p( $dir );
+
+		return $dir;
+	}
+
+	private function remove_dir( $dir ) {
+		@unlink( $dir . '.htaccess' );
+		@rmdir( $dir );
+	}
+
 	public function testSaveApacheConfig() {
-		$data = '30';
+		$this->setNonce();
+		$dir = $this->get_site_dir();
+
+		// On multisite only a network admin may change the location
+		if ( is_multisite() ) {
+			grant_super_admin( get_current_user_id() );
+		}
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$this->remove_dir( $dir );
+
+		$this->assertEquals( $dir . '.htaccess', $result->data['settings']['modules']['2']['location'] );
+		$this->assertFalse( isset( $result->data['warning'] ) );
+	}
+
+	public function testApacheLocationOutsideSiteRefused() {
+		$this->setNonce();
+		$dir = get_temp_dir() . 'dsr-outside-' . wp_generate_password( 6, false ) . '/';
+		wp_mkdir_p( $dir );
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$written = file_exists( $dir . '.htaccess' );
+		$this->remove_dir( $dir );
+
+		$this->assertFalse( $written );
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+		$this->assertNotEmpty( $result->data['warning'] );
+	}
+
+	public function testApacheLocationStreamWrapperRefused() {
 		$this->setNonce();
 
-		$result = $this->callApi( 'setting', array( 'location' => '/tmp/' ), 'POST' );
-		$this->assertEquals( '/tmp/.htaccess', $result->data['settings']['modules']['2']['location'] );
+		$result = $this->callApi( 'setting', array( 'location' => 'phar://' . get_temp_dir() . 'dummy.jpg/' ), 'POST' );
 
-		unlink( 'location' );
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+		$this->assertNotEmpty( $result->data['warning'] );
+	}
+
+	public function testSettingsCannotWriteDatabaseState() {
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+		$this->setNonce();
+
+		$this->callApi( 'setting', [ 'database' => '3.9', 'database_stage' => [ 'stage' => 'x' ] ], 'POST' );
+		$options = Red_Options::get();
+
+		$this->assertSame( REDIRECTION_DB_VERSION, $options['database'] );
+		$this->assertArrayNotHasKey( 'database_stage', $options );
+	}
+
+	public function testApacheLocationSymlinkedFileRefused() {
+		$this->setNonce();
+		$dir = $this->get_site_dir();
+		$outside = get_temp_dir() . 'dsr-outside-' . wp_generate_password( 6, false );
+		@unlink( $dir . '.htaccess' );
+		symlink( $outside, $dir . '.htaccess' );
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$written = file_exists( $outside );
+		@unlink( $outside );
+		$this->remove_dir( $dir );
+
+		$this->assertFalse( $written );
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+	}
+
+	public function testOnlyANetworkAdminChangesTheApacheLocation() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite only' );
+		}
+
+		$dir = $this->get_site_dir();
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$this->nonce = wp_create_nonce( 'wp_rest' );
+
+		// A site administrator has manage_options but no file rights on a network
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$this->remove_dir( $dir );
+
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+		$this->assertNotEmpty( $result->data['warning'] );
+	}
+
+	public function testApacheLocationTraversalRefused() {
+		$this->setNonce();
+		$dir = $this->get_site_dir();
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir . '../../../tmp/' ), 'POST' );
+		$this->remove_dir( $dir );
+
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
 	}
 
 	public function testBadCacheClear() {

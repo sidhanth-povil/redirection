@@ -94,7 +94,7 @@ class Login extends Compare {
 	 */
 	public function load( $values ) {
 		if ( is_string( $values ) ) {
-			$values = @unserialize( $values );
+			$values = @unserialize( $values, [ 'allowed_classes' => false ] );
 		}
 
 		if ( is_array( $values ) ) {

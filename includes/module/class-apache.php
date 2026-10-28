@@ -65,7 +65,7 @@ class Apache extends Module {
 	 * @return bool
 	 */
 	protected function flush_module() {
-		if ( empty( $this->location ) ) {
+		if ( empty( $this->location ) || is_wp_error( $this->is_allowed_location( $this->location ) ) ) {
 			return false;
 		}
 
@@ -142,6 +142,54 @@ class Apache extends Module {
 	}
 
 	/**
+	 * Is the .htaccess location a local path inside the site? Anything else lets the location write server config
+	 * elsewhere, and a stream wrapper such as phar:// reaches the filesystem functions.
+	 *
+	 * @param string $location File path.
+	 * @return WP_Error|true
+	 */
+	public function is_allowed_location( $location ) {
+		$location = $this->sanitize_location( $location );
+
+		if ( strpos( $location, '://' ) !== false ) {
+			return new WP_Error( 'redirect', __( 'The .htaccess location must be a local path.', 'dsuite-redirects' ) );
+		}
+
+		if ( ! function_exists( 'get_home_path' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		// A .htaccess that is itself a link would be written wherever it points
+		if ( is_link( $location ) ) {
+			return new WP_Error( 'redirect', __( 'The .htaccess location must not be a link.', 'dsuite-redirects' ) );
+		}
+
+		$dir = realpath( dirname( $location ) );
+		$roots = array_filter( [ realpath( get_home_path() ), realpath( ABSPATH ) ] );
+
+		foreach ( $roots as $root ) {
+			if ( $dir !== false && strpos( trailingslashit( $dir ), trailingslashit( $root ) ) === 0 ) {
+				return true;
+			}
+		}
+
+		return new WP_Error( 'redirect', __( 'The .htaccess location must be inside the site directory.', 'dsuite-redirects' ) );
+	}
+
+	/**
+	 * Can the current user change the .htaccess location? On multisite a site administrator has no file rights.
+	 *
+	 * @return WP_Error|true
+	 */
+	public function can_change_location() {
+		if ( is_multisite() && ! current_user_can( 'manage_network_options' ) && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return new WP_Error( 'redirect', __( 'Only a network administrator can change the .htaccess location.', 'dsuite-redirects' ) );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Sanitize location path to ensure it ends with .htaccess
 	 *
 	 * @param string $location File path.
@@ -166,11 +214,18 @@ class Apache extends Module {
 			$new_location = $this->sanitize_location( trim( $new_location ) );
 		}
 
+		// A refused location leaves the current one in place
+		if ( is_wp_error( $this->can_change_location() ) || ( $new_location !== '' && is_wp_error( $this->is_allowed_location( $new_location ) ) ) ) {
+			return [
+				'location' => $this->location,
+			];
+		}
+
 		$save = [
 			'location' => $new_location,
 		];
 
-		if ( ! empty( $this->location ) && $save['location'] !== $this->location && $save['location'] !== '' ) {
+		if ( ! empty( $this->location ) && $save['location'] !== $this->location && $save['location'] !== '' && $this->is_allowed_location( $this->location ) === true ) {
 			// Location has moved. Remove from old location
 			$htaccess = new Htaccess();
 			$htaccess->save( $this->location, false );

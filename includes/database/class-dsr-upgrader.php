@@ -18,6 +18,12 @@ class DsrUpgrader {
 	 * @return void
 	 */
 	public static function maybe_run() {
+		// admin_init also fires for anonymous admin-ajax.php and admin-post.php requests; schema changes wait for
+		// someone who manages the plugin
+		if ( ! \Redirection_Capabilities::has_access( \Redirection_Capabilities::CAP_OPTION_MANAGE ) ) {
+			return;
+		}
+
 		if ( intval( get_option( Schedule::VERSION_OPTION, 0 ), 10 ) < self::VERSION ) {
 			self::run();
 		}

@@ -36,6 +36,22 @@ class NginxTest extends WP_UnitTestCase {
 		$this->assertEquals( '# End of Redirection', trim( $lines[ count( $lines ) - 2 ] ) );
 	}
 
+	public function testAgentAndReferrerCannotAddDirectives() {
+		$payload = 'x ) { return 200; } location /evil { alias /etc/; } if ( $a ~ "b';
+		$agent = new Red_Item( (object) [ 'match_type' => 'agent', 'id' => 1, 'url' => '/a', 'action_type' => 'url', 'action_code' => 301, 'status' => 'enabled', 'action_data' => serialize( [ 'agent' => $payload . "\nreturn 200;", 'regex' => true, 'url_from' => '/b', 'url_notfrom' => '' ] ) ] );
+		$referrer = new Red_Item( (object) [ 'match_type' => 'referrer', 'id' => 2, 'url' => '/c', 'action_type' => 'url', 'action_code' => 301, 'status' => 'enabled', 'action_data' => serialize( [ 'referrer' => $payload, 'regex' => true, 'url_from' => '/d', 'url_notfrom' => '' ] ) ] );
+
+		$file = ( new Nginx() )->get_data( [ $agent, $referrer ], [] );
+		$conditions = array_values( preg_grep( '/^\s*if \(/', explode( "\n", $file ) ) );
+
+		// The value stays inside one quoted regex, so nothing after it becomes nginx configuration
+		$this->assertCount( 2, $conditions );
+		foreach ( $conditions as $line ) {
+			$this->assertMatchesRegularExpression( '/^\s*if \( \$http_\w+ ~\* "\^[^"]*\$" \) \{$/', $line );
+		}
+		$this->assertStringNotContainsString( "\nreturn 200;", $file );
+	}
+
 	public function testInvalidRegex() {
 		$regex = "something\nwith newline";
 		$nginx = new Nginx();

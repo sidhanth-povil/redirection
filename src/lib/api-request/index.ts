@@ -100,6 +100,28 @@ const getRedirectLiUrl = ( url: string, version = 1 ): string => {
 	return base + url;
 };
 
+/**
+ * Call redirect.li, which is another site. Plain fetch rather than apiFetch, so the REST nonce and the admin's
+ * cookies are never sent there, and nothing it returns can replace the nonce.
+ * @param request Request from RedirectLiApi.
+ */
+export async function fetchRedirectLi< T = unknown >( request: ApiRequest ): Promise< T > {
+	const response = await fetch( request.url, { method: 'GET', credentials: 'omit' } );
+
+	if ( ! response.ok ) {
+		throw new Error( `${ response.status } ${ response.statusText }` );
+	}
+
+	const data = await response.json();
+
+	// redirect.li can report a failure in a 200 body, which apiFetch used to treat as an error
+	if ( data?.error || data?.error_code ) {
+		throw new Error( data.message ?? String( data.error ?? data.error_code ) );
+	}
+
+	return data as T;
+}
+
 export const RedirectLiApi = {
 	ip: {
 		getGeo: ( ip: string ): ApiRequest => ( {

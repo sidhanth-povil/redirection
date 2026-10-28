@@ -9,6 +9,36 @@ class Canonical_Test extends WP_UnitTestCase {
 		$canonical = new Redirection_Canonical( false, '', [], 'http://example.org' );
 		$this->assertFalse( $canonical->get_redirect( 'http://example.org', '/request?arg=1' ) );
 	}
+
+	public function testWwwIsRemovedAsAPrefixOnly() {
+		// ltrim( 'www.web.com', 'www.' ) removes a set of characters and gives 'eb.com'
+		$add = new \Redirection\Plugin\Canonical( false, 'www', [], 'http://www.web.com' );
+		$remove = new \Redirection\Plugin\Canonical( false, 'nowww', [], 'http://web.com' );
+
+		$home = 'http://web.com';
+		$filter = function () use ( &$home ) {
+			return $home;
+		};
+		add_filter( 'home_url', $filter );
+
+		$added = $add->get_redirect( 'web.com', '/a' );
+		$home = 'http://www.web.com';
+		$removed = $remove->get_redirect( 'www.web.com', '/a' );
+		remove_filter( 'home_url', $filter );
+
+		$this->assertEquals( 'http://www.web.com/a', $added );
+		$this->assertEquals( 'http://web.com/a', $removed );
+	}
+
+	public function testRelocateProtectsAdminWhateverTheSpelling() {
+		$canonical = new \Redirection\Plugin\Canonical( true, '', [], 'http://example.org' );
+
+		$this->assertFalse( $canonical->relocate_request( 'https://relocate.org', 'example.org', '//wp-admin/index.php' ) );
+		$this->assertFalse( $canonical->relocate_request( 'https://relocate.org', 'example.org', '/WP-LOGIN.php' ) );
+		$this->assertFalse( $canonical->relocate_request( 'https://relocate.org', 'example.org', '/?rest_route=/redirection/v1/setting' ) );
+		$this->assertEquals( 'https://relocate.org/page', $canonical->relocate_request( 'https://relocate.org', 'example.org', '/page' ) );
+	}
+
 /*
 	public function testHttps() {
 		Functions\expect( 'get_bloginfo' )->with( 'url' )->andReturn( 'https://example.org' );

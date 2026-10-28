@@ -35,6 +35,11 @@ class RankMath extends Plugin {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function get_items_for_redirect( $redirect ) {
+		// Redirects turned off or trashed in Rank Math must not come in as live ones
+		if ( isset( $redirect->status ) && $redirect->status !== 'active' ) {
+			return [];
+		}
+
 		if ( ! is_string( $redirect->sources ) || preg_match( '/^a:\d+:\{.*\}$/s', $redirect->sources ) !== 1 ) {
 			return [];
 		}

@@ -4,6 +4,12 @@ use Redirection\Database\Database;
 use Redirection\Database\Status;
 
 class DatabaseTest extends WP_UnitTestCase {
+	public static function wpTearDownAfterClass() {
+		// Schema changes in these tests commit the transaction, so a test's old database version would outlive it
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+		Red_Options::reset();
+	}
+
 	private $previous_prefix;
 
 	private function removeTables() {

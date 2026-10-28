@@ -24,6 +24,12 @@ class GroupRepository {
 	 * @return \Red_Group|false
 	 */
 	public function create( $name, $module_id, $enabled = true ) {
+		// Every import path creates its groups here, including a redirects-only import, so this is where the
+		// group add capability is checked
+		if ( ! \Redirection_Capabilities::has_access( \Redirection_Capabilities::CAP_GROUP_ADD ) && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return false;
+		}
+
 		return \Red_Group::create( $name, $module_id, $enabled );
 	}
 

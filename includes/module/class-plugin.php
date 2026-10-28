@@ -540,8 +540,9 @@ class Plugin extends Module {
 		$this->redirect_url = $url;
 		$this->redirect_code = $status;
 
-		$this->iis_fix( $url );
-		$this->cgi_fix( $url, $status );
+		// These send the URL as a header themselves, before WordPress sanitizes it
+		$this->iis_fix( wp_sanitize_redirect( $url ) );
+		$this->cgi_fix( wp_sanitize_redirect( $url ), $status );
 
 		if ( intval( $status, 10 ) === 307 ) {
 			status_header( $status );
@@ -551,22 +552,50 @@ class Plugin extends Module {
 
 		$options = Settings::get();
 		$headers = new Headers( $options['headers'] );
-		$headers->run( $headers->get_redirect_headers() );
+		$redirect_headers = $headers->get_redirect_headers();
+		$headers->run( $redirect_headers );
 
-		// Do we need to set the cache header?
-		if ( ! headers_sent() && $options['redirect_cache'] !== 0 && intval( $status, 10 ) === 301 ) {
-			if ( $options['redirect_cache'] === -1 ) {
-				// No cache - just use WP function
-				nocache_headers();
-			} else {
-				// Custom cache
-				header( 'Expires: ' . gmdate( 'D, d M Y H:i:s T', time() + $options['redirect_cache'] * 60 * 60 ) );
-				header( 'Cache-Control: max-age=' . $options['redirect_cache'] * 60 * 60 );
+		if ( ! headers_sent() ) {
+			foreach ( $this->get_cache_headers( $status, $redirect_headers ) as $name => $value ) {
+				header( $name . ': ' . $value );
 			}
 		}
 
 		status_header( $status );
 		return $url;
+	}
+
+	/**
+	 * Cache headers for a redirect. A redirect that depends on the visitor, such as their browser or login, must not
+	 * be stored by a shared cache that keys on the URL, and a Cache-Control the operator set themselves is kept.
+	 *
+	 * @param int                              $status HTTP status.
+	 * @param array<int, array<string, mixed>> $redirect_headers Operator headers sent with the redirect.
+	 * @return array<string, string>
+	 */
+	public function get_cache_headers( $status, array $redirect_headers ) {
+		$options = Settings::get();
+		$status = intval( $status, 10 );
+		$is_dynamic = $this->matched !== false && $this->matched->is_dynamic();
+
+		foreach ( $redirect_headers as $header ) {
+			if ( strtolower( (string) ( $header['headerName'] ?? '' ) ) === 'cache-control' ) {
+				return [];
+			}
+		}
+
+		if ( $options['redirect_cache'] === 0 || ( $status !== 301 && ! ( $status === 308 && $is_dynamic ) ) ) {
+			return [];
+		}
+
+		if ( $options['redirect_cache'] === -1 || $is_dynamic ) {
+			return array_filter( wp_get_nocache_headers() );
+		}
+
+		return [
+			'Expires' => gmdate( 'D, d M Y H:i:s T', time() + $options['redirect_cache'] * HOUR_IN_SECONDS ),
+			'Cache-Control' => 'max-age=' . $options['redirect_cache'] * HOUR_IN_SECONDS,
+		];
 	}
 
 	/**

@@ -164,6 +164,9 @@ class Settings {
 	 * @return array<string, mixed>
 	 */
 	public static function filter_by_capability( array $settings ): array {
+		// Database version and upgrade stage are internal state, written by the upgrader, never by a request
+		unset( $settings['database'], $settings['database_stage'] );
+
 		$has_site = Capabilities::has_access( Capabilities::CAP_SITE_MANAGE );
 		$has_option = Capabilities::has_access( Capabilities::CAP_OPTION_MANAGE );
 
@@ -275,7 +278,7 @@ class Settings {
 		$flags = new SourceFlags();
 		$defaults = [
 			'support' => false,
-			'token' => md5( uniqid() ),
+			'token' => bin2hex( random_bytes( 16 ) ),
 			'monitor_post' => 0,
 			'monitor_types' => [],
 			'associated_redirect' => '',
@@ -448,7 +451,7 @@ class Settings {
 		}
 
 		if ( isset( $settings['token'] ) && trim( $options['token'] ) === '' ) {
-			$options['token'] = md5( uniqid() );
+			$options['token'] = bin2hex( random_bytes( 16 ) );
 		}
 
 		// Boolean settings
