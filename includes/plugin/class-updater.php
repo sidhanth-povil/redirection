@@ -41,6 +41,11 @@ class Updater {
 			'id' => 'github.com/' . self::REPOSITORY,
 			'slug' => dirname( $plugin_file ),
 			'plugin' => $plugin_file,
+			// Shown beside the update on Dashboard > Updates
+			'icons' => [
+				'1x' => plugins_url( 'assets/icon-128x128.png', REDIRECTION_FILE ),
+				'2x' => plugins_url( 'assets/icon-256x256.png', REDIRECTION_FILE ),
+			],
 		] + $release;
 	}
 
