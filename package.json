@@ -18,7 +18,7 @@
 		"build:analyze": "ANALYZE=true pnpm build",
 		"build:stats": "wp-scripts build --webpack-bundle-analyzer",
 		"doc": "redocly build-docs dev/openapi.yaml -o release/api-doc.html --theme.openapi.nativeScrollbars=true",
-		"plugin": "pnpm build && rm -rf release && mkdir -p release/dsuite-redirects && cp -R *.php changelog.txt readme.txt build license.txt includes modules models matches actions release/dsuite-redirects && rm release/dsuite-redirects/rector.php release/dsuite-redirects/rector-max.php",
+		"plugin": "pnpm build && rm -rf release && mkdir -p release/dsuite-redirects && cp -R *.php changelog.txt readme.txt build license.txt assets includes modules models matches actions release/dsuite-redirects && rm release/dsuite-redirects/rector.php release/dsuite-redirects/rector-max.php",
 		"plugin:zip": "pnpm plugin && cd release && zip -r dsuite-redirects.zip dsuite-redirects",
 		"release": "bash dev/release-github.sh",
 		"lint": "pnpm lint:css && pnpm lint:js && pnpm lint:ts && pnpm lint:php",

@@ -77,6 +77,14 @@ class UpdaterTest extends WP_UnitTestCase {
 		$this->assertSame( 'dsuite-redirects', $update['slug'] );
 	}
 
+	public function testUpdatesShowThePluginIcon() {
+		$icons = $this->check()['icons'];
+
+		$this->assertStringEndsWith( 'assets/icon-128x128.png', $icons['1x'] );
+		$this->assertStringEndsWith( 'assets/icon-256x256.png', $icons['2x'] );
+		$this->assertFileExists( dirname( REDIRECTION_FILE ) . '/assets/icon-256x256.png' );
+	}
+
 	public function testLeavesOtherPluginsAlone() {
 		$this->assertFalse( $this->check( 'other-plugin/other-plugin.php' ) );
 		$this->assertSame( 0, $this->requests );
