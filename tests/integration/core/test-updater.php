@@ -122,13 +122,38 @@ class UpdaterTest extends WP_UnitTestCase {
 		$this->assertFalse( apply_filters( 'plugins_api', false, 'plugin_information', (object) [ 'slug' => 'akismet' ] ) );
 	}
 
-	public function testCheckAgainAsksGitHubAgain() {
+	public function testClearingWordPressUpdateCacheAsksGitHubAgain() {
 		$this->check();
 
-		// Dashboard > Updates > Check again clears WordPress's own update cache
+		// WordPress clears its own update cache after installing or activating plugins
 		delete_site_transient( 'update_plugins' );
 		$this->check();
 
 		$this->assertSame( 2, $this->requests );
+	}
+
+	public function testCheckAgainOnTheUpdatesPageAsksGitHubAgain() {
+		$this->check();
+
+		// Dashboard > Updates > Check again only reloads the page with force-check=1; it keeps WordPress's update cache
+		$_GET['force-check'] = '1';
+		Updater::force_check();
+		unset( $_GET['force-check'] );
+		$this->check();
+
+		$this->assertSame( 2, $this->requests );
+	}
+
+	public function testOpeningTheUpdatesPageKeepsTheCache() {
+		$this->check();
+		Updater::force_check();
+		$this->check();
+
+		$this->assertSame( 1, $this->requests );
+	}
+
+	public function testCheckAgainClearsTheCacheBeforeWordPressAsksForUpdates() {
+		$this->assertSame( 9, has_action( 'load-update-core.php', [ Updater::class, 'force_check' ] ) );
+		$this->assertSame( 10, has_action( 'load-update-core.php', 'wp_update_plugins' ) );
 	}
 }
