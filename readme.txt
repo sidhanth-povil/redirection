@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,9 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.3.4 - 28th October 2026 =
+* Dashboard > Updates shows the plugin icon
 
 = 1.3.3 - 28th October 2026 =
 * Fix: updates are found on shared hosting, where GitHub's API limit was used up by other sites on the same server
