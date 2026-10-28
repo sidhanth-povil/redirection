@@ -64,6 +64,12 @@ class Regex {
 	 */
 	public function replace( $replace_pattern, $target ) {
 		$regex = $this->get_regex();
+
+		// Request text before the match would end up in front of an absolute target and change its host, so drop it
+		if ( self::is_absolute_url( $replace_pattern ) && @preg_match( $regex, $target, $found, PREG_OFFSET_CAPTURE ) === 1 && $found[0][1] > 0 ) {
+			$target = substr( $target, $found[0][1] );
+		}
+
 		$result = @preg_replace( $regex, $replace_pattern, $target );
 
 		if ( is_null( $result ) ) {
@@ -79,6 +85,16 @@ class Regex {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Does the URL name its own host, with a scheme or as protocol relative? A browser treats a backslash as a slash.
+	 *
+	 * @param string $url URL.
+	 * @return bool
+	 */
+	public static function is_absolute_url( $url ) {
+		return preg_match( '@^([a-z][a-z0-9+.-]*:|[/\\\\]{2})@i', $url ) === 1;
 	}
 
 	/**

@@ -205,9 +205,18 @@ class Sanitize {
 		$data['action_type'] = sanitize_text_field( $details['action_type'] );
 		$data['action_code'] = $this->get_code( $details['action_type'], $action_code );
 
+		// Pass-through serves the fetched page as this site. Regex and wildcard targets can become external at request
+		// time, so every pass-through needs the right to publish unfiltered HTML
+		if ( $data['action_type'] === 'pass' && ! current_user_can( 'unfiltered_html' ) && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return new WP_Error( 'redirect', __( 'Pass-through redirects need the unfiltered_html capability.', 'dsuite-redirects' ) );
+		}
+
 		if ( isset( $details['action_data'] ) && is_array( $details['action_data'] ) ) {
 			$match_data = $matcher->save( $details['action_data'] ? $details['action_data'] : [], ! $this->is_url_type( $data['action_type'] ) );
 			$data['action_data'] = is_array( $match_data ) ? serialize( $match_data ) : $match_data;
+		} elseif ( $matcher->get_type() !== 'url' ) {
+			// Otherwise a match type change keeps the previous matcher's raw target, which this matcher unserializes
+			$data['action_data'] = null;
 		}
 
 		$schedule = $this->get_schedule( $details );

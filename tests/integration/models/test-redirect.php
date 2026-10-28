@@ -398,6 +398,45 @@ class RedirectTest extends WP_UnitTestCase {
 		$this->resetCaptured();
 	}
 
+	private function getRegexTarget( $source, $target, $requested ) {
+		$request = new Red_Url_Request( $requested );
+		$item = new Red_Item( (object) [ 'match_type' => 'url', 'id' => 1, 'regex' => true, 'action_type' => 'url', 'url' => $source, 'match_url' => 'regex', 'action_data' => $target, 'action_code' => 301, 'status' => 'enabled' ] );
+		$action = $item->get_match( $request->get_decoded_url(), $request->get_original_url() );
+
+		return $action ? $action->get_target() : false;
+	}
+
+	public function testUnanchoredRegexAbsoluteTargetKeepsHost() {
+		// Request text before the match must never come before an absolute target
+		$this->assertEquals( 'https://example.org/new/x', $this->getRegexTarget( '/old/(.*)', 'https://example.org/new/$1', '//attacker.test/z/old/x' ) );
+		$this->assertEquals( 'https://example.org/new/x', $this->getRegexTarget( '/old/(.*)', 'https://example.org/new/$1', '/%2Fattacker.test%23/old/x' ) );
+	}
+
+	public function testUnanchoredRegexRelativeTargetCannotRedirectOffsite() {
+		// A relative target without a leading slash keeps the request prefix, which must not become a protocol relative URL
+		$this->assertEquals( '/attacker.test/topics', $this->getRegexTarget( 'category', 'topics', '//attacker.test/category' ) );
+		$this->assertEquals( '/blog/topics/x', $this->getRegexTarget( 'category', 'topics', '/blog/category/x' ) );
+	}
+
+	public function testShortcodeCannotMakeRelativeTargetOffsite() {
+		$transform = function ( $url ) {
+			$transformer = new \Redirection\Url\Transform();
+			return $transformer->transform( $url );
+		};
+		add_filter( 'redirection_url_target', $transform );
+
+		// An empty shortcode in the captured text would remove the text that keeps the target relative
+		$plain = $this->getRegexTarget( '^/go/(.*)', '/$1', '/go/[lower][/lower]/evil.example/x' );
+		$encoded = $this->getRegexTarget( '^/go/(.*)', '/$1', '/go/%5Blower%5D%5B%2Flower%5D/evil.example/x' );
+		$backslash = $this->getRegexTarget( '^/go/(.*)', '/$1', '/go/[lower][/lower]\\evil.example/x' );
+
+		remove_filter( 'redirection_url_target', $transform );
+
+		$this->assertEquals( '/evil.example/x', $plain );
+		$this->assertEquals( '/evil.example/x', $encoded );
+		$this->assertEquals( '/evil.example/x', $backslash );
+	}
+
 	public function testRegexMatch() {
 		$this->capturedRedirect();
 

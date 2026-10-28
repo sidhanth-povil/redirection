@@ -5,6 +5,7 @@ require_once PLUGIN_PATH . '/models/url/url-flags.php';
 require_once PLUGIN_PATH . '/models/url/url-path.php';
 require_once PLUGIN_PATH . '/models/url/url.php';
 require_once PLUGIN_PATH . '/models/regex.php';
+require_once PLUGIN_PATH . '/includes/core/class-regex.php';
 
 class RegexTest extends TestCase {
 	public function testPlainRegex() {
@@ -56,6 +57,19 @@ class RegexTest extends TestCase {
 		$regex = new Red_Regex( 'cat(.*)' );
 
 		$this->assertEquals( 'dog5?thing+4', $regex->replace( 'dog$1', 'cat5?thing 4' ) );
+	}
+
+	public function testUnanchoredReplaceDropsPrefixBeforeAbsoluteTarget() {
+		$regex = new \Redirection\Core\Regex( '/old/(.*)' );
+
+		$this->assertEquals( 'https://example.org/new/x', $regex->replace( 'https://example.org/new/$1', '//attacker.test/z/old/x' ) );
+		$this->assertEquals( '//example.org/new/x', $regex->replace( '//example.org/new/$1', '//attacker.test#/old/x' ) );
+	}
+
+	public function testUnanchoredReplaceKeepsPrefixForRelativeTarget() {
+		$regex = new \Redirection\Core\Regex( 'category' );
+
+		$this->assertEquals( '/blog/topics/x', $regex->replace( 'topics', '/blog/category/x' ) );
 	}
 
 	public function testMalformedReplace() {

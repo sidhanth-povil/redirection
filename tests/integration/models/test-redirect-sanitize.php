@@ -247,4 +247,47 @@ class RedirectSanitizeTest extends WP_UnitTestCase {
 
 		$this->assertEquals( $flags['source'], $result['match_data']['source'] );
 	}
+
+	private function asUserWithoutUnfilteredHtml() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$deny = function ( $caps, $cap ) {
+			return $cap === 'unfiltered_html' ? [ 'do_not_allow' ] : $caps;
+		};
+		add_filter( 'map_meta_cap', $deny, 10, 2 );
+
+		return $deny;
+	}
+
+	public function testPassThroughNeedsUnfilteredHtml() {
+		$deny = $this->asUserWithoutUnfilteredHtml();
+
+		$external = $this->sanitizer->get( $this->get_new( [ 'action_type' => 'pass', 'action_data' => [ 'url' => 'https://example.org/p.html' ] ] ) );
+		$capture = $this->sanitizer->get( $this->get_new( [ 'url' => '^/p/(.*)', 'regex' => true, 'action_type' => 'pass', 'action_data' => [ 'url' => '$1' ] ] ) );
+
+		remove_filter( 'map_meta_cap', $deny, 10 );
+
+		// A regex target can become external when the request is replaced in, so every pass-through is gated
+		$this->assertWPError( $external );
+		$this->assertWPError( $capture );
+	}
+
+	public function testPassThroughAllowedWithUnfilteredHtml() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		if ( is_multisite() ) {
+			grant_super_admin( get_current_user_id() );
+		}
+
+		$result = $this->sanitizer->get( $this->get_new( [ 'action_type' => 'pass', 'action_data' => [ 'url' => 'https://example.org/p.html' ] ] ) );
+
+		$this->assertFalse( is_wp_error( $result ) );
+		$this->assertEquals( 'pass', $result['action_type'] );
+	}
+
+	public function testNonUrlMatchWithoutDataClearsStoredTarget() {
+		// A match type change must not keep the previous matcher's raw target, which would be unserialized as match data
+		$result = $this->sanitizer->get( $this->get_new( [ 'match_type' => 'login' ] ) );
+
+		$this->assertArrayHasKey( 'action_data', $result );
+		$this->assertNull( $result['action_data'] );
+	}
 }

@@ -213,13 +213,16 @@ abstract class Compare {
 	 * the replaced target becomes `//example.com/path`, which a browser treats as a protocol relative URL
 	 * pointing at `example.com`. Collapse the leading separators so the target stays on this site.
 	 *
+	 * A relative target without a leading slash, such as `topics`, keeps the request text before the match, and
+	 * that can also start with `//`.
+	 *
 	 * @param string $target_url Target URL, before the replacement.
 	 * @param string $replaced Target URL, after the replacement.
 	 * @return string
 	 */
-	private function keep_target_relative( $target_url, $replaced ) {
+	public static function keep_target_relative( $target_url, $replaced ) {
 		// Only applies to a target the user has written as relative to this site
-		if ( substr( $target_url, 0, 1 ) !== '/' || substr( $target_url, 0, 2 ) === '//' ) {
+		if ( Regex::is_absolute_url( $target_url ) ) {
 			return $replaced;
 		}
 
