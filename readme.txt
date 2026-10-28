@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,9 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.2.1 - 28th October 2026 =
+* Readme describes DSuite Redirects, and the Plugins page links to designsuite.ai
 
 = 1.2.0 - 28th October 2026 =
 * New: updates appear in Dashboard > Updates and on the Plugins page, installed from the plugin's GitHub releases. Install this version by hand once; later versions update from the dashboard
