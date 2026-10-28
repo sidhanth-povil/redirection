@@ -75,12 +75,25 @@ class Updater {
 	}
 
 	/**
-	 * Forget the cached release when WordPress forgets its update data, as Dashboard > Updates > Check again does.
+	 * Forget the cached release when WordPress forgets its update data, as it does after installing or activating plugins.
 	 *
 	 * @return void
 	 */
 	public static function clear() {
 		delete_site_transient( self::CACHE_KEY );
+	}
+
+	/**
+	 * Dashboard > Updates > Check again only reloads the page with force-check=1 and keeps WordPress's update data,
+	 * so forget the cached release before WordPress asks for updates on that page.
+	 *
+	 * @return void
+	 */
+	public static function force_check() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- core's own read-only "Check again" link.
+		if ( ! empty( $_GET['force-check'] ) ) {
+			self::clear();
+		}
 	}
 
 	/**
