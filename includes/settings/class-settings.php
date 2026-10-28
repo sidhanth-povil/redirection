@@ -278,7 +278,7 @@ class Settings {
 		$flags = new SourceFlags();
 		$defaults = [
 			'support' => false,
-			'token' => md5( uniqid() ),
+			'token' => bin2hex( random_bytes( 16 ) ),
 			'monitor_post' => 0,
 			'monitor_types' => [],
 			'associated_redirect' => '',
@@ -451,7 +451,7 @@ class Settings {
 		}
 
 		if ( isset( $settings['token'] ) && trim( $options['token'] ) === '' ) {
-			$options['token'] = md5( uniqid() );
+			$options['token'] = bin2hex( random_bytes( 16 ) );
 		}
 
 		// Boolean settings
