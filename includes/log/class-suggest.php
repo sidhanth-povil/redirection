@@ -78,14 +78,12 @@ class Suggest {
 		$candidates = [];
 		$words = $slug === '' ? [] : explode( '-', $slug );
 
-		while ( count( $words ) > 0 ) {
-			$candidate = implode( '-', $words );
+		for ( $length = count( $words ); $length > 0; $length-- ) {
+			$candidate = implode( '-', array_slice( $words, 0, $length ) );
 
 			if ( strlen( $candidate ) >= self::MIN_SLUG_LENGTH && preg_match( '/^[0-9-]+$/', $candidate ) !== 1 ) {
 				$candidates[] = $candidate;
 			}
-
-			array_pop( $words );
 		}
 
 		return $candidates;

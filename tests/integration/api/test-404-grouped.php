@@ -76,7 +76,7 @@ class Grouped404ApiTest extends Redirection_Api_Test {
 	}
 
 	public function testSuggestsTheClosestPublishedPage() {
-		$this->set_permalinks();
+		$this->set_permalink_structure( '/%postname%/' );
 		self::factory()->post->create( [ 'post_name' => 'summer-sale', 'post_status' => 'publish', 'post_type' => 'page' ] );
 		$this->log404( '/offers/summer-sale-2025/' );
 
@@ -84,17 +84,11 @@ class Grouped404ApiTest extends Redirection_Api_Test {
 	}
 
 	public function testSuggestsNothingForDraftsOrUnrelatedSlugs() {
-		$this->set_permalinks();
+		$this->set_permalink_structure( '/%postname%/' );
 		self::factory()->post->create( [ 'post_name' => 'winter-sale', 'post_status' => 'draft' ] );
 		self::factory()->post->create( [ 'post_name' => 'about', 'post_status' => 'publish' ] );
 		$this->log404( '/winter-sale' );
 
 		$this->assertSame( '', $this->grouped()[0]->suggestion );
-	}
-
-	private function set_permalinks() {
-		global $wp_rewrite;
-
-		$wp_rewrite->set_permalink_structure( '/%postname%/' );
 	}
 }
