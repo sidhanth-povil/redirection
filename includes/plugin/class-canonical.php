@@ -119,10 +119,13 @@ class Canonical {
 	private function get_canonical_target( $server ) {
 		$canonical = rtrim( red_parse_domain_only( $server ), '/' );
 
-		if ( $this->need_force_www( $server ) ) {
-			$canonical = 'www.' . ltrim( $canonical, 'www.' );
-		} elseif ( $this->need_remove_www( $server ) ) {
-			$canonical = ltrim( $canonical, 'www.' );
+		// A prefix, not ltrim(), which strips a set of characters: www.web.com would become eb.com
+		$bare = (string) preg_replace( '/^www\./i', '', $canonical );
+
+		if ( $this->need_force_www( $canonical ) ) {
+			$canonical = 'www.' . $bare;
+		} elseif ( $this->need_remove_www( $canonical ) ) {
+			$canonical = $bare;
 		}
 
 		$canonical = ( is_ssl() ? 'https://' : 'http://' ) . $canonical;
@@ -182,16 +185,19 @@ class Canonical {
 			]
 		);
 
+		// Compare the path as WordPress resolves it: any case, any number of leading slashes, or the REST API by query
+		$path = '/' . ltrim( strtolower( $request ), '/' );
+
 		$not_protected = array_filter(
 			$protected,
-			function ( $base ) use ( $request ) {
-				if ( substr( $request, 0, strlen( $base ) ) === $base ) {
-					return true;
-				}
-
-				return false;
+			function ( $base ) use ( $path ) {
+				return strpos( $path, strtolower( $base ) ) === 0;
 			}
 		);
+
+		if ( strpos( $path, 'rest_route=' ) !== false ) {
+			return false;
+		}
 
 		if ( $domain !== red_parse_domain_only( $relocate ) && count( $not_protected ) === 0 ) {
 			return apply_filters( 'redirect_relocate_target', $relocate . $request );
