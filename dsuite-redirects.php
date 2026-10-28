@@ -1,9 +1,11 @@
 <?php
 /*
 Plugin Name: DSuite Redirects
+Plugin URI: https://designsuite.ai
 Description: Manage redirects, schedule campaign redirects and catch 404s, built for marketing teams. Based on Redirection by John Godley.
 Version: 1.2.0
 Author: DSuite
+Author URI: https://designsuite.ai
 Text Domain: dsuite-redirects
 Requires PHP: 7.4
 Requires at least: 6.7

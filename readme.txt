@@ -5,170 +5,113 @@ Tested up to: 7.1
 Stable tag: 1.2.0
 License: GPLv3
 
-Redirect manager for marketing teams. Fork of Redirection by John Godley.
+Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
 
 == Description ==
 
-Redirection is the most popular redirect manager for WordPress. With it you can easily manage 301 redirections, keep track of 404 errors, and generally tidy up any loose ends your site may have. This can help reduce errors and improve your site ranking.
+DSuite Redirects is the redirect manager built by [DSuite](https://designsuite.ai) for marketing teams. Add and schedule redirects, catch broken links before visitors and search engines do, and see at a glance which redirects are working.
 
-Redirection is designed to be used on sites with a few redirects to sites with thousands of redirects.
+It is based on Redirection by John Godley, so it keeps Redirection's proven redirect engine and your existing Redirection data, with a simpler interface on top.
 
-It has been a WordPress plugin for over 10 years and has been recommended countless times. And it's free!
+DSuite Redirects is compatible with PHP from 7.4 to 8.5.
 
-Redirection is compatible with PHP from 7.4 to 8.5.
+= Overview =
 
-= Redirect manager =
+The Overview page shows redirected visits and 404s per day for the last 7 or 30 days, your most used redirects, and how many redirects have had no hits in a year. Help cards explain the basics for new team members.
 
-Create and manage redirects quickly and easily without needing Apache or Nginx knowledge. If your WordPress supports permalinks then you can use Redirection to redirect any URL.
+= Redirects =
 
-There is full support for regular expressions so you can create redirect patterns to match any number of URLs. You can match query parameters and even pass them through to the target URL.
+Add a redirect in one form: type where visitors come from, then search your posts and pages for where they should go, or type any URL. Before you save, the form warns about chains, loops and duplicates and offers a one-click fix.
 
-The plugin can also be configured to monitor when post or page permalinks are changed and automatically create a redirect to the new URL.
+Use a wildcard to move a whole section of your site in one redirect, or regular expressions when you need full control. Query parameters can be matched exactly, ignored, or passed through to the target, which keeps campaign UTM tags working.
+
+When a post or page changes its address, a redirect from the old address can be created automatically.
+
+= Scheduled campaign redirects =
+
+Give a redirect a start date, an end date, or both. It switches on and off by itself in your site's timezone, so a campaign link can point at the sale page for exactly as long as the sale runs.
+
+= 404s =
+
+Every 404 is recorded and grouped by URL, with hits, when it was last seen and where visitors came from. Fix a 404 by turning it into a redirect in one click, or ignore it.
+
+A daily or weekly email lists new 404s that passed a hit threshold, so the team hears about broken links without logging in.
+
+= Health =
+
+The Health page finds redirect chains and loops, so visitors and search engines reach the right page in one hop.
 
 = Conditional redirects =
 
-In addition to straightforward URL matching you can redirect based on other conditions:
+As well as matching a URL, a redirect can depend on:
 
-- Login status - redirect only if the user is logged in or logged out
-- WordPress capability - redirect if the user is able to perform a certain capability
-- Browser - redirect if the user is using a certain browser
-- Referrer - redirect if the user visited the link from another page
-- Cookies - redirect if a particular cookie is set
-- HTTP headers - redirect based on a HTTP header
-- Custom filter - redirect based on your own WordPress filter
-- IP address - redirect if the client IP address matches
-- Server - redirect another domain if also hosted on this server
-- Page type - redirect if the current page is a 404
+- Login status - only if the visitor is logged in or logged out
+- WordPress capability - only if the user has a certain capability
+- Browser - only for a certain browser
+- Referrer - only if the visitor came from a certain page
+- Cookies - only if a particular cookie is set
+- HTTP headers - only if a request header matches
+- Custom filter - decided by your own WordPress filter
+- IP address - only for matching IP addresses
+- Server - send another domain hosted on this server elsewhere
+- Page type - only if the current page is a 404
 
-= Full logging =
+= Logging =
 
-A configurable logging option allows to view all redirects occurring on your site, including information about the visitor, the browser used, and the referrer. A 'hit' count is maintained for each redirect so you can see if a URL is being used.
+Redirects and 404s can be logged with the visitor's browser and referrer. IP collection can be reduced or switched off to meet privacy rules where you work, and credentials such as password reset keys are never stored in logs.
 
-Logs can be exported for external viewing, and can be searched and filtered for more detailed investigation.
+= HTTP headers =
 
-Display geographic information about an IP address, as well as a full user agent information, to try and understand who the visitor is.
+Add HTTP headers to individual redirects or to your whole site, including your own custom headers.
 
-You are able to disable or reduce IP collection to meet the legal requirements of your geographic region, and can change the amount of information captured from the bare minimum to HTTP headers.
+= Apache & Nginx =
 
-You can also log any redirect happening on your site, including those performed outside of Redirection.
+Redirects are handled by WordPress by default. They can also be written to an Apache .htaccess file, or exported as Nginx rewrite rules.
 
-= Add HTTP headers =
+= Permissions =
 
-HTTP headers can be added to redirects or your entire site that help reduce the impact of redirects or help increase security. You can also add your own custom headers.
-
-= Track 404 errors =
-
-Redirection will keep track of all 404 errors that occur on your site, allowing you to track down and fix problems.
-
-Errors can be grouped to show where you should focus your attention, and can be redirected in bulk.
-
-= Query parameter handling =
-
-You can match query parameters exactly, ignore them, and even pass them through to your target.
-
-= Migrate Permalinks =
-
-Changed your permalink structure? You can migrate old permalinks simply by entering the old permalink structure. Multiple migrations are supported.
-
-= Apache & Nginx support =
-
-By default Redirection will manage all redirects using WordPress. However you can configure it so redirects are automatically saved to a .htaccess file and handled by Apache itself.
-
-If you use Nginx then you can export redirects to an Nginx rewrite rules file.
-
-= Fine-grained permissions =
-
-Fine-grained permissions are available so you can customise the plugin for different users. This makes it particularly suitable for client sites where you may want to prevent certain actions, and remove functionality.
+Fine-grained permissions let you decide which team members can manage redirects, see 404s or change settings.
 
 = Import & Export =
 
-The plugin has a fully-featured import and export system and you can:
-
-- Import and export to Apache .htaccess
-- Export to Nginx rewrite rules
+- Import and export Apache .htaccess files
+- Export Nginx rewrite rules
 - Copy redirects between sites using JSON
-- Import and export to CSV for viewing in a spreadsheet
-- Use WP CLI to automate import and export
+- Import and export CSV for spreadsheets
+- Automate import and export with WP-CLI
 
-You can also import from the following plugins:
+Redirects can also be imported from Redirection, Rank Math, Yoast SEO, SEOPress, Slim SEO, Pretty Links, Safe Redirect Manager, Simple 301 Redirects, 301 Redirects (EPS), SEO Redirection, Quick Page/Post Redirects and WordPress old slugs.
 
-- Simple 301 Redirects
-- SEO Redirection
-- Safe Redirect Manager
-- Rank Math
-- WordPress old slug redirects
-- Quick Post/Pages redirects
+= Updates =
 
-= Search Regex compatible =
-
-Redirection is compatible with [Search Regex](https://searchregex.com), allowing you to bulk update your redirects.
-
-= Wait, it's free? =
-
-Yes, it's really free. There's no premium version and no need to pay money to get access to features. This is a dedicated redirect management plugin.
+New versions appear in Dashboard > Updates like any other plugin, installed from DSuite's GitHub releases.
 
 == Support ==
 
-DSuite Redirects is a private plugin. Report problems to the DSuite development team.
+DSuite Redirects is a private plugin. Report problems to the DSuite team at [designsuite.ai](https://designsuite.ai).
 
 == Installation ==
 
-The plugin is simple to install:
-
-1. Build `dsuite-redirects.zip` with `pnpm plugin:zip` (or take it from a release)
+1. Download `dsuite-redirects.zip` from the latest GitHub release
 1. Go to Plugins > Add New > Upload Plugin and upload the zip
 1. Activate the plugin (deactivate Redirection first; your redirects carry over)
 1. Open the Redirects menu
 
-== Screenshots ==
-
-1. Redirection management interface
-2. Adding a redirection
-3. Redirect logs
-4. Import/Export
-5. Options
-6. Support
+Later versions update from Dashboard > Updates.
 
 == Frequently Asked Questions ==
 
-= Why would I want to use this instead of .htaccess? =
+= Why use this instead of .htaccess? =
 
-Ease of use.  Redirections are automatically created when a post URL changes, and it is a lot easier to manually add redirections than to hack around a .htaccess.  You also get the added benefit of being able to keep track of 404 errors.
+It is easier to use. Redirects are created automatically when a post's address changes, anyone on the team can add one without editing server files, and you can see which redirects are used and which URLs are broken.
 
-= What is the performance of this plugin? =
+= Will it slow my site down? =
 
-The plugin works in a similar manner to how WordPress handles permalinks and should not result in any noticeable slowdown to your site.
+No. Redirects are matched the same way WordPress matches permalinks, and results are cached.
 
-== Upgrade Notice ==
+= Can I run it alongside Redirection? =
 
-= 3.0 =
-* Upgrades the database to support IPv6. Please backup your data and visit the Redirection settings to perform the upgrade
-* Switches to the WordPress REST API
-* Permissions changed from 'administrator' role to 'manage_options' capability
-
-= 3.6.1 =
-* Note Redirection will not work with PHP < 5.4 after 3.6 - please upgrade your PHP
-
-= 3.7 =
-* Requires minimum PHP 5.4. Do not upgrade if you are still using PHP < 5.4
-
-= 4.0 =
-* Alters database to support case insensitivity, trailing slashes, and query params. Please backup your data
-
-= 4.7 =
-* Requires minimum PHP 5.6+. Do not upgrade if you are still using PHP < 5.6
-
-= 4.9 =
-* Alters database to support enhanced logging. Please backup your data
-
-= 5.4 =
-* You may need to configure the IP header option if using a proxy
-
-= 5.6 =
-* Requires minimum PHP 7.2
-
-= 5.7 =
-* Requires minimum PHP 7.4
+No. Deactivate Redirection first. DSuite Redirects uses the same data, so your redirects, groups and logs carry over.
 
 == Changelog ==
 
