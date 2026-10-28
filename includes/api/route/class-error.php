@@ -115,7 +115,7 @@ class Error extends Filtered {
 					$delete_by = 'url-exact';
 
 					if ( in_array( $group_by, [ 'ip', 'agent' ], true ) ) {
-						$delete_by = $group_by;
+						$delete_by = $group_by . '-exact';
 					}
 
 					\Red_404_Log::delete_all( [ 'filterBy' => [ $delete_by => $item ] ] );

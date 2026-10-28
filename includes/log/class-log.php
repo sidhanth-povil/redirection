@@ -31,6 +31,8 @@ use Redirection\ImportExport\Sanitizer\CsvSanitizer;
  *   ip?: string,
  *   domain?: string,
  *   'url-exact'?: string,
+ *   'ip-exact'?: string,
+ *   'agent-exact'?: string,
  *   url?: string,
  *   referrer?: string,
  *   agent?: string,
@@ -446,7 +448,16 @@ abstract class Log {
 	protected static function get_query_filter( array $filter ) {
 		global $wpdb;
 
+		// Filter values come from the query string, where any of them can be an array
+		$filter = array_map( 'strval', array_filter( $filter, 'is_scalar' ) );
 		$where = [];
+
+		// A bulk action on a grouped row names one exact value
+		foreach ( [ 'ip-exact' => 'ip', 'agent-exact' => 'agent' ] as $name => $column ) {
+			if ( isset( $filter[ $name ] ) ) {
+				$where[] = $wpdb->prepare( "{$column} = %s", $filter[ $name ] ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			}
+		}
 
 		if ( isset( $filter['ip'] ) ) {
 			// phpcs:ignore

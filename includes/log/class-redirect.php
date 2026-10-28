@@ -141,11 +141,11 @@ class Redirect extends Log {
 		$where = parent::get_query_filter( $filter );
 
 		/** @var array{target?: string, redirect_by?: string} $filter */
-		if ( isset( $filter['target'] ) ) {
+		if ( isset( $filter['target'] ) && is_string( $filter['target'] ) ) {
 			$where[] = $wpdb->prepare( 'sent_to LIKE %s', '%' . $wpdb->esc_like( trim( $filter['target'] ) ) . '%' );
 		}
 
-		if ( isset( $filter['redirect_by'] ) ) {
+		if ( isset( $filter['redirect_by'] ) && is_string( $filter['redirect_by'] ) ) {
 			$where[] = $wpdb->prepare( 'redirect_by = %s', $filter['redirect_by'] );
 		}
 
