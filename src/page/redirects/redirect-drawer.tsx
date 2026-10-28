@@ -73,10 +73,11 @@ const getTypeOptions = (): SegmentedOption< SimpleType >[] => [
 interface RedirectDrawerProps {
 	item: Redirect | null;
 	initialUrl?: string;
+	initialTarget?: string;
 	onClose: () => void;
 }
 
-export default function RedirectDrawer( { item, initialUrl = '', onClose }: RedirectDrawerProps ) {
+export default function RedirectDrawer( { item, initialUrl = '', initialTarget = '', onClose }: RedirectDrawerProps ) {
 	const { data: groupData } = useGroupDropdown();
 	const groups = groupData?.items ?? [];
 	const settings = useSettingsStore( ( store ) => store.values );
@@ -89,6 +90,7 @@ export default function RedirectDrawer( { item, initialUrl = '', onClose }: Redi
 	const [ state, setState ] = useState< DrawerState >( () =>
 		createState( item, {
 			url: initialUrl,
+			target: initialTarget,
 			groupId: pickDefaultGroup( groups, lastGroupId ),
 			flags: {
 				flag_regex: Boolean( settings?.flag_regex ),

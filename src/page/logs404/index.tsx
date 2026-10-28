@@ -15,6 +15,11 @@ import type { Error404 } from 'types';
 const SEARCH_DELAY = 300;
 const RECENT_DAYS = '7';
 
+interface Fixing {
+	url: string;
+	target: string;
+}
+
 interface Chip {
 	label: string;
 	filter: Record< string, string >;
@@ -55,7 +60,7 @@ export default function Logs404() {
 	const canDelete = has_capability( CAP_404_DELETE );
 	const filterBy: Record< string, string > = table.filterBy ?? {};
 	const [ search, setSearch ] = useState( filterBy.url ?? '' );
-	const [ fixing, setFixing ] = useState< string | null >( null );
+	const [ fixing, setFixing ] = useState< Fixing | null >( null );
 
 	const setFilter = ( next: Record< string, string > ) => {
 		setErrorsTable( { filterBy: next, groupBy: 'url', page: 0, selected: [], selectAll: false } );
@@ -176,6 +181,14 @@ export default function Logs404() {
 												}
 											</span>
 										) }
+										{ row.suggestion && (
+											<span className="dsr-table__target" title={ row.suggestion }>
+												{
+													/* translators: %s: the page this 404 should probably redirect to */
+													sprintf( __( 'Suggested: %s', 'dsuite-redirects' ), row.suggestion )
+												}
+											</span>
+										) }
 									</td>
 									<td
 										className="dsr-table__hits dsr-num"
@@ -194,7 +207,7 @@ export default function Logs404() {
 											<button
 												type="button"
 												className="dsr-link"
-												onClick={ () => setFixing( url ) }
+												onClick={ () => setFixing( { url, target: row.suggestion ?? '' } ) }
 											>
 												{ __( 'Fix', 'dsuite-redirects' ) }
 											</button>
@@ -253,7 +266,12 @@ export default function Logs404() {
 			) }
 
 			{ fixing !== null && (
-				<RedirectDrawer item={ null } initialUrl={ fixing } onClose={ () => setFixing( null ) } />
+				<RedirectDrawer
+					item={ null }
+					initialUrl={ fixing.url }
+					initialTarget={ fixing.target }
+					onClose={ () => setFixing( null ) }
+				/>
 			) }
 		</div>
 	);

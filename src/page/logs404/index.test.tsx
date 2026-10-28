@@ -31,7 +31,14 @@ global.ResizeObserver = class {
 } as any;
 
 const rows = [
-	{ id: '/missing', url: '/missing', count: 12, last_seen: '2026-10-21 09:30:00', referrer: 'https://news.test/a' },
+	{
+		id: '/missing',
+		url: '/missing',
+		count: 12,
+		last_seen: '2026-10-21 09:30:00',
+		referrer: 'https://news.test/a',
+		suggestion: '/missing-page/',
+	},
 	{ id: '/old', url: '/old', count: 1, last_seen: '2026-10-20 08:00:00', referrer: '' },
 ];
 
@@ -102,6 +109,25 @@ describe( '404s page', () => {
 
 		expect( screen.getByRole( 'dialog', { name: 'New redirect' } ) ).toBeInTheDocument();
 		expect( screen.getByLabelText( 'Old URL' ) ).toHaveValue( '/missing' );
+	} );
+
+	it( 'shows the suggested page and fills it in when fixing', () => {
+		setup();
+
+		expect( row( '/missing' ) ).toHaveTextContent( 'Suggested: /missing-page/' );
+		expect( row( '/old' ) ).not.toHaveTextContent( 'Suggested' );
+
+		fireEvent.click( within( row( '/missing' ) ).getByRole( 'button', { name: 'Fix' } ) );
+
+		expect( screen.getByLabelText( 'Send visitors to' ) ).toHaveValue( '/missing-page/' );
+	} );
+
+	it( 'leaves the target empty when there is no suggestion', () => {
+		setup();
+
+		fireEvent.click( within( row( '/old' ) ).getByRole( 'button', { name: 'Fix' } ) );
+
+		expect( screen.getByLabelText( 'Send visitors to' ) ).toHaveValue( '' );
 	} );
 
 	it( 'ignores a 404 with a do-nothing redirect', () => {

@@ -36,6 +36,7 @@ export interface DrawerState extends SourceFlags {
 
 interface Defaults {
 	url: string;
+	target?: string;
 	groupId: number;
 	flags: SourceFlags;
 }
@@ -53,7 +54,7 @@ export function createState( item: Redirect | null, defaults: Defaults ): Drawer
 			match_type: MATCH_URL,
 			action_type: ACTION_URL,
 			action_code: CODE_PERMANENT,
-			action_data: { url: '' },
+			action_data: { url: defaults.target ?? '' },
 			options: {},
 			group_id: defaults.groupId,
 			position: 0,
