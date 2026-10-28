@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv3
 
 Redirect manager for marketing teams. Fork of Redirection by John Godley.
@@ -173,6 +173,22 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.1.0 - 28th October 2026 =
+* New: Overview traffic chart for the last 7 or 30 days, with redirected visits and 404s per day
+* New: Overview lists the most hit redirects and counts redirects with no hits in a year
+* New: plain-language help cards on Overview explaining redirects, scheduling, groups, and chains and loops
+* Fix: table header titles line up with their number columns
+* Security: an unanchored regex redirect, or shortcodes in captured text, can no longer send visitors to another site
+* Security: pass-through redirects need the unfiltered_html capability, and fetched pages are served sandboxed
+* Security: the Apache .htaccess location must be inside the site, and only a network admin can change it on multisite
+* Security: the URL monitor and old-slug import no longer take over URLs that belong to other content
+* Security: credentials such as password reset keys are redacted from logs
+* Security: split capabilities are enforced for 404 data on Overview, admin settings, import groups and database version changes
+* Security: user agent and referrer conditions can no longer add rules to generated .htaccess or nginx config
+* Security: the REST nonce is never sent to redirect.li, and updates only come from the GitHub release channel
+* Fix: visitor-dependent redirects are not cached by shared caches, and redirect cache entries expire
+* Fix: www/no-www domain handling, log retention timezone, exact bulk deletes in logs, Rank Math and Pretty Links imports
 
 = 1.0.1 - 23rd October 2026 =
 * Security: wildcard redirect targets are percent-encoded in the nginx export, so a target can no longer add nginx directives
