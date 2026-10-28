@@ -124,6 +124,11 @@ function redirection_clear_opcache_on_upgrade( $upgrader, $options ) {
 
 add_action( 'upgrader_process_complete', 'redirection_clear_opcache_on_upgrade', 10, 2 );
 
+// Updates come from GitHub releases (see the Update URI header)
+add_filter( 'update_plugins_github.com', [ Redirection\Plugin\Updater::class, 'check' ], 10, 3 );
+add_filter( 'plugins_api', [ Redirection\Plugin\Updater::class, 'details' ], 10, 3 );
+add_action( 'delete_site_transient_update_plugins', [ Redirection\Plugin\Updater::class, 'clear' ] );
+
 /**
  * @return bool
  */
