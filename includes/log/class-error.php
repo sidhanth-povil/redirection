@@ -54,7 +54,8 @@ class Error extends Log {
 	}
 
 	/**
-	 * Grouped by URL, each row also says when it was last seen and where visitors mostly came from.
+	 * Grouped by URL, each row also says when it was last seen, where visitors mostly came from, and which page it
+	 * should probably redirect to.
 	 *
 	 * @param string               $group Group type ('ip'|'url'|'agent').
 	 * @param array<string, mixed> $params Filter params.
@@ -80,6 +81,7 @@ class Error extends Log {
 			)
 		);
 		$referrers = self::get_top_referrers( $urls );
+		$suggestions = Suggest::for_urls( $urls );
 
 		// The URL column's collation ignores case, so a query can return another spelling of the same URL.
 		$seen = [];
@@ -91,6 +93,7 @@ class Error extends Log {
 		foreach ( $result['items'] as $row ) {
 			$row->last_seen = $seen[ strtolower( $row->url ) ] ?? '';
 			$row->referrer = $referrers[ $row->url ] ?? '';
+			$row->suggestion = $suggestions[ $row->url ] ?? '';
 		}
 
 		return $result;

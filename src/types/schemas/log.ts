@@ -47,6 +47,7 @@ export const Error404Schema = z.object( {
 	request_data: z.unknown().optional().nullable(),
 	count: z.coerce.number().int().optional(), // Only present in grouped results
 	last_seen: z.string().optional(), // DSuite: grouped by URL only, site-local `Y-m-d H:i:s`
+	suggestion: z.string().optional(), // DSuite: grouped by URL only, closest published page path or ''
 } );
 
 export type Error404 = z.infer< typeof Error404Schema >;
