@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -25,7 +25,7 @@ Add a redirect in one form: type where visitors come from, then search your post
 
 Use a wildcard to move a whole section of your site in one redirect, or regular expressions when you need full control. Query parameters can be matched exactly, ignored, or passed through to the target, which keeps campaign UTM tags working.
 
-When a post or page changes its address, a redirect from the old address can be created automatically. When a published post goes to the trash, a notice offers to redirect its old address.
+When a post or page changes its address, a redirect from the old address can be created automatically. When a published post, page or custom post is trashed or deleted, a card offers to redirect its old address.
 
 = Scheduled campaign redirects =
 
@@ -116,6 +116,10 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.3.2 - 28th October 2026 =
+* Removed-page prompt is now a card in the bottom right, with Add redirect and Not now
+* Fix: the prompt also appears for custom post types, posts deleted without the trash, and deletes from the block editor
 
 = 1.3.1 - 28th October 2026 =
 * Fix: Check again on Dashboard > Updates finds a new release straight away, instead of up to 12 hours later
