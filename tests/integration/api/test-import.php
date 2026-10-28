@@ -296,6 +296,24 @@ class ImportImportCsvTest extends Redirection_Api_Test {
 		}
 	}
 
+	public function testImportCannotCreateGroupsWithoutGroupAdd() {
+		global $wpdb;
+
+		$count = intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_groups" ), 10 );
+		$this->setEditor();
+		$this->add_capability( Redirection_Capabilities::CAP_IO_MANAGE );
+
+		// Importing only redirects still creates the groups they name, which needs the group add capability
+		$group = new \Redirection\ImportExport\ImportGroup( 0, [] );
+		$from_file = $group->get_group( 999999, [ 'name' => 'From file', 'module_id' => 2 ] );
+		$fallback = $group->get_group( 999998 );
+		$this->clear_capability();
+
+		$this->assertFalse( $from_file );
+		$this->assertFalse( $fallback );
+		$this->assertSame( $count, intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_groups" ), 10 ) );
+	}
+
 	public function testWordPressOldSlugSkipsUrlOfAnotherPage() {
 		global $wpdb;
 

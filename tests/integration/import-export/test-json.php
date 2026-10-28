@@ -5,6 +5,13 @@ use Redirection\ImportExport\ImportRedirect;
 use Redirection\ImportExport\Format\Json;
 
 class ImportExportJsonTest extends WP_UnitTestCase {
+	public function setUp(): void {
+		parent::setUp();
+
+		// Importing creates groups, which needs a user who may add them
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+	}
+
 	public function tearDown(): void {
 		parent::tearDown();
 
