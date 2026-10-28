@@ -98,6 +98,13 @@ class Health extends BaseRoute {
 	}
 
 	/**
+	 * @return bool
+	 */
+	private function can_see_404s() {
+		return \Redirection_Capabilities::has_access( \Redirection_Capabilities::CAP_404_MANAGE );
+	}
+
+	/**
 	 * @param WP_REST_Request<array<string, mixed>> $request Request.
 	 * @return array<string, mixed>
 	 */
@@ -119,7 +126,8 @@ class Health extends BaseRoute {
 	 */
 	public function route_health( WP_REST_Request $request ) {
 		$found = Chains::load()->find();
-		$errors = $this->get_404s();
+		// The 404 log is its own capability; a redirect-only delegate must not read it through here
+		$errors = $this->can_see_404s() ? $this->get_404s() : [ 'items' => [], 'total' => 0 ];
 		$has_schedule = Schedule::columns_ready();
 		$expiring = $has_schedule ? $this->get_expiring() : [];
 		$redirects = $this->get_redirect_json( array_merge( array_column( $found['chains'], 'id' ), array_column( $found['loops'], 'id' ) ) );
@@ -180,12 +188,28 @@ class Health extends BaseRoute {
 		$traffic = get_transient( $key );
 
 		if ( ! is_array( $traffic ) ) {
+			global $wpdb;
+
+			$wpdb->last_error = '';
 			$traffic = $this->get_traffic( $days );
-			set_transient( $key, $traffic, self::TRAFFIC_CACHE_SECONDS );
+
+			// A failed query reads as no traffic; don't keep that for the next five minutes
+			if ( $wpdb->last_error === '' ) {
+				set_transient( $key, $traffic, self::TRAFFIC_CACHE_SECONDS );
+			}
 		}
 
 		/** @var array{days: list<array{date: string, redirects: int, errors: int}>, top: list<array<string, mixed>>} $traffic */
 		$settings = Settings::get();
+
+		if ( ! $this->can_see_404s() ) {
+			$traffic['days'] = array_map(
+				static function ( $day ) {
+					return [ 'errors' => 0 ] + $day;
+				},
+				$traffic['days']
+			);
+		}
 
 		// Not cached: turning logging on or off in Settings shows straight away.
 		return $traffic + [
