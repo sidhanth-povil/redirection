@@ -105,8 +105,8 @@ class Flusher {
 		// Use COUNT(*) over a limited subquery so only a single scalar is returned
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM ( SELECT 1 FROM {$wpdb->prefix}{$table} WHERE created < DATE_SUB(NOW(), INTERVAL %d DAY) LIMIT %d ) AS t", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$expiry_time,
+				"SELECT COUNT(*) FROM ( SELECT 1 FROM {$wpdb->prefix}{$table} WHERE created < %s LIMIT %d ) AS t", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				wp_date( 'Y-m-d H:i:s', time() - $expiry_time * DAY_IN_SECONDS ),
 				self::AGGRESSIVE_THRESHOLD + 1
 			)
 		);
@@ -131,11 +131,12 @@ class Flusher {
 		}
 
 		// Use DELETE with LIMIT - more efficient than counting first
-		// The affected rows tell us how many were deleted
+		// The affected rows tell us how many were deleted. Rows store site time (current_time( 'mysql' )), so the
+		// cutoff is site time too, not the database server's NOW()
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
-				"DELETE FROM {$wpdb->prefix}{$table} WHERE created < DATE_SUB(NOW(), INTERVAL %d DAY) LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$expiry_time,
+				"DELETE FROM {$wpdb->prefix}{$table} WHERE created < %s LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				wp_date( 'Y-m-d H:i:s', time() - $expiry_time * DAY_IN_SECONDS ),
 				$batch_size
 			)
 		);
