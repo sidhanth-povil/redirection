@@ -282,6 +282,11 @@ class RedirectionApiSettingsTest extends Redirection_Api_Test {
 		$this->setNonce();
 		$dir = $this->get_site_dir();
 
+		// On multisite only a network admin may change the location
+		if ( is_multisite() ) {
+			grant_super_admin( get_current_user_id() );
+		}
+
 		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
 		$this->remove_dir( $dir );
 
@@ -337,6 +342,23 @@ class RedirectionApiSettingsTest extends Redirection_Api_Test {
 
 		$this->assertFalse( $written );
 		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+	}
+
+	public function testOnlyANetworkAdminChangesTheApacheLocation() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite only' );
+		}
+
+		$dir = $this->get_site_dir();
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$this->nonce = wp_create_nonce( 'wp_rest' );
+
+		// A site administrator has manage_options but no file rights on a network
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$this->remove_dir( $dir );
+
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+		$this->assertNotEmpty( $result->data['warning'] );
 	}
 
 	public function testApacheLocationTraversalRefused() {

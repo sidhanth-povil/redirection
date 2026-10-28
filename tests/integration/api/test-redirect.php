@@ -172,6 +172,12 @@ class RedirectionApiRedirectTest extends Redirection_Api_Test {
 
 	public function testListFilterActionType() {
 		$this->createAB();
+
+		// Creating a pass-through needs unfiltered_html, which only a super admin has on multisite
+		if ( is_multisite() ) {
+			grant_super_admin( get_current_user_id() );
+		}
+
 		Red_Item::create( array( 'url' => '/', 'group_id' => $this->group->get_id(), 'action_type' => 'pass', 'match_type' => 'url' ) );
 
 		$result = $this->callApi( 'redirect', [ 'filterBy' => [ 'action' => 'pass' ] ] );
