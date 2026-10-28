@@ -1,26 +1,26 @@
-# Redirection
+# DSuite Redirects
 
-Redirection is a WordPress plugin to manage 301 redirections, keep track of 404 errors, and generally tidy up any loose ends your site may have. This is particularly useful if you are migrating pages from an old website, or are changing the directory of your WordPress installation.
+DSuite Redirects is a WordPress redirect manager for marketing teams, built by [DSuite](https://designsuite.ai). It manages redirects, schedules campaign redirects, catches 404s and finds redirect chains and loops.
 
-Note: this is the current 'trunk' version of Redirection. It may be newer than what is in the WordPress.org plugin repository, and should be considered experimental.
+It is a fork of [Redirection](https://github.com/johngodley/redirection) by John Godley. See `docs/upstream-sync.md` for how upstream changes are brought in.
 
 ## Installation
 
-Redirection can be installed by visiting the WordPress.org plugin page:
+Download `dsuite-redirects.zip` from the [latest release](https://github.com/sidhanth-povil/redirection/releases/latest), then go to Plugins > Add New > Upload Plugin in WordPress. Deactivate Redirection first; your redirects carry over.
 
-https://wordpress.org/plugins/redirection/
+Later versions appear in Dashboard > Updates.
 
 ## Customisation
 
-Redirection provides a large set of WordPress action and filter hooks that can be used to extend or customise the plugin. These can found on the [Redirection Hooks](https://redirection.me/developer/wordpress-hooks/) page.
+The plugin keeps Redirection's action and filter hooks, documented on the [Redirection Hooks](https://redirection.me/developer/wordpress-hooks/) page.
 
 ### Permissions
 
-Access to the Redirection admin interface is given to users who can `manage_options`. You can modify this with permission filters, described on the [Redirection permissions](https://redirection.me/developer/permissions/) page.
+Access to the admin interface is given to users who can `manage_options`. You can change this with the permission filters described on the [Redirection permissions](https://redirection.me/developer/permissions/) page.
 
 ## Building
 
-Redirection is mostly a PHP plugin, but does contain files that need to be built. For this you'll need Node and pnpm installed.
+DSuite Redirects is mostly a PHP plugin, but does contain files that need to be built. For this you'll need Node and pnpm installed.
 
 ### Requirements
 
@@ -131,22 +131,19 @@ pnpm test
 
 ### Releasing
 
-Create a release build (builds assets and creates a zip file):
+1. Bump the version in `dsuite-redirects.php` (the header and `REDIRECTION_VERSION`), `package.json` and `readme.txt` (`Stable tag` and the changelog), and commit on `trunk`.
+2. Push `trunk`, then run:
 
 ```bash
 pnpm release
 ```
 
-Create just the plugin zip without releasing:
+This builds `release/dsuite-redirects.zip`, tags `vX.Y.Z`, pushes the tag and creates the GitHub release with the zip attached. The dashboard updater only installs an asset named `dsuite-redirects.zip` from this repository.
+
+To build the zip without releasing:
 
 ```bash
 pnpm plugin:zip
-```
-
-Release to WordPress.org SVN:
-
-```bash
-pnpm release:svn
 ```
 
 ### API Documentation
@@ -159,10 +156,4 @@ pnpm doc
 
 ## Support
 
-Please raise any bug reports or enhancement requests here. Pull requests are always welcome.
-
-You can find a more detailed description of the plugin on the [Redirection home page](https://redirection.me)
-
-Translations can be added here:
-
-https://translate.wordpress.org/projects/wp-plugins/redirection
+DSuite Redirects is a private plugin. Report problems to the DSuite team at [designsuite.ai](https://designsuite.ai).
