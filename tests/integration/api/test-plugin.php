@@ -71,6 +71,53 @@ class RedirectionApiPluginTest extends Redirection_Api_Test {
 		$this->clear_capability();
 	}
 
+	public function testOptionDelegateCannotRollBackDatabase() {
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+		$this->setEditor();
+		$this->add_capability( Redirection_Capabilities::CAP_OPTION_MANAGE );
+
+		// A lower version replays old migrations over current redirects
+		$result = $this->callApi( 'plugin/fix', [ 'reason' => 'database', 'current' => '2.3.3' ], 'POST' );
+		$this->clear_capability();
+
+		$this->assertTrue( $result->is_error() );
+		$this->assertSame( REDIRECTION_DB_VERSION, Red_Options::get()['database'] );
+	}
+
+	public function testFixRejectsUnknownVersion() {
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+		$this->setNonce();
+
+		$result = $this->callApi( 'plugin/fix', [ 'reason' => 'database', 'current' => '99.0' ], 'POST' );
+
+		$this->assertTrue( $result->is_error() );
+		$this->assertSame( REDIRECTION_DB_VERSION, Red_Options::get()['database'] );
+	}
+
+	public function testSupportCanSetAnEarlierVersion() {
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+		$this->setEditor();
+		$this->add_capability( Redirection_Capabilities::CAP_SUPPORT_MANAGE );
+
+		// The Support page can re-run an upgrade
+		$result = $this->callApi( 'plugin/fix', [ 'reason' => 'database', 'current' => '4.1' ], 'POST' );
+		$this->clear_capability();
+
+		$this->assertFalse( $result->is_error() );
+		$this->assertSame( '4.1', Red_Options::get()['database'] );
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+	}
+
+	public function testUpdateNagDoesNotUpgradeForUsersWithoutAccess() {
+		red_set_options( [ 'database' => '4.1', 'plugin_update' => 'admin' ] );
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		\Redirection\Plugin\Admin::init()->update_nag();
+
+		$this->assertSame( '4.1', Red_Options::get()['database'] );
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION, 'plugin_update' => 'prompt' ] );
+	}
+
 	public function testDelete() {
 		global $wpdb;
 

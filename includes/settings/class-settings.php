@@ -164,6 +164,9 @@ class Settings {
 	 * @return array<string, mixed>
 	 */
 	public static function filter_by_capability( array $settings ): array {
+		// Database version and upgrade stage are internal state, written by the upgrader, never by a request
+		unset( $settings['database'], $settings['database_stage'] );
+
 		$has_site = Capabilities::has_access( Capabilities::CAP_SITE_MANAGE );
 		$has_option = Capabilities::has_access( Capabilities::CAP_OPTION_MANAGE );
 

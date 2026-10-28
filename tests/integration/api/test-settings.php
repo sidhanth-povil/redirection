@@ -312,6 +312,17 @@ class RedirectionApiSettingsTest extends Redirection_Api_Test {
 		$this->assertNotEmpty( $result->data['warning'] );
 	}
 
+	public function testSettingsCannotWriteDatabaseState() {
+		red_set_options( [ 'database' => REDIRECTION_DB_VERSION ] );
+		$this->setNonce();
+
+		$this->callApi( 'setting', [ 'database' => '3.9', 'database_stage' => [ 'stage' => 'x' ] ], 'POST' );
+		$options = Red_Options::get();
+
+		$this->assertSame( REDIRECTION_DB_VERSION, $options['database'] );
+		$this->assertArrayNotHasKey( 'database_stage', $options );
+	}
+
 	public function testApacheLocationTraversalRefused() {
 		$this->setNonce();
 		$dir = $this->get_site_dir();

@@ -135,14 +135,14 @@ class Admin {
 	public function update_nag() {
 		$options = Settings::get();
 
-		// Is the site configured to upgrade automatically?
-		if ( $options['plugin_update'] === 'admin' ) {
-			$this->automatic_upgrade();
+		// Only a user who can upgrade the database starts one, automatic or not
+		if ( ! Capabilities::has_access( Capabilities::CAP_OPTION_MANAGE ) ) {
 			return;
 		}
 
-		// Can the user perform a manual database upgrade?
-		if ( ! Capabilities::has_access( Capabilities::CAP_OPTION_MANAGE ) ) {
+		// Is the site configured to upgrade automatically?
+		if ( $options['plugin_update'] === 'admin' ) {
+			$this->automatic_upgrade();
 			return;
 		}
 

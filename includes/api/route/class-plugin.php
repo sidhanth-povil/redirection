@@ -302,6 +302,35 @@ class Plugin extends BaseRoute {
 	}
 
 	/**
+	 * The version must be one the plugin knows. Going back replays old migrations over current redirects, so only
+	 * the Support capability can do that.
+	 *
+	 * @param string $version Version to save.
+	 * @param string $installed Installed version.
+	 * @return true|WP_Error
+	 */
+	private function is_valid_fix_version( $version, $installed ) {
+		$database = new Database();
+		$known = array_map(
+			static function ( $upgrade ) {
+				return $upgrade->get_version();
+			},
+			$database->get_upgrades()
+		);
+		$known[] = REDIRECTION_DB_VERSION;
+
+		if ( ! in_array( $version, $known, true ) ) {
+			return new WP_Error( 'redirection_invalid_version', 'Unknown database version', [ 'status' => 400 ] );
+		}
+
+		if ( version_compare( $version, $installed, '<' ) && ! \Redirection_Capabilities::has_access( \Redirection_Capabilities::CAP_SUPPORT_MANAGE ) ) {
+			return new WP_Error( 'redirection_invalid_version', 'The database version can only go forward', [ 'status' => 403 ] );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Fix database status after manual upgrade
 	 *
 	 * @param WP_REST_Request $request REST request.
@@ -333,6 +362,11 @@ class Plugin extends BaseRoute {
 		$status = new Status();
 
 		if ( $reason === 'database' ) {
+			$valid = $this->is_valid_fix_version( $current, $status->get_current_version() );
+			if ( is_wp_error( $valid ) ) {
+				return $this->add_error_details( $valid, __LINE__ );
+			}
+
 			$status->save_db_version( $current );
 
 			// After manual database install, ensure default groups are created
