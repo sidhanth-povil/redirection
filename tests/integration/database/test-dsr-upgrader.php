@@ -77,9 +77,18 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 	}
 
 	public function testMaybeRunUpgradesWhenBehind() {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 		DsrUpgrader::maybe_run();
+		wp_set_current_user( 0 );
 
 		$this->assertContains( 'start_at', $this->columns() );
+	}
+
+	public function testMaybeRunWaitsForAnAdministrator() {
+		// admin_init also runs for anonymous admin-ajax.php and admin-post.php requests
+		DsrUpgrader::maybe_run();
+
+		$this->assertNotContains( 'start_at', $this->columns() );
 	}
 
 	public function testInstallAlwaysLeavesScheduleColumnsInPlace() {
