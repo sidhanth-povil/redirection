@@ -264,14 +264,62 @@ class RedirectionApiSettingsTest extends Redirection_Api_Test {
 		$this->assertEquals( 30, $result->data['settings']['expire_redirect'] );
 	}
 
+	private function get_site_dir() {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+
+		$dir = trailingslashit( get_home_path() ) . 'dsr-htaccess-test/';
+		wp_mkdir_p( $dir );
+
+		return $dir;
+	}
+
+	private function remove_dir( $dir ) {
+		@unlink( $dir . '.htaccess' );
+		@rmdir( $dir );
+	}
+
 	public function testSaveApacheConfig() {
-		$data = '30';
+		$this->setNonce();
+		$dir = $this->get_site_dir();
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$this->remove_dir( $dir );
+
+		$this->assertEquals( $dir . '.htaccess', $result->data['settings']['modules']['2']['location'] );
+		$this->assertFalse( isset( $result->data['warning'] ) );
+	}
+
+	public function testApacheLocationOutsideSiteRefused() {
+		$this->setNonce();
+		$dir = get_temp_dir() . 'dsr-outside-' . wp_generate_password( 6, false ) . '/';
+		wp_mkdir_p( $dir );
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$written = file_exists( $dir . '.htaccess' );
+		$this->remove_dir( $dir );
+
+		$this->assertFalse( $written );
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+		$this->assertNotEmpty( $result->data['warning'] );
+	}
+
+	public function testApacheLocationStreamWrapperRefused() {
 		$this->setNonce();
 
-		$result = $this->callApi( 'setting', array( 'location' => '/tmp/' ), 'POST' );
-		$this->assertEquals( '/tmp/.htaccess', $result->data['settings']['modules']['2']['location'] );
+		$result = $this->callApi( 'setting', array( 'location' => 'phar://' . get_temp_dir() . 'dummy.jpg/' ), 'POST' );
 
-		unlink( 'location' );
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+		$this->assertNotEmpty( $result->data['warning'] );
+	}
+
+	public function testApacheLocationTraversalRefused() {
+		$this->setNonce();
+		$dir = $this->get_site_dir();
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir . '../../../tmp/' ), 'POST' );
+		$this->remove_dir( $dir );
+
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
 	}
 
 	public function testBadCacheClear() {

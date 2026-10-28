@@ -95,10 +95,23 @@ class Settings extends BaseRoute {
 		$params = \Red_Options::filter_by_capability( $request->get_params() );
 		$result = true;
 
-		if ( isset( $params['location'] ) && strlen( $params['location'] ) > 0 ) {
+		if ( isset( $params['location'] ) ) {
 			$module = \Red_Module::get( 2 );
-			if ( $module !== false && $module instanceof \Apache_Module ) {
-				$result = $module->can_save( sanitize_text_field( $params['location'] ) );
+			if ( $module instanceof \Redirection\Module\Apache ) {
+				$location = sanitize_text_field( $params['location'] );
+				$result = $module->can_change_location();
+
+				if ( $result === true && strlen( $location ) > 0 ) {
+					$result = $module->is_allowed_location( $location );
+				}
+
+				if ( $result === true && strlen( $location ) > 0 ) {
+					$result = $module->can_save( $location );
+				}
+
+				if ( is_wp_error( $result ) ) {
+					unset( $params['location'] );
+				}
 			}
 		}
 
