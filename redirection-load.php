@@ -128,6 +128,7 @@ add_action( 'upgrader_process_complete', 'redirection_clear_opcache_on_upgrade',
 add_filter( 'update_plugins_github.com', [ Redirection\Plugin\Updater::class, 'check' ], 10, 3 );
 add_filter( 'plugins_api', [ Redirection\Plugin\Updater::class, 'details' ], 10, 3 );
 add_action( 'delete_site_transient_update_plugins', [ Redirection\Plugin\Updater::class, 'clear' ] );
+add_filter( 'plugin_row_meta', [ Redirection\Plugin\Updater::class, 'row_meta' ], 10, 2 );
 // Before wp_update_plugins (priority 10) runs on the same hook
 add_action( 'load-update-core.php', [ Redirection\Plugin\Updater::class, 'force_check' ], 9 );
 
