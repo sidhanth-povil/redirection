@@ -131,6 +131,11 @@ add_action( 'delete_site_transient_update_plugins', [ Redirection\Plugin\Updater
 // Before wp_update_plugins (priority 10) runs on the same hook
 add_action( 'load-update-core.php', [ Redirection\Plugin\Updater::class, 'force_check' ], 9 );
 
+// Everywhere, not only in the admin: the block editor trashes and deletes posts through the REST API
+add_action( 'wp_trash_post', [ Redirection\Plugin\TrashNotice::class, 'remember' ] );
+add_action( 'before_delete_post', [ Redirection\Plugin\TrashNotice::class, 'remember' ] );
+add_action( 'untrashed_post', [ Redirection\Plugin\TrashNotice::class, 'forget' ] );
+
 /**
  * @return bool
  */

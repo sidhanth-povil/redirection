@@ -60,7 +60,7 @@ class Admin {
 		add_action( 'admin_menu', [ $this, 'redirect_legacy_page' ] );
 		add_action( 'admin_init', [ \Redirection\Database\DsrUpgrader::class, 'maybe_run' ] );
 		add_action( 'admin_notices', [ $this, 'update_nag' ] );
-		add_action( 'admin_notices', [ TrashNotice::class, 'show' ] );
+		add_action( 'admin_footer', [ TrashNotice::class, 'show' ] );
 		add_filter( 'plugin_action_links_' . basename( dirname( REDIRECTION_FILE ) ) . '/' . basename( REDIRECTION_FILE ), [ $this, 'plugin_settings' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'plugin_row_meta' ], 10, 4 );
 		add_filter( 'redirection_save_options', [ $this, 'flush_schedule' ] );
