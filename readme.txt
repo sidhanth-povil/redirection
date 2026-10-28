@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -25,7 +25,7 @@ Add a redirect in one form: type where visitors come from, then search your post
 
 Use a wildcard to move a whole section of your site in one redirect, or regular expressions when you need full control. Query parameters can be matched exactly, ignored, or passed through to the target, which keeps campaign UTM tags working.
 
-When a post or page changes its address, a redirect from the old address can be created automatically.
+When a post or page changes its address, a redirect from the old address can be created automatically. When a published post goes to the trash, a notice offers to redirect its old address.
 
 = Scheduled campaign redirects =
 
@@ -33,7 +33,7 @@ Give a redirect a start date, an end date, or both. It switches on and off by it
 
 = 404s =
 
-Every 404 is recorded and grouped by URL, with hits, when it was last seen and where visitors came from. Fix a 404 by turning it into a redirect in one click, or ignore it.
+Every 404 is recorded and grouped by URL, with hits, when it was last seen and where visitors came from. Each 404 suggests the closest published page, and Fix opens a redirect to it ready to save. You can also ignore a 404.
 
 A daily or weekly email lists new 404s that passed a hit threshold, so the team hears about broken links without logging in.
 
@@ -116,6 +116,10 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.3.0 - 28th October 2026 =
+* New: each 404 suggests the closest published page, and Fix fills it in as the target
+* New: after a published post or page is trashed, a notice offers to redirect its old address
 
 = 1.2.1 - 28th October 2026 =
 * Readme describes DSuite Redirects, and the Plugins page links to designsuite.ai
