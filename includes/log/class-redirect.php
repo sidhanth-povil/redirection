@@ -107,11 +107,11 @@ class Redirect extends Log {
 		}
 
 		if ( isset( $details['target'] ) ) {
-			$insert['sent_to'] = $details['target'];
+			$insert['sent_to'] = substr( sanitize_text_field( self::redact_url( (string) $details['target'] ) ), 0, self::MAX_URL_LENGTH );
 		}
 
 		if ( isset( $details['redirect_by'] ) ) {
-			$insert['redirect_by'] = strtolower( substr( $details['redirect_by'], 0, 50 ) );
+			$insert['redirect_by'] = strtolower( substr( sanitize_text_field( (string) $details['redirect_by'] ), 0, 50 ) );
 		}
 
 		$insert = apply_filters( 'redirection_log_data', $insert );

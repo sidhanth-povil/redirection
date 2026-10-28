@@ -65,6 +65,14 @@ abstract class Log {
 	const MAX_IP_LENGTH = 45;
 	const MAX_DOMAIN_LENGTH = 255;
 	const MAX_URL_LENGTH = 2000;
+	const MAX_HEADERS = 50;
+	const MAX_HEADER_LENGTH = 500;
+
+	/**
+	 * Query parameters that carry a credential or one-time token. Logs can be read by users who must not get them,
+	 * such as a password reset key.
+	 */
+	const REDACT_PARAMS = [ 'key', 'login', 'pass', 'pass1', 'pass2', 'password', 'pwd', 'user_pass', 'token', 'access_token', 'refresh_token', 'auth', '_wpnonce', 'nonce', 'confirm_key', 'api_key', 'apikey', 'secret' ];
 	const DEFAULT_PER_PAGE = 25;
 	const MAX_PER_PAGE = 200;
 	const MAX_AGENT_LENGTH = 255;
@@ -491,6 +499,18 @@ abstract class Log {
 	}
 
 	/**
+	 * Replace credential query values with REDACTED
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	public static function redact_url( $url ) {
+		$names = implode( '|', array_map( 'preg_quote', self::REDACT_PARAMS ) );
+
+		return (string) preg_replace( '/([?&](?:' . $names . ')=)[^&#]*/i', '$1REDACTED', $url );
+	}
+
+	/**
 	 * Sanitize a new log entry
 	 *
 	 * @param string $domain Requested Domain.
@@ -500,7 +520,7 @@ abstract class Log {
 	 * @return array<string, mixed>
 	 */
 	protected static function sanitize_create( $domain, $url, $ip, array $details = [] ) {
-		$url = urldecode( $url );
+		$url = self::redact_url( urldecode( $url ) );
 		$insert = [
 			'url' => substr( sanitize_text_field( $url ), 0, self::MAX_URL_LENGTH ),
 			'domain' => substr( sanitize_text_field( $domain ), 0, self::MAX_DOMAIN_LENGTH ),
@@ -528,7 +548,17 @@ abstract class Log {
 		}
 
 		if ( isset( $insert['referrer'] ) ) {
-			$insert['referrer'] = substr( sanitize_text_field( $insert['referrer'] ), 0, self::MAX_REFERRER_LENGTH );
+			$insert['referrer'] = substr( sanitize_text_field( self::redact_url( $insert['referrer'] ) ), 0, self::MAX_REFERRER_LENGTH );
+		}
+
+		if ( isset( $insert['request_data']['headers'] ) && is_array( $insert['request_data']['headers'] ) ) {
+			// Headers such as Referer carry URLs too, and a client can send any number of any size
+			$insert['request_data']['headers'] = array_map(
+				static function ( $value ) {
+					return substr( self::redact_url( (string) $value ), 0, self::MAX_HEADER_LENGTH );
+				},
+				array_slice( $insert['request_data']['headers'], 0, self::MAX_HEADERS, true )
+			);
 		}
 
 		if ( isset( $insert['request_data'] ) ) {
