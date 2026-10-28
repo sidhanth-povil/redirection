@@ -7,6 +7,7 @@ Author: DSuite
 Text Domain: dsuite-redirects
 Requires PHP: 7.4
 Requires at least: 6.7
+Update URI: https://github.com/sidhanth-povil/redirection
 License: GPLv3
 ============================================================================================================
 For full license details see license.txt
