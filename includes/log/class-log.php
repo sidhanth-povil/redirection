@@ -74,7 +74,7 @@ abstract class Log {
 	 * Query parameters that carry a credential or one-time token. Logs can be read by users who must not get them,
 	 * such as a password reset key.
 	 */
-	const REDACT_PARAMS = [ 'key', 'login', 'pass', 'pass1', 'pass2', 'password', 'pwd', 'user_pass', 'token', 'access_token', 'refresh_token', 'auth', '_wpnonce', 'nonce', 'confirm_key', 'api_key', 'apikey', 'secret' ];
+	const REDACT_PARAMS = [ 'key', 'login', 'pass', 'pass1', 'pass2', 'password', 'pwd', 'user_pass', 'token', 'access_token', 'refresh_token', 'auth', '_wpnonce', 'nonce', 'confirm_key', 'api_key', 'apikey', 'secret', 'rp_key', 'new_password', 'jwt', 'id_token' ];
 	const DEFAULT_PER_PAGE = 25;
 	const MAX_PER_PAGE = 200;
 	const MAX_AGENT_LENGTH = 255;
@@ -518,7 +518,8 @@ abstract class Log {
 	public static function redact_url( $url ) {
 		$names = implode( '|', array_map( 'preg_quote', self::REDACT_PARAMS ) );
 
-		return (string) preg_replace( '/([?&](?:' . $names . ')=)[^&#]*/i', '$1REDACTED', $url );
+		// Also key[]= style names and ; as a separator
+		return (string) preg_replace( '/([?&;](?:' . $names . ')(?:\[[^\]=&]*\])*=)[^&;#]*/i', '$1REDACTED', $url );
 	}
 
 	/**
@@ -559,7 +560,7 @@ abstract class Log {
 		}
 
 		if ( isset( $insert['referrer'] ) ) {
-			$insert['referrer'] = substr( sanitize_text_field( self::redact_url( $insert['referrer'] ) ), 0, self::MAX_REFERRER_LENGTH );
+			$insert['referrer'] = substr( sanitize_text_field( self::redact_url( rawurldecode( $insert['referrer'] ) ) ), 0, self::MAX_REFERRER_LENGTH );
 		}
 
 		if ( isset( $insert['request_data']['headers'] ) && is_array( $insert['request_data']['headers'] ) ) {

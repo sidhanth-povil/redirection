@@ -159,6 +159,11 @@ class Apache extends Module {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
+		// A .htaccess that is itself a link would be written wherever it points
+		if ( is_link( $location ) ) {
+			return new WP_Error( 'redirect', __( 'The .htaccess location must not be a link.', 'dsuite-redirects' ) );
+		}
+
 		$dir = realpath( dirname( $location ) );
 		$roots = array_filter( [ realpath( get_home_path() ), realpath( ABSPATH ) ] );
 

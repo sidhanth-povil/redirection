@@ -66,6 +66,17 @@ class RegexTest extends TestCase {
 		$this->assertEquals( '//example.org/new/x', $regex->replace( '//example.org/new/$1', '//attacker.test#/old/x' ) );
 	}
 
+	public function testTextAfterTheMatchCannotChangeTheHost() {
+		$regex = new \Redirection\Core\Regex( '/foo' );
+
+		// Kept request text after an absolute target can become userinfo, a longer host or a port
+		$this->assertEquals( 'https://good.com', $regex->replace( 'https://good.com', '/foo@evil.com' ) );
+		$this->assertEquals( 'https://good.com', $regex->replace( 'https://good.com', '/foo.evil.com' ) );
+		$this->assertEquals( 'https://good.com', $regex->replace( 'https://good.com', '/foo:1@evil.com/foo' ) );
+		// A path after the match is still carried, which prefix rules rely on
+		$this->assertEquals( 'https://good.com/new/post', $regex->replace( 'https://good.com/new', '/foo/post' ) );
+	}
+
 	public function testUnanchoredReplaceKeepsPrefixForRelativeTarget() {
 		$regex = new \Redirection\Core\Regex( 'category' );
 

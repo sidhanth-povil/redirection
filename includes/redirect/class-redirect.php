@@ -649,7 +649,8 @@ class Redirect {
 	public static function is_url_owned_elsewhere( $url, $post_id, $group_id ) {
 		global $wpdb;
 
-		$owner = url_to_postid( home_url( $url ) );
+		// $url is a path from the site root, which already holds any subdirectory home_url() would add again
+		$owner = url_to_postid( (string) preg_replace( '@^(https?://[^/]+).*$@i', '$1', home_url() ) . $url );
 		if ( $owner !== 0 && $owner !== intval( $post_id, 10 ) ) {
 			return true;
 		}

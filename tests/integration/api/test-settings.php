@@ -323,6 +323,22 @@ class RedirectionApiSettingsTest extends Redirection_Api_Test {
 		$this->assertArrayNotHasKey( 'database_stage', $options );
 	}
 
+	public function testApacheLocationSymlinkedFileRefused() {
+		$this->setNonce();
+		$dir = $this->get_site_dir();
+		$outside = get_temp_dir() . 'dsr-outside-' . wp_generate_password( 6, false );
+		@unlink( $dir . '.htaccess' );
+		symlink( $outside, $dir . '.htaccess' );
+
+		$result = $this->callApi( 'setting', array( 'location' => $dir ), 'POST' );
+		$written = file_exists( $outside );
+		@unlink( $outside );
+		$this->remove_dir( $dir );
+
+		$this->assertFalse( $written );
+		$this->assertEquals( '', $result->data['settings']['modules']['2']['location'] ?? '' );
+	}
+
 	public function testApacheLocationTraversalRefused() {
 		$this->setNonce();
 		$dir = $this->get_site_dir();

@@ -230,6 +230,11 @@ abstract class Compare {
 		// characters, so check the target as it will finally be seen
 		$check = (string) preg_replace( '/[\x00-\x20\x7F]/', '', str_replace( '\\', '/', $replaced ) );
 
+		// A target such as $1 can take a scheme from the request, which makes it absolute too
+		if ( Regex::is_absolute_url( $check ) && substr( $check, 0, 2 ) !== '//' ) {
+			return '/' . ltrim( $replaced, "/\\\x00..\x20\x7F" );
+		}
+
 		if ( substr( $check, 0, 2 ) !== '//' ) {
 			return $replaced;
 		}

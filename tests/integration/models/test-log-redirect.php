@@ -52,6 +52,17 @@ class Log_Redirect_Test extends WP_UnitTestCase {
 		$this->assertLessThan( 1000, strlen( $data ) );
 	}
 
+	public function testRedactionCoversArrayNamesSeparatorsAndEncodedNames() {
+		$this->assertStringNotContainsString( 'SECRET', Red_Redirect_Log::redact_url( '/a?pass[0]=SECRET1&x=1' ) );
+		$this->assertStringNotContainsString( 'SECRET', Red_Redirect_Log::redact_url( '/a?x=1;token=SECRET2' ) );
+		$this->assertStringNotContainsString( 'SECRET', Red_Redirect_Log::redact_url( '/a?rp_key=SECRET3&new_password=SECRET4' ) );
+
+		global $wpdb;
+		$id = Red_Redirect_Log::create( 'domain', '/a', '1.1.1.1', [ 'referrer' => '/r?pa%73s=SECRET5', 'target' => '/t?to%6Ben=SECRET6' ] );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT referrer, sent_to FROM {$wpdb->prefix}redirection_logs WHERE id=%d", $id ) );
+		$this->assertStringNotContainsString( 'SECRET', $row->referrer . ' ' . $row->sent_to );
+	}
+
 	public function testCredentialsRedactedFrom404Log() {
 		global $wpdb;
 

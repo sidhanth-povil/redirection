@@ -412,6 +412,12 @@ class RedirectTest extends WP_UnitTestCase {
 		$this->assertEquals( 'https://example.org/new/x', $this->getRegexTarget( '/old/(.*)', 'https://example.org/new/$1', '/%2Fattacker.test%23/old/x' ) );
 	}
 
+	public function testCaptureOnlyTargetStaysOnSite() {
+		// A target of only $1 is relative; the captured text must not make it an absolute URL
+		$this->assertEquals( '/https://evil.example/x', $this->getRegexTarget( '^/(.*)', '$1', '/https://evil.example/x' ) );
+		$this->assertEquals( 'local-page', $this->getRegexTarget( '^/(.*)', '$1', '/local-page' ) );
+	}
+
 	public function testUnanchoredRegexRelativeTargetCannotRedirectOffsite() {
 		// A relative target without a leading slash keeps the request prefix, which must not become a protocol relative URL
 		$this->assertEquals( '/attacker.test/topics', $this->getRegexTarget( 'category', 'topics', '//attacker.test/category' ) );
