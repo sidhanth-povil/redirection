@@ -127,4 +127,34 @@ class WordPress_Module_Test extends WP_UnitTestCase {
 
 		$this->assertEquals( $start + 1, $this->get_log_count() );
 	}
+
+	private function get_matched( $match_type ) {
+		return new Red_Item( (object) [ 'id' => 1, 'match_type' => $match_type, 'action_type' => 'url', 'url' => '/a', 'action_data' => '/b', 'action_code' => 301, 'status' => 'enabled' ] );
+	}
+
+	public function testPlainRedirectIsCached() {
+		Red_Options::save( [ 'redirect_cache' => 1 ] );
+		$wp = new WordPress_Module();
+		$wp->reset( $this->get_matched( 'url' ) );
+
+		$this->assertSame( 'max-age=3600', $wp->get_cache_headers( 301, [] )['Cache-Control'] );
+	}
+
+	public function testVisitorDependentRedirectIsNotShared() {
+		Red_Options::save( [ 'redirect_cache' => 1 ] );
+		$wp = new WordPress_Module();
+		$wp->reset( $this->get_matched( 'agent' ) );
+
+		// A shared cache keyed on the URL would give one visitor's redirect to everyone
+		$this->assertStringContainsString( 'private', $wp->get_cache_headers( 301, [] )['Cache-Control'] );
+		$this->assertStringContainsString( 'private', $wp->get_cache_headers( 308, [] )['Cache-Control'] );
+	}
+
+	public function testOperatorCacheControlIsKept() {
+		Red_Options::save( [ 'redirect_cache' => 1 ] );
+		$wp = new WordPress_Module();
+		$wp->reset( $this->get_matched( 'url' ) );
+
+		$this->assertSame( [], $wp->get_cache_headers( 301, [ [ 'headerName' => 'Cache-Control', 'headerValue' => 'no-store' ] ] ) );
+	}
 }
