@@ -11,4 +11,7 @@
 			<directory prefix="test-" suffix=".php">./tests/integration/</directory>
 		</testsuite>
 	</testsuites>
+	<extensions>
+		<extension class="Redirection_Reset_Settings_Cache" />
+	</extensions>
 </phpunit>
