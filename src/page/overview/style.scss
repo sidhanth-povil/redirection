@@ -257,6 +257,21 @@
 	gap: var(--dsr-space-3);
 }
 
+.dsr-app .dsr-help__sections {
+	display: flex;
+	flex-direction: column;
+	gap: var(--dsr-space-5);
+}
+
+.dsr-app .dsr-help__group {
+	margin: 0 0 var(--dsr-space-3);
+	color: var(--dsr-text-muted);
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
 .dsr-app .dsr-help__cards {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
