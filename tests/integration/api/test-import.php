@@ -296,6 +296,27 @@ class ImportImportCsvTest extends Redirection_Api_Test {
 		}
 	}
 
+	public function testWordPressOldSlugSkipsUrlOfAnotherPage() {
+		global $wpdb;
+
+		$this->set_permalink_structure( '/%postname%/' );
+		$group = Red_Group::create( 'import-test-group', 1 );
+		self::factory()->post->create( [ 'post_status' => 'publish', 'post_type' => 'page', 'post_name' => 'pricing' ] );
+		$author_post = self::factory()->post->create( [ 'post_status' => 'publish', 'post_type' => 'post', 'post_name' => 'author-landing' ] );
+		$renamed_post = self::factory()->post->create( [ 'post_status' => 'publish', 'post_type' => 'post', 'post_name' => 'ctl-new' ] );
+
+		// An author once used the slug of a page they cannot edit
+		update_post_meta( $author_post, '_wp_old_slug', 'pricing' );
+		update_post_meta( $renamed_post, '_wp_old_slug', 'ctl-old' );
+
+		$result = PluginRegistry::get_importer( 'wordpress-old-slugs' )->import_plugin( $group->get_id(), [] );
+		$sources = $wpdb->get_col( $wpdb->prepare( "SELECT url FROM {$wpdb->prefix}redirection_items WHERE group_id=%d", $group->get_id() ) );
+		$this->set_permalink_structure( '' );
+
+		$this->assertEquals( 1, $result['created'] );
+		$this->assertEquals( [ '/ctl-old/' ], $sources );
+	}
+
 	public function testWordPressOldSlugImporterSupportsPublicCustomPostTypes() {
 		$permalink_structure = get_option( 'permalink_structure' );
 		$group = Red_Group::create( 'import-test-group', 1 );

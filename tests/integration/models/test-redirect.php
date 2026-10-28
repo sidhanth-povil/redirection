@@ -185,14 +185,14 @@ class RedirectTest extends WP_UnitTestCase {
 
 	public function testNoDisableMatches() {
 		$item = $this->createRedirect( array( 'url' => 'cats' ) );
-		Red_Item::disable_where_matches( '/dogs' );
+		Red_Item::disable_where_matches( '/dogs', $item->get_group_id() );
 		$item = Red_Item::get_by_id( $item->get_id() );
 		$this->assertTrue( $item->is_enabled() );
 	}
 
 	public function testDisableMatches() {
 		$item = $this->createRedirect( array( 'url' => '/cats' ) );
-		Red_Item::disable_where_matches( '/cats' );
+		Red_Item::disable_where_matches( '/cats', $item->get_group_id() );
 		$item = Red_Item::get_by_id( $item->get_id() );
 		$this->assertFalse( $item->is_enabled() );
 	}
@@ -544,7 +544,7 @@ class RedirectTest extends WP_UnitTestCase {
 
 		$before = $wpdb->get_row( "SELECT * FROM {$wpdb->prefix}redirection_items ORDER BY id DESC LIMIT 1" );
 
-		Red_Item::disable_where_matches( '/from' );
+		Red_Item::disable_where_matches( '/from', $before->group_id );
 
 		$after = $wpdb->get_row( "SELECT * FROM {$wpdb->prefix}redirection_items ORDER BY id DESC LIMIT 1" );
 

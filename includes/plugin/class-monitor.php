@@ -55,7 +55,7 @@ class Monitor {
 	 * @return void
 	 */
 	public function remove_existing_redirect( string $url ): void {
-		Redirect::disable_where_matches( $url );
+		Redirect::disable_where_matches( $url, $this->monitor_group_id );
 	}
 
 	/**
@@ -215,6 +215,10 @@ class Monitor {
 		$before = wp_parse_url( esc_url( $before ), PHP_URL_PATH );
 
 		if ( is_string( $before ) && is_string( $after ) && apply_filters( 'redirection_permalink_changed', false, $before, $after ) ) {
+			if ( Redirect::is_url_owned_elsewhere( $before, $post_id, $this->monitor_group_id ) ) {
+				return false;
+			}
+
 			do_action( 'redirection_remove_existing', $after, $post_id );
 
 			$data = [

@@ -377,4 +377,42 @@ class MonitorTest extends WP_UnitTestCase {
 		$this->assertEquals( $url, $args[0][1] );
 		$this->assertEquals( $post, $args[0][2] );
 	}
+
+	private function getRedirectStatus( $redirect ) {
+		return Red_Item::get_by_id( $redirect->get_id() )->is_enabled() ? 'enabled' : 'disabled';
+	}
+
+	public function testRemoveExistingOnlyInMonitorGroup() {
+		$other = Red_Group::create( 'other', 1 );
+		$operator = Red_Item::create( [ 'url' => '/sale/', 'action_data' => [ 'url' => '/pricing/' ], 'match_type' => 'url', 'action_type' => 'url', 'action_code' => 301, 'group_id' => $other->get_id() ] );
+		$monitored = Red_Item::create( [ 'url' => '/sale/', 'action_data' => [ 'url' => '/old/' ], 'match_type' => 'url', 'action_type' => 'url', 'action_code' => 301, 'group_id' => $this->group->get_id() ] );
+		$monitor = new Red_Monitor( $this->getActiveOptions( $this->group->get_id() ) );
+
+		$monitor->remove_existing_redirect( '/sale/' );
+
+		// A post renamed onto /sale/ must not switch off a redirect the monitor did not create
+		$this->assertEquals( 'enabled', $this->getRedirectStatus( $operator ) );
+		$this->assertEquals( 'disabled', $this->getRedirectStatus( $monitored ) );
+	}
+
+	public function testNoRedirectFromAnotherPagesUrl() {
+		global $wpdb;
+
+		$this->factory->post->create( [ 'post_type' => 'page', 'post_name' => 'pricing', 'post_title' => 'Pricing' ] );
+		$monitor = new Red_Monitor( $this->getActiveOptions( $this->group->get_id() ) );
+
+		// The old URL belongs to a page the author cannot edit
+		$this->assertFalse( $monitor->check_for_modified_slug( $this->post_id, home_url( '/pricing/' ) ) );
+		$this->assertEquals( 0, $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_items WHERE url=%s", '/pricing/' ) ) );
+	}
+
+	public function testNoRedirectOverAnOperatorRedirect() {
+		$before = parse_url( get_permalink( $this->post_id ), PHP_URL_PATH );
+		$other = Red_Group::create( 'other', 1 );
+		Red_Item::create( [ 'url' => $before, 'action_data' => [ 'url' => '/elsewhere/' ], 'match_type' => 'url', 'action_type' => 'url', 'action_code' => 301, 'group_id' => $other->get_id() ] );
+		$monitor = new Red_Monitor( $this->getActiveOptions( $this->group->get_id() ) );
+		$this->factory->post->update_object( $this->post_id, [ 'post_name' => 'something' ] );
+
+		$this->assertFalse( $monitor->check_for_modified_slug( $this->post_id, $before ) );
+	}
 }
