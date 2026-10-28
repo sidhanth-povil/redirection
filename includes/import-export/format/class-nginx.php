@@ -168,18 +168,18 @@ class Nginx extends FormatHandler {
 		$source = isset( $match_data['source'] ) && is_array( $match_data['source'] ) ? $match_data['source'] : null;
 
 		$match = $item->match;
-		if ( ! ( $match instanceof \Agent_Match ) ) {
+		if ( ! ( $match instanceof \Redirection\Compare\Agent ) ) {
 			return '';
 		}
 
 		if ( $match->url_from !== '' ) {
-			$lines[] = 'if ( $http_user_agent ~* ^' . $match->agent . '$ ) {';
+			$lines[] = 'if ( $http_user_agent ~* ' . $this->quote_regex( $match->agent ) . ' ) {';
 			$lines[] = '        ' . $this->get_conditional_action( $item, $item->get_url(), $match->url_from, $source );
 			$lines[] = '    }';
 		}
 
 		if ( $match->url_notfrom !== '' ) {
-			$lines[] = 'if ( $http_user_agent !~* ^' . $match->agent . '$ ) {';
+			$lines[] = 'if ( $http_user_agent !~* ' . $this->quote_regex( $match->agent ) . ' ) {';
 			$lines[] = '        ' . $this->get_conditional_action( $item, $item->get_url(), $match->url_notfrom, $source );
 			$lines[] = '    }';
 		}
@@ -198,18 +198,18 @@ class Nginx extends FormatHandler {
 		$source = isset( $match_data['source'] ) && is_array( $match_data['source'] ) ? $match_data['source'] : null;
 
 		$match = $item->match;
-		if ( ! ( $match instanceof \Referrer_Match ) ) {
+		if ( ! ( $match instanceof \Redirection\Compare\Referrer ) ) {
 			return '';
 		}
 
 		if ( $match->url_from !== '' ) {
-			$lines[] = 'if ( $http_referer ~* ^' . $match->referrer . '$ ) {';
+			$lines[] = 'if ( $http_referer ~* ' . $this->quote_regex( $match->referrer ) . ' ) {';
 			$lines[] = '        ' . $this->get_conditional_action( $item, $item->get_url(), $match->url_from, $source );
 			$lines[] = '    }';
 		}
 
 		if ( $match->url_notfrom !== '' ) {
-			$lines[] = 'if ( $http_referer !~* ^' . $match->referrer . '$ ) {';
+			$lines[] = 'if ( $http_referer !~* ' . $this->quote_regex( $match->referrer ) . ' ) {';
 			$lines[] = '        ' . $this->get_conditional_action( $item, $item->get_url(), $match->url_notfrom, $source );
 			$lines[] = '    }';
 		}
@@ -303,6 +303,17 @@ class Nginx extends FormatHandler {
 		$source_url = new \Red_Url_Encode( $line );
 
 		return 'location = ' . $source_url->get_as_target();
+	}
+
+	/**
+	 * Quote a user agent or referrer regex for an nginx if. Unquoted, a space, ) or { in it would end the condition
+	 * and the rest would become nginx configuration. A quote or control character cannot be kept safely, so is removed.
+	 *
+	 * @param string $regex Regex.
+	 * @return string
+	 */
+	private function quote_regex( $regex ) {
+		return '"^' . (string) preg_replace( '/["\x00-\x1F\x7F]/', '', $regex ) . '$"';
 	}
 
 	/**
