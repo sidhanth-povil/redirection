@@ -98,6 +98,15 @@ class Health extends BaseRoute {
 	}
 
 	/**
+	 * @return string
+	 */
+	private function get_db_error() {
+		global $wpdb;
+
+		return $wpdb->last_error;
+	}
+
+	/**
 	 * @return bool
 	 */
 	private function can_see_404s() {
@@ -194,7 +203,7 @@ class Health extends BaseRoute {
 			$traffic = $this->get_traffic( $days );
 
 			// A failed query reads as no traffic; don't keep that for the next five minutes
-			if ( $wpdb->last_error === '' ) {
+			if ( $this->get_db_error() === '' ) {
 				set_transient( $key, $traffic, self::TRAFFIC_CACHE_SECONDS );
 			}
 		}

@@ -198,12 +198,12 @@ abstract class Compare {
 				return $target_url;
 			}
 
-			return $this->keep_target_relative( $target_url, \Redirection\Url\Wildcard::apply_target( $target_url, array_slice( $matches, 1 ) ) );
+			return self::keep_target_relative( $target_url, \Redirection\Url\Wildcard::apply_target( $target_url, array_slice( $matches, 1 ) ) );
 		}
 
 		$regex = new Regex( $source_url, $flags->is_ignore_case() );
 
-		return $this->keep_target_relative( $target_url, $regex->replace( $target_url, $requested_url ) );
+		return self::keep_target_relative( $target_url, $regex->replace( $target_url, $requested_url ) );
 	}
 
 	/**
