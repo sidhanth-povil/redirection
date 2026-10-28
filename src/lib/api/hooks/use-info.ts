@@ -1,6 +1,5 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import apiFetch from '@wp-plugin-lib/api-fetch';
-import { RedirectLiApi } from 'lib/api-request';
+import { fetchRedirectLi, RedirectLiApi } from 'lib/api-request';
 import { queryKeys } from '../query-keys';
 import type { IpInfo, UserAgentInfo, HttpInfo } from 'types';
 
@@ -13,8 +12,7 @@ export function useIpInfo( ip: string, options?: Omit< UseQueryOptions< IpInfo >
 	return useQuery( {
 		queryKey: queryKeys.info.ip( ip ),
 		queryFn: async () => {
-			const response = await apiFetch( RedirectLiApi.ip.getGeo( ip ) );
-			return response as IpInfo;
+			return fetchRedirectLi< IpInfo >( RedirectLiApi.ip.getGeo( ip ) );
 		},
 		enabled: !! ip,
 		staleTime: 1000 * 60 * 60 * 24, // 24 hours - IP info doesn't change often
@@ -34,8 +32,7 @@ export function useUserAgentInfo(
 	return useQuery( {
 		queryKey: queryKeys.info.agent( agent ),
 		queryFn: async () => {
-			const response = await apiFetch( RedirectLiApi.agent.get( agent ) );
-			return response as UserAgentInfo;
+			return fetchRedirectLi< UserAgentInfo >( RedirectLiApi.agent.get( agent ) );
 		},
 		enabled: !! agent,
 		staleTime: 1000 * 60 * 60 * 24, // 24 hours - User agent info doesn't change often
@@ -52,8 +49,7 @@ export function useHttpCheck( url: string, options?: Omit< UseQueryOptions< Http
 	return useQuery( {
 		queryKey: queryKeys.info.http( url ),
 		queryFn: async () => {
-			const response = await apiFetch( RedirectLiApi.http.get( url ) );
-			return response as HttpInfo;
+			return fetchRedirectLi< HttpInfo >( RedirectLiApi.http.get( url ) );
 		},
 		enabled: !! url,
 		staleTime: 0, // HTTP checks should always be fresh
