@@ -70,4 +70,24 @@ class SlugWatcherTest extends WP_UnitTestCase {
 		$this->assertSame( '/stays/', $this->target( $item ) );
 		$this->assertSame( 0, $updated );
 	}
+
+	public function testTargetsThatOnlyMatchIgnoringCaseAreLeftAlone() {
+		// MySQL compares case-insensitively; the rewrite must still only touch exact matches.
+		$post = self::factory()->post->create( [ 'post_name' => 'summer-landing', 'post_status' => 'publish' ] );
+		$item = $this->redirect_to( '/a', '/Summer-Landing/' );
+
+		wp_update_post( [ 'ID' => $post, 'post_name' => 'summer-2026' ] );
+
+		$this->assertSame( '/Summer-Landing/', $this->target( $item ) );
+	}
+
+	public function testNeverMakesARedirectPointAtItself() {
+		// /a -> /b, then the page at /b is renamed back to /a: rewriting would make /a -> /a.
+		$post = self::factory()->post->create( [ 'post_name' => 'b', 'post_status' => 'publish' ] );
+		$item = $this->redirect_to( '/a/', '/b/' );
+
+		wp_update_post( [ 'ID' => $post, 'post_name' => 'a' ] );
+
+		$this->assertSame( '/b/', $this->target( $item ) );
+	}
 }

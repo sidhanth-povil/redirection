@@ -49,7 +49,7 @@ class SlugWatcher {
 			return;
 		}
 
-		self::retarget( self::variants( $before, $after ) );
+		self::retarget( self::variants( $before, $after ), (string) wp_parse_url( $after, PHP_URL_PATH ) );
 	}
 
 	/**
@@ -73,9 +73,10 @@ class SlugWatcher {
 
 	/**
 	 * @param array<string, string> $map Old target to new target.
+	 * @param string                $new_path The page's new path.
 	 * @return void
 	 */
-	private static function retarget( array $map ) {
+	private static function retarget( array $map, $new_path ) {
 		global $wpdb;
 
 		// The site root is a variant only for a page at /; never rewrite every redirect to the home page.
@@ -87,9 +88,19 @@ class SlugWatcher {
 		$targets = array_keys( $map );
 		$placeholders = implode( ', ', array_fill( 0, count( $targets ), '%s' ) );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated above
-		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, action_data FROM {$wpdb->prefix}redirection_items WHERE action_type='url' AND action_data IN ($placeholders)", $targets ) );
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, url, action_data FROM {$wpdb->prefix}redirection_items WHERE action_type='url' AND action_data IN ($placeholders)", $targets ) );
 
 		foreach ( $rows as $row ) {
+			// MySQL's IN ignores case, so /About matched /about; only an exact match is the page's address.
+			if ( ! isset( $map[ $row->action_data ] ) ) {
+				continue;
+			}
+
+			// The page moved onto this redirect's own source; pointing it there would make it redirect to itself.
+			if ( untrailingslashit( strtolower( $row->url ) ) === untrailingslashit( strtolower( $new_path ) ) ) {
+				continue;
+			}
+
 			$wpdb->update( $wpdb->prefix . 'redirection_items', [ 'action_data' => $map[ $row->action_data ] ], [ 'id' => $row->id ] );
 			// Clears the redirect cache, as any other edit does.
 			do_action( 'redirection_redirect_updated', (int) $row->id, Redirect::get_by_id( (int) $row->id ) );

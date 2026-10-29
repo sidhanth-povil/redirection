@@ -127,6 +127,17 @@ class RedirectTestApiTest extends Redirection_Api_Test {
 		$this->assertCount( 0, $this->requests );
 	}
 
+	public function testNeverRequestsAnotherHost() {
+		global $wpdb;
+
+		// Sources are always saved with a leading slash; a row written some other way must not change the host.
+		$item = $this->create( '/sale' );
+		$wpdb->update( $wpdb->prefix . 'redirection_items', [ 'url' => '@evil.example/x' ], [ 'id' => $item->get_id() ] );
+
+		$this->assertSame( 400, $this->test_redirect( $item )->get_status() );
+		$this->assertCount( 0, $this->requests );
+	}
+
 	public function testNeedsPermission() {
 		$item = $this->create( '/sale' );
 		$this->setUnauthorised();
@@ -143,5 +154,13 @@ class RedirectTestApiTest extends Redirection_Api_Test {
 		Red_Item::get_by_id( $item->get_id() )->visit( '/sale', '/pricing/' );
 
 		$this->assertSame( '0', $wpdb->get_var( $wpdb->prepare( "SELECT last_count FROM {$wpdb->prefix}redirection_items WHERE id=%d", $item->get_id() ) ) );
+	}
+
+	public function testOldTokensStopWorking() {
+		// A token seen once (in a proxy log, say) must not hide visits forever.
+		$this->assertTrue( Tester::is_valid_token( Tester::token() ) );
+		$this->assertTrue( Tester::is_valid_token( Tester::token( time() - HOUR_IN_SECONDS ) ) );
+		$this->assertFalse( Tester::is_valid_token( Tester::token( time() - 3 * HOUR_IN_SECONDS ) ) );
+		$this->assertFalse( Tester::is_valid_token( '' ) );
 	}
 }

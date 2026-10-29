@@ -15,10 +15,25 @@ class Tester {
 	const UTM_VALUE = 'dsr-test';
 
 	/**
+	 * Changes every hour, so a token seen once (a proxy log, an intercepted test) soon stops hiding visits.
+	 *
+	 * @param int|null $time Time to make the token for; now by default.
 	 * @return string
 	 */
-	public static function token() {
-		return wp_hash( 'dsr-redirect-test' );
+	public static function token( $time = null ) {
+		$window = (int) floor( ( $time ?? time() ) / HOUR_IN_SECONDS );
+
+		return wp_hash( 'dsr-redirect-test|' . $window );
+	}
+
+	/**
+	 * This hour's or the last hour's token, so a test made at the turn of the hour still counts.
+	 *
+	 * @param string $sent Token from the request.
+	 * @return bool
+	 */
+	public static function is_valid_token( $sent ) {
+		return $sent !== '' && ( hash_equals( self::token(), $sent ) || hash_equals( self::token( time() - HOUR_IN_SECONDS ), $sent ) );
 	}
 
 	/**
@@ -29,7 +44,7 @@ class Tester {
 	public static function is_test_request() {
 		$sent = isset( $_SERVER['HTTP_X_DSR_TEST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_DSR_TEST'] ) ) : '';
 
-		return $sent !== '' && hash_equals( self::token(), $sent );
+		return self::is_valid_token( $sent );
 	}
 
 	/**
@@ -94,7 +109,10 @@ class Tester {
 	 * @return bool
 	 */
 	private static function can_test( Redirect $item ) {
+		// The path is appended to this site's origin, so anything but a leading slash could name another host.
 		return $item->get_match_type() === 'url'
+			&& strpos( $item->get_url(), '/' ) === 0
+			&& strpos( $item->get_url(), '//' ) !== 0
 			&& ! $item->is_regex()
 			&& in_array( $item->get_action_type(), [ 'url', 'error' ], true );
 	}
