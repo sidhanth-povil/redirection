@@ -62,6 +62,9 @@
 
 .dsr-app .dsr-main {
 	min-width: 0;
+	// Its own container, so tables switch to cards by the space they actually get, not the whole app's width
+	// (which includes the sidebar).
+	container: dsr-main / inline-size;
 }
 
 .dsr-app .dsr-header {

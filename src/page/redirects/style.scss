@@ -109,20 +109,20 @@
 }
 
 .dsr-app .dsr-table__type {
-	width: 150px;
+	width: 130px;
 }
 
 .dsr-app .dsr-table__hits {
-	width: 64px;
+	width: 56px;
 }
 
 .dsr-app .dsr-table__last {
-	width: 150px;
+	width: 120px;
 	color: var(--dsr-text-muted);
 }
 
 .dsr-app .dsr-table__actions {
-	width: 170px;
+	width: 160px;
 	text-align: right;
 
 	// Links wrap rather than spill past the clipped table edge (four actions, longer translations).
@@ -241,8 +241,9 @@
 	color: var(--dsr-text-muted);
 }
 
-// Narrow container: each row becomes a card.
-@container dsr (max-width: 781px) {
+// Narrow content column: each row becomes a card. The fixed columns plus their padding take about 650px, so below
+// this the Redirect column would be too thin to read an address.
+@container dsr-main (max-width: 859px) {
 	.dsr-app .dsr-table thead {
 		display: none;
 	}
