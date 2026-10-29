@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.8.0
+Stable tag: 1.9.0
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,10 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.9.0 - 29th October 2026 =
+* Privacy: the plugin no longer uses redirect.li or any other outside service. Addresses, visitor IPs and browsers stay on your site
+* The Support page's redirect tester asks your own server and follows every hop a new visitor would take, stopping at loops and at other sites
 
 = 1.8.0 - 29th October 2026 =
 * Cleaner redirect list: the old URL leads each row, the destination and purpose sit quietly beneath, hits and last hit share one column, and Copy link, QR code, Disable and Delete move into a "More actions" menu
