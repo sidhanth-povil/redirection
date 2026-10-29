@@ -125,6 +125,6 @@ class Schedule {
 		}
 
 		// The option claims columns a recreated table lacks: add them back now.
-		return \Redirection\Database\DsrUpgrader::run();
+		return \Redirection\Database\DsrUpgrader::add_schedule_columns();
 	}
 }

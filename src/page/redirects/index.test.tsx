@@ -215,6 +215,15 @@ describe( 'Redirects page', () => {
 		expect( within( dialog ).getByRole( 'radio', { name: /Temporary/ } ) ).toBeChecked();
 	} );
 
+	it( 'ignores a link that tries to prefill a destination on another site', () => {
+		// Only the admin bar builds these links, and it only ever sends a path on this site.
+		window.location.hash = '#/redirects?new=1&to=https%3A%2F%2Fevil.example%2F';
+		setup();
+
+		const dialog = screen.getByRole( 'dialog', { name: 'New redirect' } );
+		expect( within( dialog ).getByLabelText( 'Send visitors to' ) ).toHaveValue( '' );
+	} );
+
 	it( 'copies the full short link for a row', async () => {
 		const writeText = jest.fn().mockResolvedValue( undefined );
 		Object.defineProperty( navigator, 'clipboard', { value: { writeText }, configurable: true } );

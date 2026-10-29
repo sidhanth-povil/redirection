@@ -84,7 +84,9 @@ export default function Redirects() {
 	const { new: isNew, from, to } = route.query;
 	useEffect( () => {
 		if ( isNew === '1' && canAdd ) {
-			setDrawer( { item: null, url: from ?? '', target: to ?? '' } );
+			// A link can be crafted by anyone; only a path on this site is prefilled as the destination.
+			const isLocalPath = to !== undefined && to.startsWith( '/' ) && ! to.startsWith( '//' );
+			setDrawer( { item: null, url: from ?? '', target: isLocalPath ? to : '' } );
 			window.history.replaceState( {}, '', buildHash( 'redirects' ) );
 		}
 	}, [ isNew, from, to, canAdd ] );

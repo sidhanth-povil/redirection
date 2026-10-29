@@ -56,4 +56,21 @@ class ProtectedPathsTest extends TestCase {
 		$this->assertSame( '/cart', ProtectedPaths::find_blocked( '/cart/', null, [ '/cart/' ] ) );
 		$this->assertNull( ProtectedPaths::find_blocked( '/cartoons', null, [ '/cart' ] ) );
 	}
+
+	public function testEncodedPathsAreDecodedBeforeChecking() {
+		// Matching decodes again, so /wp-%256Cogin.php would catch /wp-login.php.
+		$this->assertSame( '/wp-login.php', $this->plain( '/wp-%256Cogin.php' ) );
+		$this->assertSame( '/wp-admin', $this->plain( '/wp-admin%252Fadmin-ajax.php' ) );
+		$this->assertSame( '/wp-login.php', $this->plain( '/wp-%6Cogin.php' ) );
+	}
+
+	public function testMoreCorePathsAreProtected() {
+		foreach ( [ '/wp-comments-post.php', '/wp-signup.php', '/wp-activate.php', '/wp-trackback.php' ] as $path ) {
+			$this->assertSame( $path, $this->plain( $path ), $path );
+		}
+
+		$this->assertSame( '/?rest_route=', $this->plain( '/?rest_route=/wp/v2/users' ) );
+		$this->assertSame( '/wp-admin', $this->regex( '^/wp-admin/options\.php' ) );
+		$this->assertSame( '/wp-login.php', $this->regex( 'wp-login\.php\?action=register' ) );
+	}
 }
