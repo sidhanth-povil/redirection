@@ -248,5 +248,16 @@ export function toPayload( state: DrawerState ): CreateRedirectInput {
  * @param url   Where visitors go outside the schedule.
  */
 export function fallbackPayload( state: DrawerState, url: string ): CreateRedirectInput {
-	return toPayload( applySimpleType( setTarget( { ...state, start_at: '', end_at: '' }, url ), 'temporary' ) );
+	// Only the old URL and its matching flags carry over: no condition, title, options or schedule.
+	const plain: DrawerState = {
+		...state,
+		title: '',
+		match_type: MATCH_URL,
+		action_data: { url },
+		options: {},
+		start_at: '',
+		end_at: '',
+	};
+
+	return toPayload( applySimpleType( plain, 'temporary' ) );
 }

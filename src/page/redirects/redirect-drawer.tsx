@@ -156,7 +156,8 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 
 	const saving = create.isPending || update.isPending;
 	const check = useSaveCheck( state, item?.id ?? 0 );
-	const inbound = check.result?.inbound ?? [];
+	// A scheduled redirect isn't always live, so repointing others at its target would bypass the schedule.
+	const inbound = hasSchedule( state ) ? [] : check.result?.inbound ?? [];
 	// Through a chain, straight to its end; otherwise to this redirect's own target.
 	const repointTarget = check.result?.final_target ?? getTarget( state ).trim();
 	const isSaveable = canSave( state ) && ! check.isBlocked;
@@ -183,7 +184,8 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 		}
 
 		const payload = toPayload( state );
-		const fallbackUrl = scheduleOn && ! item ? fallback.trim() : '';
+		// Without dates the redirect is always live and the fallback could never match.
+		const fallbackUrl = hasSchedule( state ) && ! item ? fallback.trim() : '';
 		const hasFollowUps = ( repoint && inbound.length > 0 ) || fallbackUrl !== '';
 		// Follow-ups report their own failures page-wide; the drawer closes once they have all finished.
 		const onSuccess = hasFollowUps

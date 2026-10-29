@@ -169,6 +169,16 @@ class HealthApiTest extends Redirection_Api_Test {
 		$this->assertArrayNotHasKey( 'inbound', $this->check( [ 'source' => '/sale', 'target' => '/summer' ] ) );
 	}
 
+	public function testCheckOffersNoRepointForADuplicateThatWouldNeverMatch() {
+		$this->create( '/sale', '/winter' );
+		$this->create( '/spring', '/sale' );
+
+		$result = $this->check( [ 'source' => '/sale', 'target' => '/summer' ] );
+
+		$this->assertSame( 'duplicate', $result['status'] );
+		$this->assertArrayNotHasKey( 'inbound', $result );
+	}
+
 	public function testRequiresAccess() {
 		$this->setUnauthorised();
 

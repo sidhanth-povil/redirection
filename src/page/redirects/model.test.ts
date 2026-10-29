@@ -3,6 +3,7 @@ import {
 	applySimpleType,
 	canSave,
 	createState,
+	fallbackPayload,
 	getTarget,
 	hasSingleTarget,
 	isWildcard,
@@ -213,5 +214,35 @@ describe( 'withTarget', () => {
 			...toPayload( createState( urlRedirect, { url: '', groupId: 0, flags: FLAGS } ) ),
 			action_data: { url: '/final' },
 		} );
+	} );
+} );
+
+describe( 'fallbackPayload', () => {
+	it( 'is always a plain temporary redirect, whatever the scheduled one matches on', () => {
+		const scheduled = {
+			...createState( null, { url: '/bfcm', groupId: 1, flags: FLAGS } ),
+			match_type: 'login',
+			title: 'Black Friday',
+			action_data: { logged_in: '/members-deal', logged_out: '/deal' },
+			options: { log_exclude: true },
+			start_at: '2026-11-27T00:00',
+			end_at: '2026-12-01T00:00',
+		};
+
+		const payload = fallbackPayload( scheduled, '/deals' );
+
+		expect( payload ).toEqual(
+			expect.objectContaining( {
+				url: '/bfcm',
+				match_type: 'url',
+				action_type: 'url',
+				action_code: 302,
+				action_data: { url: '/deals' },
+				start_at: null,
+				end_at: null,
+			} )
+		);
+		expect( payload.title ).not.toBe( 'Black Friday' );
+		expect( payload.match_data?.options ).toEqual( {} );
 	} );
 } );

@@ -14,18 +14,18 @@ class ImportService {
 	private $formats;
 
 	/**
-	 * @var callable(int): (ImportPreflight|null)
+	 * @var callable(int, string): (ImportPreflight|null)
 	 */
 	private $preflight_factory;
 
 	/**
 	 * @param FormatFactory|null                         $formats
-	 * @param (callable(int): (ImportPreflight|null))|null $preflight_factory Builds row checks for a group; null skips them.
+	 * @param (callable(int, string): (ImportPreflight|null))|null $preflight_factory Builds row checks for a group; null skips them.
 	 */
 	public function __construct( ?FormatFactory $formats = null, ?callable $preflight_factory = null ) {
 		$this->formats = $formats ? $formats : new FormatFactory();
-		$this->preflight_factory = $preflight_factory ?? static function ( $group_id ) {
-			return new ImportPreflight( $group_id );
+		$this->preflight_factory = $preflight_factory ?? static function ( $group_id, $duplicate_mode ) {
+			return new ImportPreflight( $group_id, $duplicate_mode );
 		};
 	}
 
@@ -39,7 +39,9 @@ class ImportService {
 		$group = new ImportGroup( $group_id, $options );
 		$redirect = new ImportRedirect( $options );
 		$skip_problems = isset( $options['skip_problems'] ) && $options['skip_problems'] === true;
-		$preflight = $skip_problems || ( isset( $options['dry_run'] ) && $options['dry_run'] === true ) ? ( $this->preflight_factory )( $group_id ) : null;
+		$is_dry_run = isset( $options['dry_run'] ) && $options['dry_run'] === true;
+		$duplicate_mode = isset( $options['duplicate_mode'] ) && is_string( $options['duplicate_mode'] ) ? $options['duplicate_mode'] : 'import';
+		$preflight = $skip_problems || $is_dry_run ? ( $this->preflight_factory )( $group_id, $duplicate_mode ) : null;
 		if ( $preflight !== null ) {
 			$redirect->set_preflight( $preflight, $skip_problems );
 		}

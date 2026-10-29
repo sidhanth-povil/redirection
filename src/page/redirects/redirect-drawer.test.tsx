@@ -160,6 +160,30 @@ describe( 'RedirectDrawer', () => {
 		);
 	} );
 
+	it( 'offers no repoint for a scheduled redirect, which is not always live', () => {
+		saveSaleToSummer();
+
+		fireEvent.click( screen.getByRole( 'switch', { name: 'Only active between dates' } ) );
+		fireEvent.change( screen.getByLabelText( 'Ends' ), { target: { value: '2026-12-01T09:00' } } );
+
+		expect( screen.queryByRole( 'checkbox', { name: /Also point/ } ) ).toBeNull();
+	} );
+
+	it( 'saves no fallback when the schedule has no dates', async () => {
+		const onClose = jest.fn();
+		render( <RedirectDrawer item={ null } initialUrl="/bfcm" initialTarget="/black-friday" onClose={ onClose } /> );
+
+		fireEvent.click( screen.getByRole( 'switch', { name: 'Only active between dates' } ) );
+		fireEvent.change( screen.getByLabelText( "When it isn't live, send visitors to" ), {
+			target: { value: '/deals' },
+		} );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+		create.mutate.mock.calls[ 0 ][ 1 ].onSuccess();
+
+		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
+		expect( create.mutateAsync ).not.toHaveBeenCalled();
+	} );
+
 	it( 'starts typing in Old URL and files new redirects in the last used group', async () => {
 		( useGroupDropdown as jest.Mock ).mockReturnValue( {
 			data: {

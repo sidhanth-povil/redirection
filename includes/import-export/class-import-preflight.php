@@ -54,9 +54,17 @@ class ImportPreflight {
 	private $problem_count = 0;
 
 	/**
-	 * @param int $group_id Existing group to validate against.
+	 * @var bool Duplicates are only problems when everything is imported; update and ignore modes handle them.
 	 */
-	public function __construct( $group_id ) {
+	private $checks_duplicates;
+
+	/**
+	 * @param int    $group_id Existing group to validate against.
+	 * @param string $duplicate_mode The import's duplicate mode.
+	 */
+	public function __construct( $group_id, $duplicate_mode = 'import' ) {
+		$this->checks_duplicates = $duplicate_mode === 'import';
+
 		global $wpdb;
 
 		// Group 0 means "the groups named in the file", which may not exist yet; any real group validates a row.
@@ -72,6 +80,11 @@ class ImportPreflight {
 	public function check( array $redirect ) {
 		$source = isset( $redirect['url'] ) && is_string( $redirect['url'] ) ? $redirect['url'] : '';
 		$target = isset( $redirect['action_data']['url'] ) && is_string( $redirect['action_data']['url'] ) ? $redirect['action_data']['url'] : '';
+		// ponytail: a site with no group at all can't validate rows (the import creates one); they pass unchecked.
+		if ( $this->group_id === 0 ) {
+			return [];
+		}
+
 		$sanitized = ( new Sanitize() )->get( array_merge( $redirect, [ 'group_id' => $this->group_id ] ) );
 
 		if ( is_wp_error( $sanitized ) ) {
@@ -82,7 +95,9 @@ class ImportPreflight {
 		$issues = [];
 		$key = ( $sanitized['regex'] === 1 ? 'regex:' : '' ) . $sanitized['url'];
 
-		if ( isset( $this->seen[ $key ] ) || $this->duplicates->get_existing_redirect( $redirect, 0 ) !== false ) {
+		// Look up what would be stored: a wildcard is saved as regex and an absolute URL as its path.
+		$stored = [ 'url' => $sanitized['url'], 'regex' => $sanitized['regex'] === 1 ];
+		if ( $this->checks_duplicates && ( isset( $this->seen[ $key ] ) || $this->duplicates->get_existing_redirect( $stored, 0 ) !== false ) ) {
 			$issues[] = self::ISSUE_DUPLICATE;
 			$this->add( $source, $target, self::ISSUE_DUPLICATE, __( 'This old URL already has a redirect.', 'dsuite-redirects' ) );
 		}

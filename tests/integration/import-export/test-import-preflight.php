@@ -97,4 +97,25 @@ class ImportPreflightTest extends WP_UnitTestCase {
 
 		$this->assertSame( 4, $result['problem_count'] );
 	}
+
+	private function import_rows( array $rows, array $options ) {
+		file_put_contents( $this->file, implode( "\n", $rows ) );
+
+		return $this->import( $options );
+	}
+
+	public function testFindsDuplicatesOfWildcardRedirects() {
+		Red_Item::create( [ 'url' => '/blog/*', 'action_data' => [ 'url' => '/news/*' ], 'group_id' => $this->group->get_id(), 'match_type' => 'url', 'action_type' => 'url', 'action_code' => 301 ] );
+
+		$result = $this->import_rows( [ '"/blog/*","/articles/*","0","301","url","2",""' ], [ 'dry_run' => true ] );
+
+		$this->assertSame( [ '/blog/*' => [ 'duplicate' ] ], $this->issues_by_source( $result ) );
+	}
+
+	public function testDuplicatesAreNotProblemsWhenTheModeHandlesThem() {
+		// Update and ignore modes decide what happens to a repeated old URL; that's what was asked for.
+		$result = $this->import_rows( [ '"/dup","/a","0","301","url","2",""', '"/dup","/b","0","301","url","2",""' ], [ 'dry_run' => true, 'duplicate_mode' => 'update' ] );
+
+		$this->assertSame( 0, $result['problem_count'] );
+	}
 }
