@@ -5,11 +5,11 @@ test( 'calls redirect.li without the REST nonce or cookies', async () => {
 	const fetchMock = jest.fn().mockResolvedValue( { ok: true, json: () => Promise.resolve( { status: 'ok' } ) } );
 	global.fetch = fetchMock;
 
-	const result = await fetchRedirectLi( RedirectLiApi.http.get( 'https://example.com/' ) );
+	const result = await fetchRedirectLi( RedirectLiApi.ip.getGeo( '192.0.2.1' ) );
 	const [ url, init ] = fetchMock.mock.calls[ 0 ];
 
 	expect( result ).toEqual( { status: 'ok' } );
-	expect( url ).toMatch( /^https:\/\/api\.redirect\.li\/v2\/http\?url=/ );
+	expect( url ).toMatch( /^https:\/\/api\.redirect\.li\/v1\/ip\// );
 	expect( init.credentials ).toBe( 'omit' );
 	expect( JSON.stringify( init ) ).not.toMatch( /nonce/i );
 } );
@@ -17,7 +17,7 @@ test( 'calls redirect.li without the REST nonce or cookies', async () => {
 test( 'rejects when redirect.li fails', async () => {
 	global.fetch = jest.fn().mockResolvedValue( { ok: false, status: 502, statusText: 'Bad Gateway' } );
 
-	await expect( fetchRedirectLi( RedirectLiApi.http.get( 'https://example.com/' ) ) ).rejects.toThrow( '502' );
+	await expect( fetchRedirectLi( RedirectLiApi.ip.getGeo( '192.0.2.1' ) ) ).rejects.toThrow( '502' );
 } );
 
 test( 'rejects an error reported in the body', async () => {
@@ -25,5 +25,5 @@ test( 'rejects an error reported in the body', async () => {
 		.fn()
 		.mockResolvedValue( { ok: true, json: () => Promise.resolve( { error: true, message: 'Bad URL' } ) } );
 
-	await expect( fetchRedirectLi( RedirectLiApi.http.get( 'nope' ) ) ).rejects.toThrow( 'Bad URL' );
+	await expect( fetchRedirectLi( RedirectLiApi.ip.getGeo( 'nope' ) ) ).rejects.toThrow( 'Bad URL' );
 } );
