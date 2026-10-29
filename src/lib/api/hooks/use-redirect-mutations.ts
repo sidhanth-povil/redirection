@@ -5,8 +5,10 @@ import {
 	RedirectItemResponseSchema,
 	RedirectListResponseSchema,
 	RedirectTestResultSchema,
+	TraceResultSchema,
 	type Redirect,
 	type RedirectTestResult,
+	type TraceResult,
 	type CreateRedirectInput,
 	type UpdateRedirectInput,
 } from 'types';
@@ -172,6 +174,21 @@ export function useRedirectTest() {
 		mutationFn: async ( id: number ) => {
 			try {
 				return RedirectTestResultSchema.parse( await apiFetch( RedirectionApi.redirect.test( id ) ) );
+			} catch ( error ) {
+				throw handleApiError( error );
+			}
+		},
+	} );
+}
+
+/**
+ * Follow an address on this site hop by hop, from the server. The Support tester shows the result itself.
+ */
+export function useRedirectTrace() {
+	return useMutation< TraceResult, Error, string >( {
+		mutationFn: async ( url: string ) => {
+			try {
+				return TraceResultSchema.parse( await apiFetch( RedirectionApi.redirect.trace( url ) ) );
 			} catch ( error ) {
 				throw handleApiError( error );
 			}

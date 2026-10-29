@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import {
 	useExport,
 	useGroupDropdown,
@@ -159,7 +159,7 @@ describe( 'Redirects page', () => {
 		expect( within( second ).getByText( 'Gone' ) ).toBeInTheDocument();
 		expect( within( second ).getByText( 'Disabled' ) ).toBeInTheDocument();
 		await openMenu( second );
-		expect( screen.getByRole( 'menuitem', { name: 'Enable' } ) ).toBeInTheDocument();
+		expect( await screen.findByRole( 'menuitem', { name: 'Enable' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'filters by status with the chips', () => {
@@ -232,11 +232,14 @@ describe( 'Redirects page', () => {
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
 		await openMenu( first );
 		await act( async () => {
-			fireEvent.click( screen.getByRole( 'menuitem', { name: 'Copy link' } ) );
+			fireEvent.click( await screen.findByRole( 'menuitem', { name: 'Copy link' } ) );
 		} );
 
+		// The clipboard resolves after the click; wait inside act for its notice and the menu closing behind it.
+		await waitFor( () =>
+			expect( useMessageStore.getState().notices.map( ( notice ) => notice.message ) ).toContain( 'Link copied' )
+		);
 		expect( writeText ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale` );
-		expect( useMessageStore.getState().notices.map( ( notice ) => notice.message ) ).toContain( 'Link copied' );
 	} );
 
 	it( 'tests a redirect from the server and shows where it went', () => {
@@ -302,11 +305,11 @@ describe( 'Redirects page', () => {
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
 		await openMenu( first );
-		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Disable' } ) );
+		fireEvent.click( await screen.findByRole( 'menuitem', { name: 'Disable' } ) );
 		expect( bulk.mutate ).toHaveBeenCalledWith( { items: [ 1 ] } );
 
 		await openMenu( first );
-		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
+		fireEvent.click( await screen.findByRole( 'menuitem', { name: 'Delete' } ) );
 		expect( remove.mutate ).toHaveBeenCalledWith( { items: [ 1 ] } );
 		confirm.mockRestore();
 	} );
@@ -323,7 +326,7 @@ describe( 'Redirects page', () => {
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
 		await openMenu( first );
-		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Download QR code' } ) );
+		fireEvent.click( await screen.findByRole( 'menuitem', { name: 'Download QR code' } ) );
 
 		expect( downloadQr ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale`, '/old-sale' );
 	} );
@@ -336,7 +339,7 @@ describe( 'Redirects page', () => {
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
 		await openMenu( first );
-		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Download QR code' } ) );
+		fireEvent.click( await screen.findByRole( 'menuitem', { name: 'Download QR code' } ) );
 
 		expect( useMessageStore.getState().notices.map( ( notice ) => notice.message ) ).toContain(
 			'This address is too long for a QR code.'
@@ -349,6 +352,8 @@ describe( 'Redirects page', () => {
 		const wildcard = screen.getByText( '/blog/*' ).closest( 'tr' ) as HTMLElement;
 		expect( within( wildcard ).queryByRole( 'button', { name: 'Test' } ) ).toBeNull();
 		await openMenu( wildcard );
+		// Wait for the open menu, so the absence checks can't pass just because it hasn't rendered yet.
+		expect( await screen.findByRole( 'menuitem', { name: 'Disable' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'menuitem', { name: 'Download QR code' } ) ).toBeNull();
 		expect( screen.queryByRole( 'menuitem', { name: 'Copy link' } ) ).toBeNull();
 	} );
@@ -359,9 +364,9 @@ describe( 'Redirects page', () => {
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
 		expect( within( first ).queryByRole( 'button', { name: 'Edit' } ) ).toBeNull();
 		await openMenu( first );
+		expect( await screen.findByRole( 'menuitem', { name: 'Copy link' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'menuitem', { name: 'Disable' } ) ).toBeNull();
 		expect( screen.queryByRole( 'menuitem', { name: 'Delete' } ) ).toBeNull();
-		expect( screen.getByRole( 'menuitem', { name: 'Copy link' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows when a scheduled redirect starts', () => {

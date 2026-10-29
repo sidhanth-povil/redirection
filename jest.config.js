@@ -2,6 +2,9 @@ const defaultConfig = require( '@wordpress/scripts/config/jest-unit.config.js' )
 
 module.exports = {
 	...defaultConfig,
+	setupFilesAfterEnv: [ ...( defaultConfig.setupFilesAfterEnv ?? [] ), '<rootDir>/jest.setup.js' ],
+	// The 5s default is tight for a full suite on a busy machine; a real hang still fails.
+	testTimeout: 15000,
 	moduleNameMapper: {
 		...defaultConfig.moduleNameMapper,
 		'^@wp-plugin-lib/api-fetch/api-method$': '<rootDir>/src/__mocks__/@wp-plugin-lib/api-method.ts',

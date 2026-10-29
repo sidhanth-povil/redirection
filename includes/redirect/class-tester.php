@@ -15,6 +15,8 @@ class Tester {
 	const UTM_VALUE = 'dsr-test';
 	// A test takes seconds; a short window means a token seen once (a proxy log, say) soon stops hiding visits.
 	const TOKEN_WINDOW = 10 * MINUTE_IN_SECONDS;
+	// Browsers give up around 20 hops; a chain of 10 on one site is already a problem worth showing.
+	const MAX_HOPS = 10;
 
 	/**
 	 * Changes every TOKEN_WINDOW.
@@ -67,6 +69,81 @@ class Tester {
 			$url = add_query_arg( self::UTM_KEY, self::UTM_VALUE, $url );
 		}
 
+		$response = self::request( $url );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		[ 'code' => $code, 'location' => $location, 'ms' => $ms ] = $response;
+
+		return [
+			'code' => $code,
+			'location' => $location,
+			'ms' => $ms,
+			'utm_preserved' => $passes_query && $location !== '' ? strpos( $location, self::UTM_KEY . '=' . self::UTM_VALUE ) !== false : null,
+			'ok' => self::is_expected( $item, $code, $location ),
+		];
+	}
+
+	/**
+	 * Follow an address on this site hop by hop, as a visitor would, without the browser cache getting in the way.
+	 * Only this site is ever requested: a hop to another site is reported, not followed.
+	 *
+	 * @param string $url Full URL on this site, or a path.
+	 * @return array{hops: list<array{url: string, code: int, location: string, external: bool, ms: int}>, loop: bool}|WP_Error
+	 */
+	public static function trace( $url ) {
+		$path = self::own_path( trim( $url ) );
+		if ( $path === null ) {
+			return new WP_Error( 'redirect_trace', __( 'Only addresses on this site can be checked.', 'dsuite-redirects' ), [ 'status' => 400 ] );
+		}
+
+		$hops = [];
+		$seen = [];
+		$loop = false;
+
+		for ( $hop = 0; $hop < self::MAX_HOPS; $hop++ ) {
+			if ( isset( $seen[ $path ] ) ) {
+				$loop = true;
+				break;
+			}
+			$seen[ $path ] = true;
+
+			$response = self::request( self::origin() . $path );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$is_redirect = $response['code'] >= 300 && $response['code'] < 400 && $response['location'] !== '';
+			$next = $is_redirect ? self::own_path( $response['location'] ) : null;
+			$hops[] = [
+				'url' => $path,
+				'code' => $response['code'],
+				'location' => $response['location'],
+				'external' => $is_redirect && $next === null,
+				'ms' => $response['ms'],
+			];
+
+			if ( $next === null ) {
+				break;
+			}
+
+			$path = $next;
+		}
+
+		return [
+			'hops' => $hops,
+			'loop' => $loop,
+		];
+	}
+
+	/**
+	 * One request to this site, not following any redirect. Carries the test header so it isn't counted as a hit.
+	 *
+	 * @param string $url Full URL on this site.
+	 * @return array{code: int, location: string, ms: int}|WP_Error
+	 */
+	private static function request( $url ) {
 		$start = microtime( true );
 		$response = wp_remote_get(
 			$url,
@@ -90,18 +167,40 @@ class Tester {
 			return new WP_Error( 'redirect_test_failed', sprintf( __( 'Your site could not reach itself to run the test: %s', 'dsuite-redirects' ), $response->get_error_message() ), [ 'status' => 502 ] );
 		}
 
-		$code = (int) wp_remote_retrieve_response_code( $response );
 		$header = wp_remote_retrieve_header( $response, 'location' );
-		// A response may repeat the header; the first one is where browsers go.
-		$location = self::relative( is_array( $header ) ? (string) ( $header[0] ?? '' ) : $header );
 
 		return [
-			'code' => $code,
-			'location' => $location,
+			'code' => (int) wp_remote_retrieve_response_code( $response ),
+			// A response may repeat the header; the first one is where browsers go.
+			'location' => self::relative( is_array( $header ) ? (string) ( $header[0] ?? '' ) : $header ),
 			'ms' => $ms,
-			'utm_preserved' => $passes_query && $location !== '' ? strpos( $location, self::UTM_KEY . '=' . self::UTM_VALUE ) !== false : null,
-			'ok' => self::is_expected( $item, $code, $location ),
 		];
+	}
+
+	/**
+	 * The path and query of a URL on this site, or null for anything else. A path must start with one slash, so it
+	 * can't name another host once appended to this site's origin.
+	 *
+	 * @param string $url URL or path.
+	 * @return string|null
+	 */
+	private static function own_path( $url ) {
+		if ( strpos( $url, '/' ) === 0 ) {
+			return strpos( $url, '//' ) === 0 ? null : $url;
+		}
+
+		$parts = wp_parse_url( $url );
+		$home = wp_parse_url( home_url() );
+		if ( ! is_array( $parts ) || ! is_array( $home ) || ! in_array( $parts['scheme'] ?? '', [ 'http', 'https' ], true ) ) {
+			return null;
+		}
+
+		$same_host = strtolower( $parts['host'] ?? '' ) === strtolower( $home['host'] ?? '' ) && ( $parts['port'] ?? null ) === ( $home['port'] ?? null );
+		if ( ! $same_host ) {
+			return null;
+		}
+
+		return ( $parts['path'] ?? '/' ) . ( isset( $parts['query'] ) ? '?' . $parts['query'] : '' );
 	}
 
 	/**

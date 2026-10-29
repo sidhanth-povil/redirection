@@ -59,6 +59,25 @@ class Redirect extends Filtered {
 			]
 		);
 
+		// POST /redirect/trace - Follow an address on this site hop by hop (Support's redirect tester)
+		register_rest_route(
+			$api_namespace,
+			'/redirect/trace',
+			[
+				[
+					'methods' => WP_REST_Server::CREATABLE,
+					'callback' => [ $this, 'route_trace' ],
+					'permission_callback' => [ $this, 'permission_callback_manage' ],
+					'args' => [
+						'url' => [
+							'type' => 'string',
+							'required' => true,
+						],
+					],
+				],
+			]
+		);
+
 		// POST /redirect/:id/test - Request the old URL from the server and report where it goes
 		register_rest_route(
 			$api_namespace,
@@ -230,6 +249,16 @@ class Redirect extends Filtered {
 		}
 
 		return $this->add_error_details( new WP_Error( 'redirect_update_failed', 'Invalid redirect details' ), __LINE__ );
+	}
+
+	/**
+	 * Follow an address on this site
+	 *
+	 * @param WP_REST_Request<array<string, mixed>> $request The request.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function route_trace( WP_REST_Request $request ) {
+		return \Redirection\Redirect\Tester::trace( (string) $request['url'] );
 	}
 
 	/**

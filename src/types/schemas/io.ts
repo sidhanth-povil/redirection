@@ -24,13 +24,3 @@ export interface UserAgentInfo {
 	platform?: string;
 	mobile?: boolean;
 }
-
-export interface HttpInfo {
-	url: string;
-	status: number;
-	headers: Array< {
-		name: string;
-		value: string;
-	} >;
-	redirect_chain?: string[];
-}

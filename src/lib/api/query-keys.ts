@@ -55,6 +55,5 @@ export const queryKeys = {
 		all: [ 'info' ] as const,
 		ip: ( ip: string ) => [ ...queryKeys.info.all, 'ip', ip ] as const,
 		agent: ( agent: string ) => [ ...queryKeys.info.all, 'agent', agent ] as const,
-		http: ( url: string ) => [ ...queryKeys.info.all, 'http', url ] as const,
 	},
 } as const;

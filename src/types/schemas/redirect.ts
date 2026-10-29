@@ -98,3 +98,21 @@ export const RedirectTestResultSchema = z.object( {
 } );
 
 export type RedirectTestResult = z.infer< typeof RedirectTestResultSchema >;
+
+/**
+ * POST /redirect/trace: an address on this site followed hop by hop, from the server
+ */
+export const TraceResultSchema = z.object( {
+	hops: z.array(
+		z.object( {
+			url: z.string(),
+			code: z.number(),
+			location: z.string(),
+			external: z.boolean(),
+			ms: z.number(),
+		} )
+	),
+	loop: z.boolean(),
+} );
+
+export type TraceResult = z.infer< typeof TraceResultSchema >;

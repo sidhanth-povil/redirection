@@ -20,6 +20,7 @@ export const RedirectionApi = {
 		create: ( data: any, query?: TableParams ) => postApiRequest( 'redirection/v1/redirect', data, query ),
 		matchPost: ( text: string ) => getApiRequest( 'redirection/v1/redirect/post', { text } ),
 		test: ( id: number ) => postApiRequest( 'redirection/v1/redirect/' + id + '/test', {} ),
+		trace: ( url: string ) => postApiRequest( 'redirection/v1/redirect/trace', { url } ),
 	},
 	health: {
 		get: () => getApiRequest( 'redirection/v1/health' ),
@@ -133,12 +134,6 @@ export const RedirectLiApi = {
 	agent: {
 		get: ( agent: string ): ApiRequest => ( {
 			url: getRedirectLiUrl( 'useragent/' + encodeURIComponent( agent ) ),
-			method: 'get',
-		} ),
-	},
-	http: {
-		get: ( url: string ): ApiRequest => ( {
-			url: getRedirectLiUrl( 'http?url=' + encodeURIComponent( url ), 2 ),
 			method: 'get',
 		} ),
 	},

@@ -118,3 +118,30 @@
 		margin-bottom: -10px;
 	}
 }
+
+// The redirect tester's hop list: address, status, where it goes next.
+.dsr-tracer__hops {
+	margin: 0 0 12px 20px;
+
+	li {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		align-items: baseline;
+		margin-bottom: 6px;
+		overflow-wrap: anywhere;
+	}
+}
+
+.dsr-tracer__code {
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.dsr-tracer__to {
+	color: #4b5563;
+}
+
+.dsr-tracer__error {
+	color: #b91c1c;
+}

@@ -6,6 +6,7 @@ class RedirectTestApiTest extends Redirection_Api_Test {
 	private $group;
 	private $requests = [];
 	private $reply;
+	private $by_url = [];
 
 	public function setUp(): void {
 		parent::setUp();
@@ -163,5 +164,71 @@ class RedirectTestApiTest extends Redirection_Api_Test {
 		$this->assertFalse( Tester::is_valid_token( Tester::token( time() - 3 * Tester::TOKEN_WINDOW ) ) );
 		$this->assertFalse( Tester::is_valid_token( Tester::token( time() - HOUR_IN_SECONDS ) ) );
 		$this->assertFalse( Tester::is_valid_token( '' ) );
+	}
+
+	private function replies( array $by_url ) {
+		$this->by_url = $by_url;
+		remove_filter( 'pre_http_request', [ $this, 'fake_http' ], 10 );
+		add_filter( 'pre_http_request', [ $this, 'fake_http_by_url' ], 10, 3 );
+	}
+
+	public function fake_http_by_url( $pre, $args, $url ) {
+		$this->requests[] = [ 'url' => $url, 'args' => $args ];
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		[ $code, $location ] = $this->by_url[ $path ] ?? [ 404, '' ];
+
+		return [
+			'headers' => $location === '' ? [] : [ 'location' => $location ],
+			'body' => '',
+			'response' => [ 'code' => $code, 'message' => '' ],
+			'cookies' => [],
+			'filename' => null,
+		];
+	}
+
+	private function trace( $url ) {
+		$result = $this->callApi( 'redirect/trace', [ 'url' => $url ], 'POST' );
+		remove_filter( 'pre_http_request', [ $this, 'fake_http_by_url' ], 10 );
+
+		return $result;
+	}
+
+	public function testTraceFollowsEveryHopOnThisSite() {
+		$this->replies( [ '/a' => [ 301, home_url( '/b' ) ], '/b' => [ 302, '/c/' ], '/c/' => [ 200, '' ] ] );
+
+		$result = $this->trace( home_url( '/a' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			[ [ '/a', 301, '/b' ], [ '/b', 302, '/c/' ], [ '/c/', 200, '' ] ],
+			array_map( fn( $hop ) => [ $hop['url'], $hop['code'], $hop['location'] ], $result->get_data()['hops'] )
+		);
+		$this->assertSame( Tester::token(), $this->requests[0]['args']['headers'][ Tester::HEADER ] );
+	}
+
+	public function testTraceNeverRequestsAnotherSite() {
+		$this->replies( [ '/out' => [ 301, 'https://other.example/landing' ] ] );
+
+		$hops = $this->trace( home_url( '/out' ) )->get_data()['hops'];
+
+		$this->assertCount( 1, $this->requests );
+		$this->assertSame( 'https://other.example/landing', $hops[0]['location'] );
+		$this->assertTrue( $hops[0]['external'] );
+	}
+
+	public function testTraceRefusesAnotherSitesUrl() {
+		$this->replies( [] );
+
+		$this->assertSame( 400, $this->trace( 'https://other.example/x' )->get_status() );
+		$this->assertCount( 0, $this->requests );
+	}
+
+	public function testTraceStopsAtALoop() {
+		$this->replies( [ '/x' => [ 301, '/y' ], '/y' => [ 301, '/x' ] ] );
+
+		$data = $this->trace( '/x' )->get_data();
+
+		$this->assertCount( 2, $data['hops'] );
+		$this->assertTrue( $data['loop'] );
 	}
 }

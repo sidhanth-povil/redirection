@@ -21,6 +21,8 @@ class RequestTest extends WP_UnitTestCase {
 	}
 
 	public function setUp(): void {
+		parent::setUp();
+
 		$this->resetIpSettings();
 		$this->resetLogIpFilters();
 	}

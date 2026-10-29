@@ -8,11 +8,6 @@ class AdminBarTest extends WP_UnitTestCase {
 
 		$this->set_permalink_structure( '/%postname%/' );
 		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
-
-		// Earlier tests that run an error action leave its hooks behind, which turn every request into a 404.
-		// Hooks are restored after each test, so clearing them here is local to this class.
-		remove_all_filters( 'pre_handle_404' );
-		remove_all_actions( 'wp' );
 	}
 
 	// $query resolves the request without rewrite rules, which earlier tests can leave stale; $path is what the visitor sees.
