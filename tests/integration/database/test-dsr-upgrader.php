@@ -195,4 +195,14 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 
 		$this->assertNotContains( 'Bio Link', $this->group_names() );
 	}
+
+	public function testKeepsAPurposeGroupTheSiteAlreadyHasInAnyCase() {
+		update_option( Schedule::VERSION_OPTION, 2 );
+		Red_Group::create( 'print qr', 1 );
+
+		DsrUpgrader::run();
+
+		$this->assertNotContains( 'Print QR', $this->group_names() );
+		$this->assertContains( 'print qr', $this->group_names() );
+	}
 }

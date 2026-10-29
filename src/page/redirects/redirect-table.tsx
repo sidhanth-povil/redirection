@@ -109,6 +109,38 @@ function TestLink( { id }: { id: number } ) {
 	);
 }
 
+/**
+ * Downloads a QR code of the full short link; says so in the row when the address can't fit in one.
+ *
+ * @param props
+ * @param props.url Source path.
+ */
+function QrLink( { url }: { url: string } ) {
+	const [ error, setError ] = useState( '' );
+
+	const onDownload = () => {
+		try {
+			downloadQr( window.location.origin + url, url );
+			setError( '' );
+		} catch {
+			setError( __( 'Too long for a QR code', 'dsuite-redirects' ) );
+		}
+	};
+
+	return (
+		<>
+			<button type="button" className="dsr-link" onClick={ onDownload }>
+				{ __( 'QR code', 'dsuite-redirects' ) }
+			</button>
+			{ error && (
+				<span role="status" className="dsr-test-result is-bad">
+					{ error }
+				</span>
+			) }
+		</>
+	);
+}
+
 export default function RedirectTable( props: RedirectTableProps ) {
 	const { rows, groupNames, loading, selected, canEdit, canDelete, empty, onSelect, onEdit, onToggle, onDelete } =
 		props;
@@ -198,15 +230,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 							</td>
 							<td className="dsr-table__actions">
 								{ isSingleAddress( row ) && <CopyLink url={ row.url } /> }
-								{ isSingleAddress( row ) && (
-									<button
-										type="button"
-										className="dsr-link"
-										onClick={ () => downloadQr( window.location.origin + row.url, row.url ) }
-									>
-										{ __( 'QR code', 'dsuite-redirects' ) }
-									</button>
-								) }
+								{ isSingleAddress( row ) && <QrLink url={ row.url } /> }
 								{ isSingleAddress( row ) && [ 'url', 'error' ].includes( row.action_type ) && (
 									<TestLink id={ row.id } />
 								) }

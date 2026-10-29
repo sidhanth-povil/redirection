@@ -11,10 +11,29 @@ const QUIET_ZONE = 4;
  */
 export function qrSvg( url: string ): string {
 	const code = qrcode( 0, 'M' );
-	code.addData( url );
-	code.make();
+
+	try {
+		code.addData( toAscii( url ) );
+		code.make();
+	} catch {
+		// The library throws a bare string past the largest code size (about 2,300 characters at this level).
+		throw new Error( 'This address is too long for a QR code.' );
+	}
 
 	return code.createSvgTag( CELL_SIZE, QUIET_ZONE );
+}
+
+/**
+ * The library writes one byte per character, so non-ASCII must be percent-escaped first, as a browser would send it.
+ *
+ * @param url Full URL.
+ */
+function toAscii( url: string ): string {
+	try {
+		return new URL( url ).href;
+	} catch {
+		return encodeURI( url );
+	}
 }
 
 /**

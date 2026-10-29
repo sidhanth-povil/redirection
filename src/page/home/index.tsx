@@ -130,13 +130,16 @@ export default function Home() {
 					</Error>
 
 					<PageContent route={ current } />
-
-					<Snackbar
-						notices={ notices }
-						onClear={ () => clearNotices() }
-						snackBarViewText={ __( 'View notice', 'dsuite-redirects' ) }
-					/>
 				</Shell>
+			) }
+
+			{ /* Outside the shell: its content column is a size container, which would pin this fixed toast to it. */ }
+			{ current !== null && ! inProgress && databaseStatus !== 'finish-update' && ! showDatabase && (
+				<Snackbar
+					notices={ notices }
+					onClear={ () => clearNotices() }
+					snackBarViewText={ __( 'View notice', 'dsuite-redirects' ) }
+				/>
 			) }
 		</ErrorBoundary>
 	);

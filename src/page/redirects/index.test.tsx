@@ -282,6 +282,18 @@ describe( 'Redirects page', () => {
 		expect( downloadQr ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale`, '/old-sale' );
 	} );
 
+	it( 'says when an address is too long for a QR code', () => {
+		( downloadQr as jest.Mock ).mockImplementationOnce( () => {
+			throw new Error( 'This address is too long for a QR code.' );
+		} );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		fireEvent.click( within( first ).getByRole( 'button', { name: 'QR code' } ) );
+
+		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( 'Too long for a QR code' );
+	} );
+
 	it( 'offers no test for a wildcard redirect', () => {
 		setup();
 
