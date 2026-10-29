@@ -22,7 +22,7 @@ class Error extends Filtered {
 	 */
 	public function __construct( $api_namespace ) {
 		$orders = [ 'url', 'ip', 'total', 'count', '' ];
-		$filters = [ 'ip', 'url-exact', 'referrer', 'agent', 'url', 'domain', 'method', 'http', 'since', 'ignored' ];
+		$filters = [ 'ip', 'url-exact', 'referrer', 'agent', 'url', 'domain', 'method', 'http', 'since', 'ignored', 'redirected' ];
 
 		// GET /404 - List 404 logs
 		register_rest_route(

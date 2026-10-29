@@ -47,6 +47,8 @@ export function useRedirectCreate(
 			decrementProgress();
 			addNotice( 'Redirect created' );
 			queryClient.invalidateQueries( { queryKey: queryKeys.redirects.lists() } );
+			// 404 rows show the redirect that fixes them.
+			queryClient.invalidateQueries( { queryKey: queryKeys.errors.lists() } );
 		},
 		onError: ( error ) => {
 			addError( error.message || 'Failed to create redirect' );
@@ -83,6 +85,8 @@ export function useRedirectUpdate(
 			decrementProgress();
 			addNotice( 'Redirect saved' );
 			queryClient.invalidateQueries( { queryKey: queryKeys.redirects.lists() } );
+			// 404 rows show the redirect that fixes them.
+			queryClient.invalidateQueries( { queryKey: queryKeys.errors.lists() } );
 			queryClient.invalidateQueries( { queryKey: queryKeys.redirects.detail( data.id ) } );
 		},
 		onError: ( error ) => {
@@ -120,6 +124,8 @@ export function useRedirectDelete(
 			addNotice( 'Redirects deleted' );
 			setRedirectsTable( getTableResetOnDelete( variables.params ) );
 			queryClient.invalidateQueries( { queryKey: queryKeys.redirects.lists() } );
+			// 404 rows show the redirect that fixes them.
+			queryClient.invalidateQueries( { queryKey: queryKeys.errors.lists() } );
 		},
 		onError: ( error ) => {
 			addError( error.message || 'Failed to delete redirects' );
@@ -158,6 +164,8 @@ export function useRedirectBulkAction(
 			addNotice( `Redirects ${ action }d` );
 			setRedirectsSelected( [] );
 			queryClient.invalidateQueries( { queryKey: queryKeys.redirects.lists() } );
+			// 404 rows show the redirect that fixes them.
+			queryClient.invalidateQueries( { queryKey: queryKeys.errors.lists() } );
 		},
 		onError: ( error ) => {
 			addError( error.message || `Failed to ${ action } redirects` );

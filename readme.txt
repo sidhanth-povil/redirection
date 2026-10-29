@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.9.0
+Stable tag: 1.10.0
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,11 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.10.0 - 29th October 2026 =
+* 404s: a 404 that already has a redirect shows a green Redirected badge and where it now goes, and moves to its own Redirected tab, so New this week and All list only 404s still needing a fix
+* 404s: View redirect on a fixed 404 opens its redirect to check or change the destination; a switched-off redirect shows as Redirect off
+* A second redirect for an old URL that already redirects is no longer saved, as it would never run; the form offers to edit the existing one instead
 
 = 1.9.0 - 29th October 2026 =
 * Privacy: the plugin no longer uses redirect.li or any other outside service. Addresses, visitor IPs and browsers stay on your site

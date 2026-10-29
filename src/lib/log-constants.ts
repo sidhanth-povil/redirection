@@ -15,8 +15,8 @@ export function getInitialError() {
 		perPage: 25,
 		selected: [],
 		filter: '',
-		// DSuite: the 404s page lists each URL once, starting on this week's unignored 404s.
-		filterBy: { since: '7', ignored: '0' },
+		// DSuite: the 404s page lists each URL once, starting on this week's unignored, unfixed 404s.
+		filterBy: { since: '7', ignored: '0', redirected: '0' },
 		groupBy: 'url',
 	};
 }

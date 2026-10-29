@@ -95,7 +95,7 @@ const initialErrorsTable: TableState = {
 	orderby: '',
 	direction: 'desc',
 	selected: [],
-	filterBy: { since: '7', ignored: '0' },
+	filterBy: { since: '7', ignored: '0', redirected: '0' },
 	displayType: 'standard',
 	displaySelected: [ 'date', 'url', 'agent', 'ip' ],
 	groupBy: 'url',

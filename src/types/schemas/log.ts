@@ -48,6 +48,8 @@ export const Error404Schema = z.object( {
 	count: z.coerce.number().int().optional(), // Only present in grouped results
 	last_seen: z.string().optional(), // DSuite: grouped by URL only, site-local `Y-m-d H:i:s`
 	suggestion: z.string().optional(), // DSuite: grouped by URL only, closest published page path or ''
+	// DSuite: grouped by URL only, the redirect already set up for this URL ('' target when it isn't a URL redirect)
+	redirect: z.object( { id: z.number().int(), target: z.string(), enabled: z.boolean() } ).nullable().optional(),
 } );
 
 export type Error404 = z.infer< typeof Error404Schema >;

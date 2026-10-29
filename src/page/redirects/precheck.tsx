@@ -40,16 +40,16 @@ export function useSaveCheck(
 	);
 	const result = isCheckable && isSettled && ! isPlaceholderData ? data : undefined;
 
-	return { result, isBlocked: result?.status === 'loop' };
+	// A second plain redirect for the same old URL never runs: the first one always matches.
+	return { result, isBlocked: result?.status === 'loop' || result?.status === 'duplicate' };
 }
 
 interface PrecheckProps {
 	result: CheckResponse;
-	source: string;
 	onUseTarget: ( url: string ) => void;
 }
 
-export default function Precheck( { result, source, onUseTarget }: PrecheckProps ) {
+export default function Precheck( { result, onUseTarget }: PrecheckProps ) {
 	const path = ( result.path ?? [] ).join( ' → ' );
 
 	switch ( result.status ) {
@@ -118,16 +118,14 @@ export default function Precheck( { result, source, onUseTarget }: PrecheckProps
 
 		case 'duplicate':
 			return (
-				<div className="dsr-notice dsr-notice--warning" role="status">
+				<div className="dsr-notice dsr-notice--error" role="alert">
 					<p>
-						{ __( 'Another redirect already uses this old URL.', 'dsuite-redirects' ) }{ ' ' }
-						{ /* A new tab keeps what's typed here. */ }
-						<a
-							href={ buildHash( 'redirects', { 'filterby[url]': source } ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'View it', 'dsuite-redirects' ) }
+						{ __(
+							'Another redirect already uses this old URL, so this one would never run. Change that one instead.',
+							'dsuite-redirects'
+						) }{ ' ' }
+						<a href={ buildHash( 'redirects', { edit: String( result.existing_id ?? 0 ) } ) }>
+							{ __( 'Edit that redirect', 'dsuite-redirects' ) }
 						</a>
 					</p>
 				</div>

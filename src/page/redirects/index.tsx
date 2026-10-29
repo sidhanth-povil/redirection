@@ -12,6 +12,7 @@ import { Button } from 'ui';
 import type { Redirect } from 'types';
 import RedirectTable from './redirect-table';
 import RedirectDrawer from './redirect-drawer';
+import ExistingRedirectDrawer from './existing-redirect-drawer';
 import './style.scss';
 
 type SearchField = 'url' | 'target' | 'title';
@@ -70,6 +71,7 @@ export default function Redirects() {
 	const canDelete = has_capability( CAP_REDIRECT_DELETE );
 
 	const [ drawer, setDrawer ] = useState< DrawerTarget | null >( null );
+	const [ editId, setEditId ] = useState( 0 );
 	const route = useRoute();
 
 	// The header's "Add redirect" button.
@@ -81,7 +83,7 @@ export default function Redirects() {
 	}, [ addTop, setRedirectsAddTop ] );
 
 	// Deep link used by 404 emails (#/redirects?new=1&from=/old-url) and the admin bar (…&to=/page/)
-	const { new: isNew, from, to } = route.query;
+	const { new: isNew, from, to, edit } = route.query;
 	useEffect( () => {
 		if ( isNew === '1' && canAdd ) {
 			// A link can be crafted by anyone; only a path on this site is prefilled as the destination.
@@ -90,6 +92,17 @@ export default function Redirects() {
 			window.history.replaceState( {}, '', buildHash( 'redirects' ) );
 		}
 	}, [ isNew, from, to, canAdd ] );
+
+	// A blocked duplicate offers to edit the redirect already using its old URL (#/redirects?edit=12).
+	useEffect( () => {
+		const id = Number( edit );
+
+		if ( Number.isInteger( id ) && id > 0 ) {
+			setDrawer( null );
+			setEditId( id );
+			window.history.replaceState( {}, '', buildHash( 'redirects' ) );
+		}
+	}, [ edit ] );
 
 	const filterBy: Record< string, string > = table.filterBy ?? {};
 	const [ field, setField ] = useState< SearchField >(
@@ -343,6 +356,8 @@ export default function Redirects() {
 					onClose={ () => setDrawer( null ) }
 				/>
 			) }
+
+			{ editId > 0 && <ExistingRedirectDrawer key={ editId } id={ editId } onClose={ () => setEditId( 0 ) } /> }
 		</div>
 	);
 }

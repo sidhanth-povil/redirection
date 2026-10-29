@@ -65,6 +65,68 @@ class Grouped404ApiTest extends Redirection_Api_Test {
 		$this->assertSame( [ '/ignored' ], array_column( $this->grouped( [ 'ignored' => '1' ] ), 'url' ) );
 	}
 
+	private function redirect( $url, $target, $status = 'enabled' ) {
+		$item = Red_Item::create(
+			[
+				'url' => $url,
+				'group_id' => Red_Group::create( 'fixes', 1 )->get_id(),
+				'match_type' => 'url',
+				'action_type' => 'url',
+				'action_data' => [ 'url' => $target ],
+			]
+		);
+
+		if ( $status === 'disabled' ) {
+			$item->disable();
+		}
+
+		return $item->get_id();
+	}
+
+	public function testRowsCarryTheRedirectThatFixesThem() {
+		$this->log404( '/request-appointment/' );
+		$this->log404( '/still-broken' );
+		$id = $this->redirect( '/request-appointment/', '/book-an-appointment/' );
+
+		$rows = array_column( $this->grouped(), null, 'url' );
+
+		$this->assertSame( [ 'id' => $id, 'target' => '/book-an-appointment/', 'enabled' => true ], $rows['/request-appointment/']->redirect );
+		$this->assertNull( $rows['/still-broken']->redirect );
+	}
+
+	public function testADisabledRedirectIsReportedOff() {
+		$this->log404( '/paused' );
+		$this->redirect( '/paused', '/elsewhere', 'disabled' );
+
+		$this->assertFalse( $this->grouped()[0]->redirect['enabled'] );
+	}
+
+	public function testRedirectedSplitsFixedUrls() {
+		$this->log404( '/fixed' );
+		$this->log404( '/paused' );
+		$this->log404( '/broken' );
+		$this->redirect( '/fixed', '/new' );
+		$this->redirect( '/paused', '/new', 'disabled' );
+
+		$this->assertSame( [ '/fixed' ], array_column( $this->grouped( [ 'redirected' => '1' ] ), 'url' ) );
+		$this->assertEqualsCanonicalizing( [ '/paused', '/broken' ], array_column( $this->grouped( [ 'redirected' => '0' ] ), 'url' ) );
+	}
+
+	public function testAnIgnoredUrlIsNotRedirected() {
+		$this->log404( '/ignored' );
+		Red_Item::create(
+			[
+				'url' => '/ignored',
+				'group_id' => Red_Group::create( 'ignore', 1 )->get_id(),
+				'match_type' => 'url',
+				'action_type' => 'nothing',
+			]
+		);
+
+		$this->assertNull( $this->grouped()[0]->redirect );
+		$this->assertSame( [], $this->grouped( [ 'redirected' => '1' ] ) );
+	}
+
 	public function testUrlsDifferingOnlyByCaseKeepTheirReferrer() {
 		$this->log404( '/Foo', 'https://a.test/' );
 		$this->log404( '/foo', 'https://a.test/' );

@@ -6,9 +6,10 @@ import {
 	useGroupDropdown,
 	useRedirectCheck,
 	useRedirectCreate,
+	useRedirectList,
 	useRedirectUpdate,
 } from 'lib/api/hooks';
-import { useTableStore } from 'stores';
+import { useMessageStore, useTableStore } from 'stores';
 import { getInitialError } from 'lib/log-constants';
 import Logs404 from 'page/logs404';
 
@@ -20,6 +21,7 @@ jest.mock( 'lib/api/hooks', () => ( {
 	useGroupDropdown: jest.fn(),
 	useRedirectCheck: jest.fn(),
 	useRedirectCreate: jest.fn(),
+	useRedirectList: jest.fn(),
 	useRedirectUpdate: jest.fn(),
 } ) );
 jest.mock( 'page/redirects/search-content', () => ( { searchContent: jest.fn().mockResolvedValue( [] ) } ) );
@@ -46,14 +48,27 @@ const bulk = { mutate: jest.fn() };
 const create = { mutate: jest.fn(), reset: jest.fn(), isPending: false, error: null };
 const refetch = jest.fn();
 
-function setup() {
+const fixed = {
+	id: '/request-appointment/',
+	url: '/request-appointment/',
+	count: 9,
+	last_seen: '2026-10-29 04:56:00',
+	redirect: { id: 7, target: '/book-an-appointment/', enabled: true },
+};
+const paused = { id: '/paused', url: '/paused', count: 2, redirect: { id: 8, target: '/elsewhere', enabled: false } };
+
+function setup( items: object[] = rows ) {
 	window.Redirectioni10n = {
 		caps: {
 			capabilities: [ 'redirection_cap_redirect_add', 'redirection_cap_404_delete' ],
 			pages: [ '404s' ],
 		},
 	} as any;
-	( useErrorList as jest.Mock ).mockReturnValue( { data: { items: rows, total: 2 }, isFetching: false, refetch } );
+	( useErrorList as jest.Mock ).mockReturnValue( {
+		data: { items, total: items.length },
+		isFetching: false,
+		refetch,
+	} );
 	( useErrorBulkAction as jest.Mock ).mockReturnValue( bulk );
 	( useGroupDropdown as jest.Mock ).mockReturnValue( { data: { items: [ { id: 1, name: 'Redirections' } ] } } );
 	( useRedirectCheck as jest.Mock ).mockReturnValue( { data: undefined } );
@@ -78,7 +93,7 @@ describe( '404s page', () => {
 		setup();
 
 		expect( useErrorList ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { groupBy: 'url', filterBy: { since: '7', ignored: '0' } } )
+			expect.objectContaining( { groupBy: 'url', filterBy: { since: '7', ignored: '0', redirected: '0' } } )
 		);
 		expect( screen.getByRole( 'button', { name: 'New this week' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
 	} );
@@ -99,7 +114,69 @@ describe( '404s page', () => {
 		expect( useTableStore.getState().errors.filterBy ).toEqual( { ignored: '1' } );
 
 		fireEvent.click( screen.getByRole( 'button', { name: 'All' } ) );
-		expect( useTableStore.getState().errors.filterBy ).toEqual( { ignored: '0' } );
+		expect( useTableStore.getState().errors.filterBy ).toEqual( { ignored: '0', redirected: '0' } );
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Redirected' } ) );
+		expect( useTableStore.getState().errors.filterBy ).toEqual( { redirected: '1' } );
+	} );
+
+	it( 'marks a fixed 404 with where it now goes', () => {
+		setup( [ fixed ] );
+
+		const fixedRow = row( '/request-appointment/' );
+		expect( within( fixedRow ).getByText( 'Redirected' ) ).toBeInTheDocument();
+		expect( fixedRow ).toHaveTextContent( '→ /book-an-appointment/' );
+		expect( within( fixedRow ).queryByRole( 'button', { name: 'Fix' } ) ).toBeNull();
+		expect( within( fixedRow ).queryByRole( 'button', { name: 'Ignore' } ) ).toBeNull();
+	} );
+
+	it( 'says when the redirect for a 404 is switched off', () => {
+		setup( [ paused ] );
+
+		expect( within( row( '/paused' ) ).getByText( 'Redirect off' ) ).toBeInTheDocument();
+	} );
+
+	it( 'says once when the redirect behind a fixed 404 has gone', () => {
+		( useRedirectList as jest.Mock ).mockReturnValue( { data: undefined, isFetching: false, isError: true } );
+		const addError = jest.spyOn( useMessageStore.getState(), 'addError' );
+		setup( [ fixed ] );
+
+		fireEvent.click( within( row( '/request-appointment/' ) ).getByRole( 'button', { name: 'View redirect' } ) );
+
+		expect( addError ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'dialog' ) ).toBeNull();
+	} );
+
+	it( 'opens the existing redirect instead of a new one', () => {
+		( useRedirectList as jest.Mock ).mockReturnValue( {
+			data: {
+				items: [
+					{
+						id: 7,
+						url: '/request-appointment/',
+						match_type: 'url',
+						action_type: 'url',
+						action_code: 301,
+						action_data: { url: '/book-an-appointment/' },
+						group_id: 1,
+						regex: false,
+						enabled: true,
+						position: 0,
+						match_data: { source: { flag_query: 'exact' } },
+					},
+				],
+				total: 1,
+			},
+			isFetching: false,
+			isError: false,
+		} );
+		setup( [ fixed ] );
+
+		fireEvent.click( within( row( '/request-appointment/' ) ).getByRole( 'button', { name: 'View redirect' } ) );
+
+		expect( useRedirectList ).toHaveBeenLastCalledWith( expect.objectContaining( { filterBy: { id: '7' } } ) );
+		expect( screen.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Send visitors to' ) ).toHaveValue( '/book-an-appointment/' );
 	} );
 
 	it( 'opens the drawer filled in to fix a 404', () => {

@@ -337,7 +337,6 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 				{ check.result && (
 					<Precheck
 						result={ check.result }
-						source={ state.url.trim() }
 						onUseTarget={ ( url ) => change( ( prev ) => setTarget( prev, url ) ) }
 					/>
 				) }

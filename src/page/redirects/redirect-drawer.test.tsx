@@ -399,15 +399,15 @@ describe( 'RedirectDrawer check before saving', () => {
 		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
 	} );
 
-	it( 'links to the redirect that already uses the old URL', async () => {
+	it( 'blocks a duplicate and offers to edit the redirect already using the old URL', async () => {
 		checkReturns( { status: 'duplicate', existing_id: 9 } );
 		openWith( '/new' );
 
-		expect( await screen.findByRole( 'link', { name: /View it/ } ) ).toHaveAttribute(
+		expect( await screen.findByRole( 'link', { name: 'Edit that redirect' } ) ).toHaveAttribute(
 			'href',
-			'#/redirects?filterby%5Burl%5D=%2Fold'
+			'#/redirects?edit=9'
 		);
-		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
 	} );
 
 	it( 'confirms a clean redirect', async () => {

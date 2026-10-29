@@ -82,6 +82,7 @@ class Error extends Log {
 		);
 		$referrers = self::get_top_referrers( $urls );
 		$suggestions = Suggest::for_urls( $urls );
+		$redirects = self::get_redirects( $urls );
 
 		// The URL column's collation ignores case, so a query can return another spelling of the same URL.
 		$seen = [];
@@ -94,13 +95,53 @@ class Error extends Log {
 			$row->last_seen = $seen[ strtolower( $row->url ) ] ?? '';
 			$row->referrer = $referrers[ $row->url ] ?? '';
 			$row->suggestion = $suggestions[ $row->url ] ?? '';
+			$row->redirect = $redirects[ strtolower( $row->url ) ] ?? null;
 		}
 
 		return $result;
 	}
 
 	/**
-	 * Adds `since` (days) and `ignored` (whether a "do nothing" redirect exists for the URL).
+	 * The redirect already set up for each URL, so a fixed 404 can say where it now goes. An enabled redirect wins
+	 * over a disabled one; "do nothing" redirects are the Ignored list, not a fix.
+	 *
+	 * ponytail: matches the redirect's URL exactly (as Fix and Ignore save it), not regex or trailing-slash variants;
+	 * match on match_url if 404s fixed by hand-typed redirects go unlabelled.
+	 *
+	 * @param list<string> $urls 404 URLs.
+	 * @return array<string, array{id: int, target: string, enabled: bool}> Lowercase URL → redirect.
+	 */
+	public static function get_redirects( array $urls ) {
+		global $wpdb;
+
+		$placeholders = implode( ',', array_fill( 0, count( $urls ), '%s' ) );
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
+				"SELECT id, url, action_type, action_data, status FROM {$wpdb->prefix}redirection_items WHERE url IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY status = 'enabled' DESC, position, id",
+				$urls
+			)
+		);
+
+		$redirects = [];
+		foreach ( (array) $rows as $row ) {
+			$key = strtolower( $row->url );
+
+			if ( ! isset( $redirects[ $key ] ) ) {
+				$redirects[ $key ] = [
+					'id' => intval( $row->id, 10 ),
+					'target' => $row->action_type === 'url' && is_string( $row->action_data ) ? $row->action_data : '',
+					'enabled' => $row->status === 'enabled',
+				];
+			}
+		}
+
+		return $redirects;
+	}
+
+	/**
+	 * Adds `since` (days), `ignored` (whether a "do nothing" redirect exists for the URL) and `redirected` (whether
+	 * an enabled redirect sends it somewhere).
 	 *
 	 * @param array<string, mixed> $filter Array of filter params.
 	 * @return list<string>
@@ -119,6 +160,11 @@ class Error extends Log {
 		if ( isset( $filter['ignored'] ) && in_array( $filter['ignored'], [ '0', '1' ], true ) ) {
 			$ignored = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type='nothing' AND status='enabled'";
 			$where[] = 'url ' . ( $filter['ignored'] === '1' ? 'IN' : 'NOT IN' ) . " ({$ignored})";
+		}
+
+		if ( isset( $filter['redirected'] ) && in_array( $filter['redirected'], [ '0', '1' ], true ) ) {
+			$redirected = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type!='nothing' AND status='enabled' AND regex=0";
+			$where[] = 'url ' . ( $filter['redirected'] === '1' ? 'IN' : 'NOT IN' ) . " ({$redirected})";
 		}
 
 		return $where;

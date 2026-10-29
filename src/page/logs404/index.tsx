@@ -6,9 +6,10 @@ import { useTableUrlSync } from 'lib/hooks';
 import { useSettingsStore, useTableStore } from 'stores';
 import { has_capability, CAP_404_DELETE, CAP_REDIRECT_ADD } from 'lib/capabilities';
 import { ACTION_NOTHING, getCodeForActionType } from 'lib/redirect-constants';
-import { Button } from 'ui';
+import { Badge, Button } from 'ui';
 // The drawer brings the shared list styles (.dsr-table, .dsr-chip, …) with it.
 import RedirectDrawer from 'page/redirects/redirect-drawer';
+import ExistingRedirectDrawer from 'page/redirects/existing-redirect-drawer';
 import { createState, pickDefaultGroup, toPayload } from 'page/redirects/model';
 import type { Error404 } from 'types';
 
@@ -25,14 +26,19 @@ interface Chip {
 	filter: Record< string, string >;
 }
 
+// Fixed and ignored 404s have their own chips, so the first two list only the 404s still needing a decision.
 const getChips = (): Chip[] => [
-	{ label: __( 'New this week', 'dsuite-redirects' ), filter: { since: RECENT_DAYS, ignored: '0' } },
-	{ label: __( 'All', 'dsuite-redirects' ), filter: { ignored: '0' } },
+	{
+		label: __( 'New this week', 'dsuite-redirects' ),
+		filter: { since: RECENT_DAYS, ignored: '0', redirected: '0' },
+	},
+	{ label: __( 'All', 'dsuite-redirects' ), filter: { ignored: '0', redirected: '0' } },
+	{ label: __( 'Redirected', 'dsuite-redirects' ), filter: { redirected: '1' } },
 	{ label: __( 'Ignored', 'dsuite-redirects' ), filter: { ignored: '1' } },
 ];
 
 function sameFilter( first: Record< string, string >, second: Record< string, string > ): boolean {
-	return first.since === second.since && first.ignored === second.ignored;
+	return first.since === second.since && first.ignored === second.ignored && first.redirected === second.redirected;
 }
 
 export default function Logs404() {
@@ -44,7 +50,7 @@ export default function Logs404() {
 		table,
 		setTable: setErrorsTable,
 		allowedGroup: [ 'url' ],
-		allowedFilters: [ 'url', 'since', 'ignored' ],
+		allowedFilters: [ 'url', 'since', 'ignored', 'redirected' ],
 		pageName: '404s',
 	} );
 
@@ -61,6 +67,7 @@ export default function Logs404() {
 	const filterBy: Record< string, string > = table.filterBy ?? {};
 	const [ search, setSearch ] = useState( filterBy.url ?? '' );
 	const [ fixing, setFixing ] = useState< Fixing | null >( null );
+	const [ viewingId, setViewingId ] = useState( 0 );
 
 	const setFilter = ( next: Record< string, string > ) => {
 		setErrorsTable( { filterBy: next, groupBy: 'url', page: 0, selected: [], selectAll: false } );
@@ -166,13 +173,23 @@ export default function Logs404() {
 					<tbody>
 						{ rows.map( ( row ) => {
 							const url = row.url ?? String( row.id );
+							const redirect = row.redirect ?? null;
 
 							return (
 								<tr key={ url }>
 									<td className="dsr-table__redirect">
-										<span className="dsr-table__source" title={ url }>
-											{ url }
+										<span className="dsr-table__headline">
+											<span className="dsr-table__source" title={ url }>
+												{ url }
+											</span>
+											{ redirect && <RedirectBadge enabled={ redirect.enabled } /> }
 										</span>
+										{ redirect && redirect.target !== '' && (
+											<span className="dsr-table__target" title={ redirect.target }>
+												<span aria-hidden="true">→ </span>
+												{ redirect.target }
+											</span>
+										) }
 										{ row.referrer && (
 											<span className="dsr-table__target" title={ row.referrer }>
 												{
@@ -181,7 +198,7 @@ export default function Logs404() {
 												}
 											</span>
 										) }
-										{ row.suggestion && (
+										{ ! redirect && row.suggestion && (
 											<span className="dsr-table__target" title={ row.suggestion }>
 												{
 													/* translators: %s: the page this 404 should probably redirect to */
@@ -203,7 +220,16 @@ export default function Logs404() {
 										{ row.last_seen ? row.last_seen.slice( 0, 16 ) : '–' }
 									</td>
 									<td className="dsr-table__actions">
-										{ canFix && (
+										{ canFix && redirect && (
+											<button
+												type="button"
+												className="dsr-link"
+												onClick={ () => setViewingId( redirect.id ) }
+											>
+												{ __( 'View redirect', 'dsuite-redirects' ) }
+											</button>
+										) }
+										{ canFix && ! redirect && (
 											<button
 												type="button"
 												className="dsr-link"
@@ -212,7 +238,7 @@ export default function Logs404() {
 												{ __( 'Fix', 'dsuite-redirects' ) }
 											</button>
 										) }
-										{ canFix && filterBy.ignored !== '1' && (
+										{ canFix && ! redirect && filterBy.ignored !== '1' && (
 											<button
 												type="button"
 												className="dsr-link"
@@ -273,6 +299,23 @@ export default function Logs404() {
 					onClose={ () => setFixing( null ) }
 				/>
 			) }
+
+			{ viewingId > 0 && (
+				<ExistingRedirectDrawer key={ viewingId } id={ viewingId } onClose={ () => setViewingId( 0 ) } />
+			) }
 		</div>
+	);
+}
+
+function RedirectBadge( { enabled }: { enabled: boolean } ) {
+	if ( ! enabled ) {
+		return <Badge tone="neutral">{ __( 'Redirect off', 'dsuite-redirects' ) }</Badge>;
+	}
+
+	return (
+		<Badge tone="success">
+			<span aria-hidden="true">✓ </span>
+			<span>{ __( 'Redirected', 'dsuite-redirects' ) }</span>
+		</Badge>
 	);
 }

@@ -112,3 +112,39 @@ test( 'a marketer fixes a 404 from Overview by picking a page', async ( { page }
 	// The drawer stores same-site targets as relative paths, so the Location header is relative too.
 	expect( response.headers().location ).toBe( new URL( permalink ).pathname );
 } );
+
+test( 'a fixed 404 says where it goes, and a second redirect for it is refused', async ( { page } ) => {
+	await page.goto( APP + '#/404s' );
+	await page.reload();
+
+	await page.getByRole( 'button', { name: 'All' } ).click();
+	const row = page.locator( 'tr' ).filter( { hasText: missingPath } );
+	await row.getByRole( 'button', { name: 'Fix' } ).click();
+
+	const drawer = page.getByRole( 'dialog' );
+	await drawer.getByLabel( 'Send visitors to' ).fill( '/e2e-target/' );
+	await drawer.getByRole( 'button', { name: 'Save redirect' } ).click();
+	await expect( drawer ).toBeHidden();
+
+	// Fixed 404s leave the to-do list for their own tab.
+	await expect( row ).toBeHidden();
+	await page.getByRole( 'button', { name: 'Redirected' } ).click();
+	await expect( row.getByText( 'Redirected', { exact: true } ) ).toBeVisible();
+	await expect( row ).toContainText( '→ /e2e-target/' );
+
+	await row.getByRole( 'button', { name: 'View redirect' } ).click();
+	await expect( page.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeVisible();
+	await expect( page.getByLabel( 'Send visitors to' ) ).toHaveValue( '/e2e-target/' );
+	await page.getByRole( 'button', { name: 'Cancel' } ).click();
+
+	// The same old URL again: it would never run, so saving is blocked.
+	await page.goto( APP + '#/redirects?new=1&from=' + encodeURIComponent( missingPath ) );
+	const fresh = page.getByRole( 'dialog', { name: 'New redirect' } );
+	await fresh.getByLabel( 'Send visitors to' ).fill( '/somewhere-else/' );
+	await expect( fresh.getByRole( 'link', { name: 'Edit that redirect' } ) ).toBeVisible();
+	await expect( fresh.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
+
+	await fresh.getByRole( 'link', { name: 'Edit that redirect' } ).click();
+	await expect( page.getByRole( 'dialog', { name: 'Edit redirect' } ) ).toBeVisible();
+	await expect( page.getByLabel( 'Send visitors to' ) ).toHaveValue( '/e2e-target/' );
+} );
