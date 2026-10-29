@@ -311,7 +311,7 @@ function useImportPage() {
 		}
 	};
 
-	const getImportRequest = ( mode: ImportMode ): ImportMutationVariables | null => {
+	const getImportRequest = ( mode: ImportMode, skipProblems = false ): ImportMutationVariables | null => {
 		if ( ( activeImportType === 'file' || activeImportType === 'paste' ) && activeFile ) {
 			const sniffResult = activeImportType === 'paste' ? pasteInfo : fileInfo;
 
@@ -324,6 +324,7 @@ function useImportPage() {
 				deleteSource,
 				importSections: selectedSections,
 				format: getSniffedImportFormat( sniffResult ),
+				skipProblems,
 			};
 		}
 
@@ -341,9 +342,9 @@ function useImportPage() {
 		return null;
 	};
 
-	const onImport = ( dryRun = false ) => {
+	const onImport = ( dryRun = false, skipProblems = false ) => {
 		const mode: ImportMode = dryRun ? 'preview' : 'import';
-		const request = getImportRequest( mode );
+		const request = getImportRequest( mode, skipProblems );
 		const pluginName = activePlugin?.name || '';
 
 		if ( ! request ) {

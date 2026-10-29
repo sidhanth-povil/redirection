@@ -89,7 +89,10 @@ class ImportExportServiceTest extends TestCase {
 			}
 		};
 
-		$service = new ImportService( $formats );
+		// Pre-flight reads the database; this test is about choosing the importer.
+		$service = new ImportService( $formats, static function () {
+			return null;
+		} );
 		$result = $service->import(
 			5,
 			[

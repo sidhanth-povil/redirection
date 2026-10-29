@@ -1,14 +1,72 @@
-import { __, _n } from '@wordpress/i18n';
+import { useId } from 'react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import IoCard, { type CardMetaItem, type CardStatItem } from 'component/import-export/card';
-import type { ImportStats } from './types';
+import type { ImportProblem, ImportStats } from './types';
 
 interface ImportResultsProps {
 	activeImportType: 'file' | 'plugin' | 'paste' | null;
 	lastImport: ImportStats | false;
 	lastImportWasDryRun: boolean | null;
+	/** Run the import again for real, skipping rows that would fail or duplicate. */
+	onImportClean?: () => void;
 }
 
-function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: ImportResultsProps ) {
+const getIssueLabels = (): Record< ImportProblem[ 'issue' ], string > => ( {
+	invalid: __( 'Would fail', 'dsuite-redirects' ),
+	duplicate: __( 'Duplicate', 'dsuite-redirects' ),
+	chain: __( 'Extra hop', 'dsuite-redirects' ),
+} );
+
+interface ProblemsProps {
+	problems: ImportProblem[];
+	count: number;
+	onImportClean?: () => void;
+}
+
+/**
+ * The pre-flight's findings for a file preview. A chain only warns, so skipping is offered for failing or duplicate rows.
+ *
+ * @param props
+ * @param props.problems      Problems found (capped by the server).
+ * @param props.count         Total problems, including any beyond the cap.
+ * @param props.onImportClean Import without blocking rows.
+ */
+function ImportProblems( { problems, count, onImportClean }: ProblemsProps ) {
+	const headingId = useId();
+	const labels = getIssueLabels();
+	const canSkip = onImportClean !== undefined && problems.some( ( problem ) => problem.issue !== 'chain' );
+
+	return (
+		<section className="dsr-import-problems" aria-labelledby={ headingId }>
+			<h3 id={ headingId }>
+				{ sprintf(
+					/* translators: %d: number of rows with problems */
+					_n( '%d row needs a look', '%d rows need a look', count, 'dsuite-redirects' ),
+					count
+				) }
+			</h3>
+			<ul>
+				{ problems.map( ( problem, index ) => (
+					<li
+						key={ `${ problem.source }-${ problem.issue }-${ index }` }
+						className={ `is-${ problem.issue }` }
+					>
+						<strong>{ labels[ problem.issue ] }</strong> <code>{ problem.source }</code> →{ ' ' }
+						<code>{ problem.target || '–' }</code>
+						<span className="dsr-import-problems__message">{ problem.message }</span>
+					</li>
+				) ) }
+			</ul>
+			{ canSkip && (
+				<button type="button" className="button button-primary" onClick={ onImportClean }>
+					{ __( 'Import, skipping rows that would fail or duplicate', 'dsuite-redirects' ) }
+				</button>
+			) }
+		</section>
+	);
+}
+
+function ImportResults( { activeImportType, lastImport, lastImportWasDryRun, onImportClean }: ImportResultsProps ) {
 	if ( lastImport === false ) {
 		return null;
 	}
@@ -120,6 +178,13 @@ function ImportResults( { activeImportType, lastImport, lastImportWasDryRun }: I
 				stats={ stats }
 				variant="success"
 			>
+				{ isPreview && ( lastImport.problem_count ?? 0 ) > 0 && (
+					<ImportProblems
+						problems={ lastImport.problems ?? [] }
+						count={ lastImport.problem_count ?? 0 }
+						{ ...( onImportClean ? { onImportClean } : {} ) }
+					/>
+				) }
 				{ activeImportType !== null && lastImport.preview.length > 0 && (
 					<div className="io-preview-table">
 						<table className="wp-list-table widefat fixed striped items table-auto inline-edit-row">

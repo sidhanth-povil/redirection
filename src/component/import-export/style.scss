@@ -462,3 +462,38 @@
 		margin-right: 5px;
 	}
 }
+
+// The pre-flight's findings on a file preview.
+.dsr-import-problems {
+	margin: 0 0 16px;
+	padding: 12px 16px;
+	border-left: 4px solid var(--dsr-danger-text, #b91c1c);
+	background: var(--dsr-danger-bg, #fef2f2);
+
+	h3 {
+		margin: 0 0 8px;
+		font-size: 14px;
+	}
+
+	ul {
+		margin: 0 0 12px;
+	}
+
+	li {
+		overflow-wrap: anywhere;
+	}
+
+	li.is-chain strong {
+		color: var(--dsr-warning-text, #92400e);
+	}
+
+	strong {
+		color: var(--dsr-danger-text, #b91c1c);
+	}
+}
+
+.dsr-import-problems__message {
+	display: block;
+	color: var(--dsr-text-muted, #4b5563);
+	font-size: 12px;
+}

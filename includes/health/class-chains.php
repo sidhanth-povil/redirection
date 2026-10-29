@@ -227,6 +227,16 @@ class Chains {
 	}
 
 	/**
+	 * Does a redirect already start at this key? Then sending visitors to it adds a hop.
+	 *
+	 * @param string $key Source or target key.
+	 * @return bool
+	 */
+	public function leads_on( $key ) {
+		return isset( $this->map[ $key ] );
+	}
+
+	/**
 	 * Redirects whose target is this source: once it is saved they reach the page through it, a chain the drawer
 	 * offers to avoid by repointing them. Leaves out the redirect being edited and any that would then point at itself.
 	 *

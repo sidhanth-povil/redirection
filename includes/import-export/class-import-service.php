@@ -14,10 +14,19 @@ class ImportService {
 	private $formats;
 
 	/**
-	 * @param FormatFactory|null $formats
+	 * @var callable(int): (ImportPreflight|null)
 	 */
-	public function __construct( ?FormatFactory $formats = null ) {
+	private $preflight_factory;
+
+	/**
+	 * @param FormatFactory|null                         $formats
+	 * @param (callable(int): (ImportPreflight|null))|null $preflight_factory Builds row checks for a group; null skips them.
+	 */
+	public function __construct( ?FormatFactory $formats = null, ?callable $preflight_factory = null ) {
 		$this->formats = $formats ? $formats : new FormatFactory();
+		$this->preflight_factory = $preflight_factory ?? static function ( $group_id ) {
+			return new ImportPreflight( $group_id );
+		};
 	}
 
 	/**
@@ -29,6 +38,11 @@ class ImportService {
 	public function import( $group_id, array $file, array $options = [] ) {
 		$group = new ImportGroup( $group_id, $options );
 		$redirect = new ImportRedirect( $options );
+		$skip_problems = isset( $options['skip_problems'] ) && $options['skip_problems'] === true;
+		$preflight = $skip_problems || ( isset( $options['dry_run'] ) && $options['dry_run'] === true ) ? ( $this->preflight_factory )( $group_id ) : null;
+		if ( $preflight !== null ) {
+			$redirect->set_preflight( $preflight, $skip_problems );
+		}
 		$importer = null;
 
 		if ( isset( $options['format'] ) && is_string( $options['format'] ) ) {
