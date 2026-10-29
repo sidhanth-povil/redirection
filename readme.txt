@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,11 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.7.0 - 29th October 2026 =
+* Download a QR code (SVG) for any short link, for flyers, booths and social bios
+* Every redirect shows its purpose. New purpose groups: Print QR, Meta Ad, SEO Migration and Bio Link, chosen up front when creating a redirect
+* Fix: on laptop screens the redirect list could hide the Redirect column; tables now switch to cards when space is tight
 
 = 1.6.0 - 29th October 2026 =
 * Saving a redirect offers to point redirects that lead to its old URL straight to the new destination, so no chain forms
