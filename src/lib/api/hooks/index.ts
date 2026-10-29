@@ -21,8 +21,5 @@ export * from './use-settings';
 // Logs & Errors
 export * from './use-logs';
 
-// Info (IP, User Agent, HTTP checks)
-export * from './use-info';
-
 // Import/Export
 export * from './use-io';
