@@ -196,7 +196,9 @@ describe( 'RedirectDrawer', () => {
 		render( <RedirectDrawer item={ null } initialUrl="/old" onClose={ jest.fn() } /> );
 
 		await waitFor( () => expect( screen.getByLabelText( 'Old URL' ) ).toHaveFocus() );
-		expect( screen.getByLabelText( 'Group' ) ).toHaveValue( '1' );
+		expect( screen.getByLabelText( 'Purpose' ) ).toHaveValue( '1' );
+		// Asked up front, not hidden under Advanced: it's how someone auditing later knows why the redirect exists.
+		expect( screen.getByLabelText( 'Purpose' ).closest( 'details' ) ).toBeNull();
 	} );
 
 	it( 'disables save until a destination is entered', () => {

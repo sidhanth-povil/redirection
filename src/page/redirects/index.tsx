@@ -295,6 +295,7 @@ export default function Redirects() {
 
 			<RedirectTable
 				rows={ rows }
+				groupNames={ Object.fromEntries( groups.map( ( group ) => [ group.id, group.name ] ) ) }
 				loading={ isLoading && ! data }
 				selected={ selected }
 				canEdit={ canAdd }

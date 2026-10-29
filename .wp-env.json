@@ -6,7 +6,8 @@
     },
     "env": {
         "tests": {
-            "phpVersion": "8.1"
+            "phpVersion": "8.3"
         }
-    }
+    },
+    "phpVersion": "8.3"
 }

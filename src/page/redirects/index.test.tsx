@@ -13,6 +13,7 @@ import {
 } from 'lib/api/hooks';
 import { useTableStore } from 'stores';
 import Redirects from 'page/redirects';
+import { downloadQr } from 'lib/qr';
 
 // `stores` resolves to an automock in src/__mocks__; the page needs the real table state.
 jest.mock( 'stores', () => jest.requireActual( '../../stores' ) );
@@ -28,6 +29,7 @@ jest.mock( 'lib/api/hooks', () => ( {
 	useRedirectTest: jest.fn(),
 } ) );
 jest.mock( 'page/redirects/search-content', () => ( { searchContent: jest.fn().mockResolvedValue( [] ) } ) );
+jest.mock( 'lib/qr', () => ( { downloadQr: jest.fn() } ) );
 
 global.ResizeObserver = class {
 	observe() {}
@@ -264,11 +266,40 @@ describe( 'Redirects page', () => {
 		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( 'Your site could not reach itself' );
 	} );
 
+	it( 'shows the purpose of each redirect', () => {
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		expect( within( first ).getByText( 'Redirections' ) ).toHaveClass( 'dsr-badge' );
+	} );
+
+	it( 'downloads a QR code for the full short link', () => {
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		fireEvent.click( within( first ).getByRole( 'button', { name: 'QR code' } ) );
+
+		expect( downloadQr ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale`, '/old-sale' );
+	} );
+
+	it( 'says when an address is too long for a QR code', () => {
+		( downloadQr as jest.Mock ).mockImplementationOnce( () => {
+			throw new Error( 'This address is too long for a QR code.' );
+		} );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		fireEvent.click( within( first ).getByRole( 'button', { name: 'QR code' } ) );
+
+		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( 'Too long for a QR code' );
+	} );
+
 	it( 'offers no test for a wildcard redirect', () => {
 		setup();
 
 		const wildcard = screen.getByText( '/blog/*' ).closest( 'tr' ) as HTMLElement;
 		expect( within( wildcard ).queryByRole( 'button', { name: 'Test' } ) ).toBeNull();
+		expect( within( wildcard ).queryByRole( 'button', { name: 'QR code' } ) ).toBeNull();
 	} );
 
 	it( 'hides actions the user cannot perform', () => {

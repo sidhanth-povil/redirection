@@ -367,6 +367,32 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 					</p>
 				) }
 
+				<Field
+					label={ __( 'Purpose', 'dsuite-redirects' ) }
+					htmlFor={ groupId }
+					hint={ __(
+						'Why this redirect exists, so whoever tidies up later knows if it is still needed.',
+						'dsuite-redirects'
+					) }
+				>
+					<select
+						id={ groupId }
+						className="dsr-select"
+						aria-describedby={ `${ groupId }-hint` }
+						value={ state.group_id }
+						onChange={ ( event ) => {
+							const group_id = parseInt( event.target.value, 10 );
+							change( ( prev ) => ( { ...prev, group_id } ) );
+						} }
+					>
+						{ groups.map( ( group ) => (
+							<option key={ group.id } value={ group.id }>
+								{ group.name }
+							</option>
+						) ) }
+					</select>
+				</Field>
+
 				<div className="dsr-schedule">
 					<label className="dsr-switch" htmlFor={ scheduleId }>
 						<input
@@ -486,23 +512,6 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 
 					<div className="dsr-advanced__body">
 						<div className="dsr-advanced__grid">
-							<Field label={ __( 'Group', 'dsuite-redirects' ) } htmlFor={ groupId }>
-								<select
-									id={ groupId }
-									className="dsr-select"
-									value={ state.group_id }
-									onChange={ ( event ) => {
-										const group_id = parseInt( event.target.value, 10 );
-										change( ( prev ) => ( { ...prev, group_id } ) );
-									} }
-								>
-									{ groups.map( ( group ) => (
-										<option key={ group.id } value={ group.id }>
-											{ group.name }
-										</option>
-									) ) }
-								</select>
-							</Field>
 							<Field label={ __( 'Position', 'dsuite-redirects' ) } htmlFor={ positionId }>
 								<input
 									id={ positionId }

@@ -4,10 +4,13 @@ import { Badge } from 'ui';
 import type { Redirect, RedirectTestResult } from 'types';
 import { useRedirectTest } from 'lib/api/hooks';
 import { copyText } from 'page/export/download';
+import { downloadQr } from 'lib/qr';
 import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
 
 interface RedirectTableProps {
 	rows: Redirect[];
+	/** Group names by ID: groups double as each redirect's purpose (Print QR, Meta Ad…). */
+	groupNames: Record< number, string >;
 	loading: boolean;
 	selected: number[];
 	canEdit: boolean;
@@ -106,8 +109,41 @@ function TestLink( { id }: { id: number } ) {
 	);
 }
 
+/**
+ * Downloads a QR code of the full short link; says so in the row when the address can't fit in one.
+ *
+ * @param props
+ * @param props.url Source path.
+ */
+function QrLink( { url }: { url: string } ) {
+	const [ error, setError ] = useState( '' );
+
+	const onDownload = () => {
+		try {
+			downloadQr( window.location.origin + url, url );
+			setError( '' );
+		} catch {
+			setError( __( 'Too long for a QR code', 'dsuite-redirects' ) );
+		}
+	};
+
+	return (
+		<>
+			<button type="button" className="dsr-link" onClick={ onDownload }>
+				{ __( 'QR code', 'dsuite-redirects' ) }
+			</button>
+			{ error && (
+				<span role="status" className="dsr-test-result is-bad">
+					{ error }
+				</span>
+			) }
+		</>
+	);
+}
+
 export default function RedirectTable( props: RedirectTableProps ) {
-	const { rows, loading, selected, canEdit, canDelete, empty, onSelect, onEdit, onToggle, onDelete } = props;
+	const { rows, groupNames, loading, selected, canEdit, canDelete, empty, onSelect, onEdit, onToggle, onDelete } =
+		props;
 
 	if ( loading ) {
 		return <p className="dsr-empty">{ __( 'Loading redirects…', 'dsuite-redirects' ) }</p>;
@@ -174,6 +210,9 @@ export default function RedirectTable( props: RedirectTableProps ) {
 									<Badge tone={ badge.tone } title={ String( badge.code ) }>
 										{ badge.label }
 									</Badge>
+									{ groupNames[ row.group_id ] && (
+										<Badge tone="neutral">{ groupNames[ row.group_id ] }</Badge>
+									) }
 									{ isWildcardRow( row ) && (
 										<Badge tone="accent">{ __( 'Wildcard', 'dsuite-redirects' ) }</Badge>
 									) }
@@ -191,6 +230,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 							</td>
 							<td className="dsr-table__actions">
 								{ isSingleAddress( row ) && <CopyLink url={ row.url } /> }
+								{ isSingleAddress( row ) && <QrLink url={ row.url } /> }
 								{ isSingleAddress( row ) && [ 'url', 'error' ].includes( row.action_type ) && (
 									<TestLink id={ row.id } />
 								) }

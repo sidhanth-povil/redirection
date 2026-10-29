@@ -11,9 +11,11 @@ use Redirection\Url\SourceFlags;
  *
  * Version 1: start_at / end_at schedule columns on redirection_items.
  * Version 2: new redirects keep query strings (UTM, fbclid) by default.
+ * Version 3: purpose groups, so each redirect says why it exists (Print QR, Meta Ad…).
  */
 class DsrUpgrader {
-	const VERSION = 2;
+	const VERSION = 3;
+	const PURPOSE_GROUPS = [ 'Print QR', 'Meta Ad', 'SEO Migration', 'Bio Link' ];
 
 	/**
 	 * Cheap check for admin_init: one autoloaded option read when nothing is pending.
@@ -71,13 +73,47 @@ class DsrUpgrader {
 			return false;
 		}
 
-		if ( intval( get_option( Schedule::VERSION_OPTION, 0 ), 10 ) < 2 && ! self::default_query_to_pass() ) {
+		$before = intval( get_option( Schedule::VERSION_OPTION, 0 ), 10 );
+
+		if ( $before < 2 && ! self::default_query_to_pass() ) {
 			// @phpstan-ignore disallowed.function
 			error_log( 'DSuite Redirects: unable to keep existing redirects on exact query matching: ' . $wpdb->last_error ); // phpcs:ignore
 			return false;
 		}
 
+		// Only once: a group someone deletes later stays deleted.
+		if ( $before < 3 && ! self::add_purpose_groups() ) {
+			// @phpstan-ignore disallowed.function
+			error_log( 'DSuite Redirects: unable to add purpose groups: ' . $wpdb->last_error ); // phpcs:ignore
+			return false;
+		}
+
 		update_option( Schedule::VERSION_OPTION, self::VERSION );
+
+		return true;
+	}
+
+	/**
+	 * Groups double as campaign tags. Added beside the existing ones, in the WordPress module, skipping any name a
+	 * site already has (in any letter case).
+	 *
+	 * @return bool False if the groups table is missing or a group could not be added; the next load retries.
+	 */
+	private static function add_purpose_groups() {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'redirection_groups';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return false;
+		}
+
+		$existing = array_map( 'strtolower', $wpdb->get_col( "SELECT name FROM {$wpdb->prefix}redirection_groups" ) );
+
+		foreach ( self::PURPOSE_GROUPS as $name ) {
+			if ( ! in_array( strtolower( $name ), $existing, true ) && \Red_Group::create( $name, \Redirection\Module\Plugin::MODULE_ID ) === false ) {
+				return false;
+			}
+		}
 
 		return true;
 	}
