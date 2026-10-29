@@ -4,10 +4,13 @@ import { Badge } from 'ui';
 import type { Redirect, RedirectTestResult } from 'types';
 import { useRedirectTest } from 'lib/api/hooks';
 import { copyText } from 'page/export/download';
+import { downloadQr } from 'lib/qr';
 import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
 
 interface RedirectTableProps {
 	rows: Redirect[];
+	/** Group names by ID: groups double as each redirect's purpose (Print QR, Meta Ad…). */
+	groupNames: Record< number, string >;
 	loading: boolean;
 	selected: number[];
 	canEdit: boolean;
@@ -107,7 +110,8 @@ function TestLink( { id }: { id: number } ) {
 }
 
 export default function RedirectTable( props: RedirectTableProps ) {
-	const { rows, loading, selected, canEdit, canDelete, empty, onSelect, onEdit, onToggle, onDelete } = props;
+	const { rows, groupNames, loading, selected, canEdit, canDelete, empty, onSelect, onEdit, onToggle, onDelete } =
+		props;
 
 	if ( loading ) {
 		return <p className="dsr-empty">{ __( 'Loading redirects…', 'dsuite-redirects' ) }</p>;
@@ -174,6 +178,9 @@ export default function RedirectTable( props: RedirectTableProps ) {
 									<Badge tone={ badge.tone } title={ String( badge.code ) }>
 										{ badge.label }
 									</Badge>
+									{ groupNames[ row.group_id ] && (
+										<Badge tone="neutral">{ groupNames[ row.group_id ] }</Badge>
+									) }
 									{ isWildcardRow( row ) && (
 										<Badge tone="accent">{ __( 'Wildcard', 'dsuite-redirects' ) }</Badge>
 									) }
@@ -191,6 +198,15 @@ export default function RedirectTable( props: RedirectTableProps ) {
 							</td>
 							<td className="dsr-table__actions">
 								{ isSingleAddress( row ) && <CopyLink url={ row.url } /> }
+								{ isSingleAddress( row ) && (
+									<button
+										type="button"
+										className="dsr-link"
+										onClick={ () => downloadQr( window.location.origin + row.url, row.url ) }
+									>
+										{ __( 'QR code', 'dsuite-redirects' ) }
+									</button>
+								) }
 								{ isSingleAddress( row ) && [ 'url', 'error' ].includes( row.action_type ) && (
 									<TestLink id={ row.id } />
 								) }

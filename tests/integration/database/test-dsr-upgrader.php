@@ -166,4 +166,33 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 
 		$this->assertSame( 'exact', \Redirection\Settings\Settings::get()['flag_query'] );
 	}
+
+	private function group_names() {
+		global $wpdb;
+
+		return $wpdb->get_col( "SELECT name FROM {$wpdb->prefix}redirection_groups ORDER BY id" );
+	}
+
+	public function testAddsPurposeGroupsOnce() {
+		update_option( Schedule::VERSION_OPTION, 2 );
+
+		DsrUpgrader::run();
+		DsrUpgrader::run();
+
+		foreach ( DsrUpgrader::PURPOSE_GROUPS as $name ) {
+			$this->assertSame( 1, count( array_keys( $this->group_names(), $name, true ) ), $name );
+		}
+	}
+
+	public function testADeletedPurposeGroupStaysDeleted() {
+		global $wpdb;
+
+		update_option( Schedule::VERSION_OPTION, 2 );
+		DsrUpgrader::run();
+		$wpdb->delete( $wpdb->prefix . 'redirection_groups', [ 'name' => 'Bio Link' ] );
+
+		DsrUpgrader::run();
+
+		$this->assertNotContains( 'Bio Link', $this->group_names() );
+	}
 }

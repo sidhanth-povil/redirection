@@ -98,8 +98,11 @@ class LatestDatabaseTest extends WP_UnitTestCase {
 		$database = new Latest();
 		$database->install();
 
-		$groups = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}redirection_groups" );
-		$this->assertEquals( count( $groups ), 2 );
+		// Upstream's two groups, plus DSuite's purpose groups when the install runs the DSR upgrade for the first time.
+		$names = $wpdb->get_col( "SELECT name FROM {$wpdb->prefix}redirection_groups" );
+		$this->assertContains( 'Redirections', $names );
+		$this->assertContains( 'Modified Posts', $names );
+		$this->assertLessThanOrEqual( 2 + count( \Redirection\Database\DsrUpgrader::PURPOSE_GROUPS ), count( $names ) );
 	}
 
 	public function testDefaultGroupsExisting() {
