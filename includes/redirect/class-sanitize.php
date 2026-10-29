@@ -4,10 +4,13 @@ namespace Redirection\Redirect;
 
 use Redirection\Action\Action;
 use Redirection\Compare\Compare;
+use Redirection\Core\Regex;
 use Redirection\Group\Group;
 use Redirection\Request\Request;
 use Redirection\Url\SourceFlags;
 use Redirection\Url\Matcher;
+use Redirection\Url\ProtectedPaths;
+use Redirection\Url\Wildcard;
 use Redirection\Settings\Settings;
 use WP_Error;
 
@@ -152,6 +155,12 @@ class Sanitize {
 			$data['match_data'] = $match_data;
 		}
 
+		$blocked = is_string( $data['url'] ) ? $this->find_protected( $data ) : null;
+		if ( $blocked !== null ) {
+			/* translators: %s: protected path such as /wp-admin */
+			return new WP_Error( 'redirect', sprintf( __( 'This would redirect %s, which WordPress or your shop needs to work. Use a more specific old URL.', 'dsuite-redirects' ), $blocked ) );
+		}
+
 		if ( isset( $details['hits'] ) ) {
 			$data['last_count'] = intval( $details['hits'], 10 );
 		}
@@ -258,6 +267,48 @@ class Sanitize {
 		}
 
 		return false;
+	}
+
+	/**
+	 * The protected path this redirect's source would catch, or null.
+	 *
+	 * @param array<string, mixed> $data Sanitized redirect with a string url.
+	 * @return string|null
+	 */
+	private function find_protected( array $data ) {
+		$url = $data['url'];
+		$pattern = null;
+
+		if ( ! empty( $data['match_data']['source']['flag_wildcard'] ) ) {
+			$pattern = new Regex( Wildcard::to_pattern( $url ), true );
+		} elseif ( $data['regex'] === 1 ) {
+			$pattern = new Regex( $url, true );
+		}
+
+		return ProtectedPaths::find_blocked( $url, $pattern, $this->get_protected_paths() );
+	}
+
+	/**
+	 * Core paths plus the shop's cart, checkout and account pages, at whatever slug the site gave them.
+	 *
+	 * @return array<string>
+	 */
+	private function get_protected_paths() {
+		$paths = ProtectedPaths::DEFAULTS;
+
+		if ( function_exists( 'wc_get_page_id' ) ) {
+			foreach ( [ 'cart', 'checkout', 'myaccount' ] as $page ) {
+				$id = wc_get_page_id( $page );
+				$path = $id > 0 ? wp_parse_url( (string) get_permalink( $id ), PHP_URL_PATH ) : null;
+
+				// The shop page on the front page has path '/', which would protect every URL.
+				if ( is_string( $path ) && trim( $path, '/' ) !== '' ) {
+					$paths[] = $path;
+				}
+			}
+		}
+
+		return (array) apply_filters( 'dsr_protected_paths', $paths );
 	}
 
 	/**

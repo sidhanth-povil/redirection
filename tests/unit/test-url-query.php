@@ -257,4 +257,13 @@ class UrlQueryTest extends TestCase {
 		$url = new Red_Url_Query( '', new Red_Source_Flags() );
 		$this->assertEquals( 'cat?cat', $url->get_query_after( '/query\\?cat?cat' ) );
 	}
+
+	public function testQueryPassMergesTrackingWithoutOverridingCampaign() {
+		$flags = new Red_Source_Flags( [ 'flag_query' => 'pass' ] );
+
+		$this->assertEquals(
+			'/shop/winter/?utm_campaign=bf&utm_source=ig&fbclid=123',
+			Red_Url_Query::add_to_target( '/shop/winter/?utm_campaign=bf', '/winter-sale?utm_source=ig&utm_campaign=other&fbclid=123', $flags )
+		);
+	}
 }

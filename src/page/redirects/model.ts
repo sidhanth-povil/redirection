@@ -53,7 +53,8 @@ export function createState( item: Redirect | null, defaults: Defaults ): Drawer
 			...defaults.flags,
 			match_type: MATCH_URL,
 			action_type: ACTION_URL,
-			action_code: CODE_PERMANENT,
+			// A link made for an existing page is a campaign shortlink: temporary, so browsers don't cache it forever.
+			action_code: defaults.target ? CODE_TEMPORARY : CODE_PERMANENT,
 			action_data: { url: defaults.target ?? '' },
 			options: {},
 			group_id: defaults.groupId,

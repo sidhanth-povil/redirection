@@ -57,7 +57,7 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 		$this->assertContains( 'start_at', $this->columns() );
 		$this->assertContains( 'end_at', $this->columns() );
 		$this->assertTrue( $this->has_schedule_key() );
-		$this->assertSame( 1, intval( get_option( Schedule::VERSION_OPTION ) ) );
+		$this->assertSame( DsrUpgrader::VERSION, intval( get_option( Schedule::VERSION_OPTION ) ) );
 		$this->assertTrue( Schedule::columns_ready() );
 	}
 
@@ -69,7 +69,7 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 	}
 
 	public function testMaybeRunSkipsWhenAlreadyCurrent() {
-		update_option( Schedule::VERSION_OPTION, 1 );
+		update_option( Schedule::VERSION_OPTION, DsrUpgrader::VERSION );
 
 		DsrUpgrader::maybe_run();
 
@@ -111,5 +111,59 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 
 		$this->assertTrue( Schedule::columns_ready() );
 		$this->assertContains( 'start_at', $this->columns() );
+	}
+
+	private function set_query_default( $flag_query ) {
+		\Redirection\Settings\Settings::save( [ 'flag_query' => $flag_query, 'flag_case' => true, 'flag_trailing' => true, 'flag_regex' => false ] );
+	}
+
+	public function testUpgradeKeepsQueryStringsByDefault() {
+		// Ad traffic arrives as /sale?utm_source=ig; an exact default never matched it.
+		$this->set_query_default( 'exact' );
+		update_option( Schedule::VERSION_OPTION, 1 );
+
+		DsrUpgrader::run();
+
+		$options = \Redirection\Settings\Settings::get();
+		$this->assertSame( 'pass', $options['flag_query'] );
+		$this->assertTrue( $options['flag_case'] );
+		$this->assertTrue( $options['flag_trailing'] );
+	}
+
+	public function testUpgradeLeavesAChosenQueryDefaultAlone() {
+		$this->set_query_default( 'ignore' );
+		update_option( Schedule::VERSION_OPTION, 1 );
+
+		DsrUpgrader::run();
+
+		$this->assertSame( 'ignore', \Redirection\Settings\Settings::get()['flag_query'] );
+	}
+
+	private function query_flag( $id ) {
+		return Red_Item::get_by_id( $id )->get_match_data()['source']['flag_query'];
+	}
+
+	public function testUpgradeLeavesExistingRedirectsMatchingExactly() {
+		// Saved under the exact default, so the row stores no query flag of its own and would inherit pass.
+		$this->set_query_default( 'exact' );
+		$group = Red_Group::create( 'group', 1 );
+		$plain = Red_Item::create( [ 'url' => '/sale', 'action_data' => [ 'url' => '/shop' ], 'group_id' => $group->get_id(), 'action_type' => 'url', 'match_type' => 'url' ] );
+		$chosen = Red_Item::create( [ 'url' => '/promo', 'action_data' => [ 'url' => '/shop' ], 'group_id' => $group->get_id(), 'action_type' => 'url', 'match_type' => 'url', 'match_data' => [ 'source' => [ 'flag_query' => 'ignore' ] ] ] );
+		update_option( Schedule::VERSION_OPTION, 1 );
+
+		DsrUpgrader::run();
+
+		$this->assertSame( 'exact', $this->query_flag( $plain->get_id() ) );
+		$this->assertSame( 'ignore', $this->query_flag( $chosen->get_id() ) );
+	}
+
+	public function testQueryDefaultFlipsOnlyOnce() {
+		// Someone who sets exact again after the upgrade keeps it.
+		DsrUpgrader::run();
+		$this->set_query_default( 'exact' );
+
+		DsrUpgrader::run();
+
+		$this->assertSame( 'exact', \Redirection\Settings\Settings::get()['flag_query'] );
 	}
 }

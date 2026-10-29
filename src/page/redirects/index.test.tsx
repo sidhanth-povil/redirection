@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import {
 	useExport,
 	useGroupDropdown,
@@ -188,6 +188,30 @@ describe( 'Redirects page', () => {
 		const dialog = screen.getByRole( 'dialog', { name: 'New redirect' } );
 		expect( within( dialog ).getByLabelText( 'Old URL' ) ).toHaveValue( '/missing-page' );
 		expect( window.location.hash ).toBe( '#/redirects' );
+	} );
+
+	it( 'opens a temporary redirect to the page from the admin bar link', () => {
+		window.location.hash = '#/redirects?new=1&to=%2Fsummer-landing%2F';
+		setup();
+
+		const dialog = screen.getByRole( 'dialog', { name: 'New redirect' } );
+		expect( within( dialog ).getByLabelText( 'Old URL' ) ).toHaveValue( '' );
+		expect( within( dialog ).getByLabelText( 'Send visitors to' ) ).toHaveValue( '/summer-landing/' );
+		expect( within( dialog ).getByRole( 'radio', { name: /Temporary/ } ) ).toBeChecked();
+	} );
+
+	it( 'copies the full short link for a row', async () => {
+		const writeText = jest.fn().mockResolvedValue( undefined );
+		Object.defineProperty( navigator, 'clipboard', { value: { writeText }, configurable: true } );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		await act( async () => {
+			fireEvent.click( within( first ).getByRole( 'button', { name: 'Copy link' } ) );
+		} );
+
+		expect( writeText ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale` );
+		expect( within( first ).getByRole( 'button', { name: 'Copied' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides actions the user cannot perform', () => {

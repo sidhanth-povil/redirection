@@ -60,14 +60,18 @@ const getTypeOptions = (): SegmentedOption< SimpleType >[] => [
 	{
 		value: 'permanent',
 		label: __( 'Permanent', 'dsuite-redirects' ),
-		hint: __( '301 · moved for good', 'dsuite-redirects' ),
+		hint: __( 'Page moved for good · 301', 'dsuite-redirects' ),
 	},
 	{
 		value: 'temporary',
 		label: __( 'Temporary', 'dsuite-redirects' ),
-		hint: __( '302 · coming back', 'dsuite-redirects' ),
+		hint: __( 'Campaign or short link · 302', 'dsuite-redirects' ),
 	},
-	{ value: 'gone', label: __( 'Gone', 'dsuite-redirects' ), hint: __( '410 · deleted', 'dsuite-redirects' ) },
+	{
+		value: 'gone',
+		label: __( 'Gone', 'dsuite-redirects' ),
+		hint: __( 'Deleted for good · 410', 'dsuite-redirects' ),
+	},
 ];
 
 interface RedirectDrawerProps {
@@ -96,7 +100,7 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 				flag_regex: Boolean( settings?.flag_regex ),
 				flag_trailing: Boolean( settings?.flag_trailing ),
 				flag_case: Boolean( settings?.flag_case ),
-				flag_query: settings?.flag_query ?? 'exact',
+				flag_query: settings?.flag_query ?? 'pass',
 			},
 		} )
 	);
