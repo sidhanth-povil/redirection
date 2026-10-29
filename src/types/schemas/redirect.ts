@@ -85,3 +85,16 @@ export const BulkActionSchema = z.object( {
 } );
 
 export type BulkAction = z.infer< typeof BulkActionSchema >;
+
+/**
+ * POST /redirect/:id/test: what the server got when it requested the old URL without following it
+ */
+export const RedirectTestResultSchema = z.object( {
+	code: z.number(),
+	location: z.string(),
+	ms: z.number(),
+	utm_preserved: z.boolean().nullable(),
+	ok: z.boolean(),
+} );
+
+export type RedirectTestResult = z.infer< typeof RedirectTestResultSchema >;

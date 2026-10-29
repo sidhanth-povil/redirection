@@ -59,6 +59,19 @@ class Redirect extends Filtered {
 			]
 		);
 
+		// POST /redirect/:id/test - Request the old URL from the server and report where it goes
+		register_rest_route(
+			$api_namespace,
+			'/redirect/(?P<id>[\d]+)/test',
+			[
+				[
+					'methods' => WP_REST_Server::CREATABLE,
+					'callback' => [ $this, 'route_test' ],
+					'permission_callback' => [ $this, 'permission_callback_manage' ],
+				],
+			]
+		);
+
 		// GET /redirect/post - Search for posts
 		register_rest_route(
 			$api_namespace,
@@ -217,6 +230,22 @@ class Redirect extends Filtered {
 		}
 
 		return $this->add_error_details( new WP_Error( 'redirect_update_failed', 'Invalid redirect details' ), __LINE__ );
+	}
+
+	/**
+	 * Test a redirect
+	 *
+	 * @param WP_REST_Request<array<string, mixed>> $request The request.
+	 * @return array<string, mixed>|WP_Error
+	 */
+	public function route_test( WP_REST_Request $request ) {
+		$redirect = \Redirection\Redirect\Redirect::get_by_id( intval( $request['id'], 10 ) );
+
+		if ( $redirect === false ) {
+			return new WP_Error( 'redirect_test', __( 'That redirect no longer exists.', 'dsuite-redirects' ), [ 'status' => 404 ] );
+		}
+
+		return \Redirection\Redirect\Tester::run( $redirect );
 	}
 
 	/**

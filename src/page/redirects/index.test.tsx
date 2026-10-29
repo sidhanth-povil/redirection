@@ -8,6 +8,7 @@ import {
 	useRedirectCreate,
 	useRedirectDelete,
 	useRedirectList,
+	useRedirectTest,
 	useRedirectUpdate,
 } from 'lib/api/hooks';
 import { useTableStore } from 'stores';
@@ -24,6 +25,7 @@ jest.mock( 'lib/api/hooks', () => ( {
 	useExport: jest.fn(),
 	useRedirectCreate: jest.fn(),
 	useRedirectUpdate: jest.fn(),
+	useRedirectTest: jest.fn(),
 } ) );
 jest.mock( 'page/redirects/search-content', () => ( { searchContent: jest.fn().mockResolvedValue( [] ) } ) );
 
@@ -129,6 +131,8 @@ function setup( caps = ALL_CAPS ) {
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	// Here rather than in setup() so a test can replace it before rendering.
+	( useRedirectTest as jest.Mock ).mockReturnValue( { mutate: jest.fn(), isPending: false } );
 	window.location.hash = '#/redirects';
 	useTableStore.getState().setRedirectsTable( { filterBy: {}, selected: [], page: 0 } );
 } );
@@ -212,6 +216,59 @@ describe( 'Redirects page', () => {
 
 		expect( writeText ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale` );
 		expect( within( first ).getByRole( 'button', { name: 'Copied' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'tests a redirect from the server and shows where it went', () => {
+		const mutate = jest.fn( ( _id, { onSuccess } ) =>
+			onSuccess( {
+				code: 302,
+				location: '/autumn-sale/?utm_source=dsr-test',
+				ms: 14,
+				utm_preserved: true,
+				ok: true,
+			} )
+		);
+		( useRedirectTest as jest.Mock ).mockReturnValue( { mutate, isPending: false } );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		fireEvent.click( within( first ).getByRole( 'button', { name: 'Test' } ) );
+
+		expect( mutate ).toHaveBeenCalledWith( 1, expect.anything() );
+		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent(
+			'✓ 302 → /autumn-sale/?utm_source=dsr-test · 14 ms · tracking kept'
+		);
+	} );
+
+	it( 'says when a tested redirect did not go where expected', () => {
+		const mutate = jest.fn( ( _id, { onSuccess } ) =>
+			onSuccess( { code: 404, location: '', ms: 9, utm_preserved: null, ok: false } )
+		);
+		( useRedirectTest as jest.Mock ).mockReturnValue( { mutate, isPending: false } );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		fireEvent.click( within( first ).getByRole( 'button', { name: 'Test' } ) );
+
+		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( '✕ Got 404 · 9 ms' );
+	} );
+
+	it( 'shows why a test could not run', () => {
+		const mutate = jest.fn( ( _id, { onError } ) => onError( new Error( 'Your site could not reach itself' ) ) );
+		( useRedirectTest as jest.Mock ).mockReturnValue( { mutate, isPending: false } );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		fireEvent.click( within( first ).getByRole( 'button', { name: 'Test' } ) );
+
+		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( 'Your site could not reach itself' );
+	} );
+
+	it( 'offers no test for a wildcard redirect', () => {
+		setup();
+
+		const wildcard = screen.getByText( '/blog/*' ).closest( 'tr' ) as HTMLElement;
+		expect( within( wildcard ).queryByRole( 'button', { name: 'Test' } ) ).toBeNull();
 	} );
 
 	it( 'hides actions the user cannot perform', () => {

@@ -135,6 +135,19 @@
 	}
 }
 
+// The Test button's verdict sits on its own line under the row's actions.
+.dsr-app .dsr-test-result {
+	display: block;
+	margin-top: var(--dsr-space-1);
+	color: var(--dsr-success-text);
+	font-size: 12px;
+	overflow-wrap: anywhere;
+
+	&.is-bad {
+		color: var(--dsr-danger-text);
+	}
+}
+
 .dsr-app .dsr-table__redirect {
 	min-width: 0;
 }

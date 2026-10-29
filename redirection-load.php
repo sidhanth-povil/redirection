@@ -140,6 +140,10 @@ add_action( 'untrashed_post', [ Redirection\Plugin\TrashNotice::class, 'forget' 
 // Front end only: "Redirect here" on a page, "Redirect this 404" on a missing one
 add_action( 'admin_bar_menu', [ Redirection\Plugin\AdminBar::class, 'add_node' ], 80 );
 
+// Everywhere, like the trash hooks: redirects to a page follow it when its address changes
+add_action( 'pre_post_update', [ Redirection\Plugin\SlugWatcher::class, 'remember' ], 10, 2 );
+add_action( 'post_updated', [ Redirection\Plugin\SlugWatcher::class, 'follow' ], 10, 3 );
+
 /**
  * @return bool
  */

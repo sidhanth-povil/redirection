@@ -4,7 +4,9 @@ import { RedirectionApi } from 'lib/api-request';
 import {
 	RedirectItemResponseSchema,
 	RedirectListResponseSchema,
+	RedirectTestResultSchema,
 	type Redirect,
+	type RedirectTestResult,
 	type CreateRedirectInput,
 	type UpdateRedirectInput,
 } from 'types';
@@ -159,5 +161,20 @@ export function useRedirectBulkAction(
 			addError( error.message || `Failed to ${ action } redirects` );
 		},
 		...options,
+	} );
+}
+
+/**
+ * Test a saved redirect from the server. The row shows the result itself, so no page-wide notice or error.
+ */
+export function useRedirectTest() {
+	return useMutation< RedirectTestResult, Error, number >( {
+		mutationFn: async ( id: number ) => {
+			try {
+				return RedirectTestResultSchema.parse( await apiFetch( RedirectionApi.redirect.test( id ) ) );
+			} catch ( error ) {
+				throw handleApiError( error );
+			}
+		},
 	} );
 }

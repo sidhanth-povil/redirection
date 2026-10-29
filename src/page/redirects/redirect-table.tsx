@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from 'ui';
-import type { Redirect } from 'types';
+import type { Redirect, RedirectTestResult } from 'types';
+import { useRedirectTest } from 'lib/api/hooks';
 import { copyText } from 'page/export/download';
 import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
 
@@ -19,6 +20,11 @@ interface RedirectTableProps {
 }
 
 const COPIED_MS = 2000;
+
+// A wildcard or regex isn't one URL, so it can't be copied or requested.
+function isSingleAddress( row: Redirect ): boolean {
+	return row.match_type === 'url' && ! row.regex && ! isWildcardRow( row );
+}
 
 /**
  * Copies the full short link (for print, QR or a social bio). Only for plain sources: a wildcard or regex isn't one URL.
@@ -43,6 +49,60 @@ function CopyLink( { url }: { url: string } ) {
 		<button type="button" className="dsr-link" onClick={ onCopy } aria-live="polite">
 			{ copied ? __( 'Copied', 'dsuite-redirects' ) : __( 'Copy link', 'dsuite-redirects' ) }
 		</button>
+	);
+}
+
+interface TestOutcome {
+	ok: boolean;
+	text: string;
+}
+
+function describeTest( result: RedirectTestResult ): TestOutcome {
+	const timing = sprintf( /* translators: %d: milliseconds */ __( '%d ms', 'dsuite-redirects' ), result.ms );
+	const where = result.location === '' ? String( result.code ) : `${ result.code } → ${ result.location }`;
+
+	if ( ! result.ok ) {
+		/* translators: %s: HTTP status and destination, e.g. "404" or "301 → /other/" */
+		return { ok: false, text: `✕ ${ sprintf( __( 'Got %s', 'dsuite-redirects' ), where ) } · ${ timing }` };
+	}
+
+	const parts = [ `✓ ${ where }`, timing ];
+	if ( result.utm_preserved !== null ) {
+		parts.push(
+			result.utm_preserved ? __( 'tracking kept', 'dsuite-redirects' ) : __( 'tracking lost', 'dsuite-redirects' )
+		);
+	}
+
+	return { ok: true, text: parts.join( ' · ' ) };
+}
+
+/**
+ * Asks the server where the redirect goes, so the marketer's browser never caches a 301 they are about to change.
+ *
+ * @param props
+ * @param props.id Redirect ID.
+ */
+function TestLink( { id }: { id: number } ) {
+	const test = useRedirectTest();
+	const [ outcome, setOutcome ] = useState< TestOutcome | null >( null );
+
+	const onTest = () =>
+		test.mutate( id, {
+			onSuccess: ( result ) => setOutcome( describeTest( result ) ),
+			onError: ( error ) => setOutcome( { ok: false, text: error.message } ),
+		} );
+
+	return (
+		<>
+			<button type="button" className="dsr-link" onClick={ onTest } disabled={ test.isPending }>
+				{ test.isPending ? __( 'Testing…', 'dsuite-redirects' ) : __( 'Test', 'dsuite-redirects' ) }
+			</button>
+			{ outcome && (
+				<span role="status" className={ outcome.ok ? 'dsr-test-result' : 'dsr-test-result is-bad' }>
+					{ outcome.text }
+				</span>
+			) }
+		</>
 	);
 }
 
@@ -130,8 +190,9 @@ export default function RedirectTable( props: RedirectTableProps ) {
 								{ row.last_access && row.last_access !== '-' ? row.last_access : '–' }
 							</td>
 							<td className="dsr-table__actions">
-								{ row.match_type === 'url' && ! row.regex && ! isWildcardRow( row ) && (
-									<CopyLink url={ row.url } />
+								{ isSingleAddress( row ) && <CopyLink url={ row.url } /> }
+								{ isSingleAddress( row ) && [ 'url', 'error' ].includes( row.action_type ) && (
+									<TestLink id={ row.id } />
 								) }
 								{ canEdit && (
 									<button type="button" className="dsr-link" onClick={ () => onEdit( row ) }>

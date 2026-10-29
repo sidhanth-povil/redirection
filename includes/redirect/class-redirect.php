@@ -836,6 +836,11 @@ class Redirect {
 	public function visit( $url, $target ) {
 		global $wpdb;
 
+		// The drawer's "Test" button: not a visitor, so no hit and no log entry.
+		if ( Tester::is_test_request() ) {
+			return;
+		}
+
 		$options = Settings::get();
 
 		// Update the counters
