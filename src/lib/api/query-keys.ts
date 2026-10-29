@@ -51,9 +51,4 @@ export const queryKeys = {
 		all: [ 'io' ] as const,
 		importers: () => [ ...queryKeys.io.all, 'importers' ] as const,
 	},
-	info: {
-		all: [ 'info' ] as const,
-		ip: ( ip: string ) => [ ...queryKeys.info.all, 'ip', ip ] as const,
-		agent: ( agent: string ) => [ ...queryKeys.info.all, 'agent', agent ] as const,
-	},
 } as const;
