@@ -1,12 +1,11 @@
 import { test, expect, type Page } from '@playwright/test';
+import { logIn } from './login';
 
 /**
  * Spec §8 marketer flow: Overview → Fix a 404 → drawer prefilled → pick a page → save → the URL now redirects.
  * Creates its own page and 404s, and removes them (plus the redirect) afterwards.
  */
 
-const ADMIN_USER = process.env.WP_USERNAME ?? 'admin';
-const ADMIN_PASSWORD = process.env.WP_PASSWORD ?? 'password';
 const APP = '/wp-admin/admin.php?page=dsuite-redirects.php';
 // Overview lists the top 10 404s by hits; existing dev data has far fewer than this per URL.
 const HITS = 25;
@@ -59,10 +58,7 @@ let permalink = '';
 
 test.beforeEach( async ( { page } ) => {
 	// Log in straight to the plugin page: the Dashboard's news widgets fetch from wordpress.org and can stall.
-	await page.goto( '/wp-login.php?redirect_to=' + encodeURIComponent( APP ) );
-	await page.fill( '#user_login', ADMIN_USER );
-	await page.fill( '#user_pass', ADMIN_PASSWORD );
-	await page.click( '#wp-submit' );
+	await logIn( page, APP );
 	await openApp( page );
 
 	const created = await rest( page, 'wp/v2/pages', 'POST', { title: pageTitle, status: 'publish' } );
