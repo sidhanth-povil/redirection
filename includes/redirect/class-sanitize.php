@@ -278,11 +278,13 @@ class Sanitize {
 	private function find_protected( array $data ) {
 		$url = $data['url'];
 		$pattern = null;
+		// Checked fully decoded, as matching decodes again: a double-encoded pattern must not slip past.
+		$decoded = ProtectedPaths::decode( $url );
 
 		if ( ! empty( $data['match_data']['source']['flag_wildcard'] ) ) {
-			$pattern = new Regex( Wildcard::to_pattern( $url ), true );
+			$pattern = new Regex( Wildcard::to_pattern( $decoded ), true );
 		} elseif ( $data['regex'] === 1 ) {
-			$pattern = new Regex( $url, true );
+			$pattern = new Regex( $decoded, true );
 		}
 
 		return ProtectedPaths::find_blocked( $url, $pattern, $this->get_protected_paths() );

@@ -13,27 +13,29 @@ class Tester {
 	const TIMEOUT = 5;
 	const UTM_KEY = 'utm_source';
 	const UTM_VALUE = 'dsr-test';
+	// A test takes seconds; a short window means a token seen once (a proxy log, say) soon stops hiding visits.
+	const TOKEN_WINDOW = 10 * MINUTE_IN_SECONDS;
 
 	/**
-	 * Changes every hour, so a token seen once (a proxy log, an intercepted test) soon stops hiding visits.
+	 * Changes every TOKEN_WINDOW.
 	 *
 	 * @param int|null $time Time to make the token for; now by default.
 	 * @return string
 	 */
 	public static function token( $time = null ) {
-		$window = (int) floor( ( $time ?? time() ) / HOUR_IN_SECONDS );
+		$window = (int) floor( ( $time ?? time() ) / self::TOKEN_WINDOW );
 
 		return wp_hash( 'dsr-redirect-test|' . $window );
 	}
 
 	/**
-	 * This hour's or the last hour's token, so a test made at the turn of the hour still counts.
+	 * This window's or the last one's token, so a test made at the turn of a window still counts.
 	 *
 	 * @param string $sent Token from the request.
 	 * @return bool
 	 */
 	public static function is_valid_token( $sent ) {
-		return $sent !== '' && ( hash_equals( self::token(), $sent ) || hash_equals( self::token( time() - HOUR_IN_SECONDS ), $sent ) );
+		return $sent !== '' && ( hash_equals( self::token(), $sent ) || hash_equals( self::token( time() - self::TOKEN_WINDOW ), $sent ) );
 	}
 
 	/**

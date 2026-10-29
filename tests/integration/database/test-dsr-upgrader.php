@@ -205,4 +205,17 @@ class DsrUpgraderTest extends WP_UnitTestCase {
 		$this->assertNotContains( 'Print QR', $this->group_names() );
 		$this->assertContains( 'print qr', $this->group_names() );
 	}
+
+	public function testColumnRepairDoesNotRunTheOtherUpgrades() {
+		// Schedule::columns_ready() runs for redirect managers, not just admins: it may only add columns back.
+		global $wpdb;
+
+		update_option( Schedule::VERSION_OPTION, 1 );
+		$groups = count( $this->group_names() );
+
+		$this->assertTrue( Schedule::columns_ready() );
+
+		$this->assertSame( $groups, count( $this->group_names() ) );
+		$this->assertSame( 1, intval( get_option( Schedule::VERSION_OPTION ) ) );
+	}
 }

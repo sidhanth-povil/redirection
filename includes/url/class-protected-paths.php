@@ -20,7 +20,18 @@ class ProtectedPaths {
 		'/sitemap.xml',
 		'/sitemap_index.xml',
 		'/wp-sitemap.xml',
+		'/wp-comments-post.php',
+		'/wp-signup.php',
+		'/wp-activate.php',
+		'/wp-trackback.php',
 	];
+
+	// The REST API without pretty permalinks: /?rest_route=/wp/v2/…
+	const REST_QUERY = 'rest_route=';
+	const REST_LABEL = '/?rest_route=';
+
+	// Matching decodes a URL again after saving, so the check decodes until nothing changes, a few rounds at most.
+	const MAX_DECODE_ROUNDS = 5;
 
 	// Real URLs deeper inside protected paths, so a regex aimed at one of them is caught too.
 	const DEEP_PROBES = [
@@ -28,8 +39,15 @@ class ProtectedPaths {
 		'/wp-admin/admin-post.php',
 		'/wp-admin/index.php',
 		'/wp-json/wp/v2/posts',
+		'/wp-admin/edit.php',
+		'/wp-admin/options.php',
+		'/wp-admin/plugins.php',
+		'/wp-admin/post.php',
+		'/wp-admin/users.php',
 		'/wp-login.php?action=logout',
 		'/wp-login.php?action=lostpassword',
+		'/wp-login.php?action=register',
+		'/wp-login.php?action=rp',
 	];
 
 	/**
@@ -41,6 +59,12 @@ class ProtectedPaths {
 	 * @return string|null
 	 */
 	public static function find_blocked( $source, $pattern, array $protected ) {
+		$source = self::decode( $source );
+
+		if ( stripos( $source, self::REST_QUERY ) !== false ) {
+			return self::REST_LABEL;
+		}
+
 		$path = self::normalise( (string) strtok( $source, '?' ) );
 
 		foreach ( $protected as $item ) {
@@ -52,6 +76,25 @@ class ProtectedPaths {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Undo percent-encoding completely, so /wp-%256Cogin.php is checked as the /wp-login.php it ends up matching.
+	 *
+	 * @param string $url Source as stored.
+	 * @return string
+	 */
+	public static function decode( $url ) {
+		for ( $round = 0; $round < self::MAX_DECODE_ROUNDS; $round++ ) {
+			$decoded = rawurldecode( $url );
+			if ( $decoded === $url ) {
+				break;
+			}
+
+			$url = $decoded;
+		}
+
+		return $url;
 	}
 
 	/**

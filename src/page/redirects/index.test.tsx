@@ -11,7 +11,7 @@ import {
 	useRedirectTest,
 	useRedirectUpdate,
 } from 'lib/api/hooks';
-import { useTableStore } from 'stores';
+import { useMessageStore, useTableStore } from 'stores';
 import Redirects from 'page/redirects';
 import { downloadQr } from 'lib/qr';
 
@@ -139,18 +139,27 @@ beforeEach( () => {
 	useTableStore.getState().setRedirectsTable( { filterBy: {}, selected: [], page: 0 } );
 } );
 
+// Copy link, QR code, Enable/Disable and Delete live in the row's "More actions" menu, portaled to <body>.
+async function openMenu( row: HTMLElement ) {
+	// Headless UI positions the menu after the click; flush that so it doesn't spill into the next test.
+	await act( async () => {
+		fireEvent.click( within( row ).getByRole( 'button', { name: /^More actions for / } ) );
+	} );
+}
+
 describe( 'Redirects page', () => {
-	it( 'lists redirects with source, destination and plain type', () => {
+	it( 'lists redirects with source, destination and plain type', async () => {
 		setup();
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
-		expect( within( first ).getByText( '→ /autumn-sale/' ) ).toBeInTheDocument();
+		expect( first.querySelector( '.dsr-table__target' ) ).toHaveTextContent( '→ /autumn-sale/' );
 		expect( within( first ).getByText( 'Permanent' ) ).toBeInTheDocument();
 
 		const second = screen.getByText( '/discontinued' ).closest( 'tr' ) as HTMLElement;
 		expect( within( second ).getByText( 'Gone' ) ).toBeInTheDocument();
 		expect( within( second ).getByText( 'Disabled' ) ).toBeInTheDocument();
-		expect( within( second ).getByRole( 'button', { name: 'Enable' } ) ).toBeInTheDocument();
+		await openMenu( second );
+		expect( screen.getByRole( 'menuitem', { name: 'Enable' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'filters by status with the chips', () => {
@@ -206,18 +215,28 @@ describe( 'Redirects page', () => {
 		expect( within( dialog ).getByRole( 'radio', { name: /Temporary/ } ) ).toBeChecked();
 	} );
 
+	it( 'ignores a link that tries to prefill a destination on another site', () => {
+		// Only the admin bar builds these links, and it only ever sends a path on this site.
+		window.location.hash = '#/redirects?new=1&to=https%3A%2F%2Fevil.example%2F';
+		setup();
+
+		const dialog = screen.getByRole( 'dialog', { name: 'New redirect' } );
+		expect( within( dialog ).getByLabelText( 'Send visitors to' ) ).toHaveValue( '' );
+	} );
+
 	it( 'copies the full short link for a row', async () => {
 		const writeText = jest.fn().mockResolvedValue( undefined );
 		Object.defineProperty( navigator, 'clipboard', { value: { writeText }, configurable: true } );
 		setup();
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		await openMenu( first );
 		await act( async () => {
-			fireEvent.click( within( first ).getByRole( 'button', { name: 'Copy link' } ) );
+			fireEvent.click( screen.getByRole( 'menuitem', { name: 'Copy link' } ) );
 		} );
 
 		expect( writeText ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale` );
-		expect( within( first ).getByRole( 'button', { name: 'Copied' } ) ).toBeInTheDocument();
+		expect( useMessageStore.getState().notices.map( ( notice ) => notice.message ) ).toContain( 'Link copied' );
 	} );
 
 	it( 'tests a redirect from the server and shows where it went', () => {
@@ -266,49 +285,83 @@ describe( 'Redirects page', () => {
 		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( 'Your site could not reach itself' );
 	} );
 
+	it( 'sums up activity in one column', () => {
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		expect( within( first ).getByText( '12 hits' ) ).toBeInTheDocument();
+		expect( within( first ).getByText( 'October 20, 2026' ) ).toBeInTheDocument();
+
+		const unused = screen.getByText( '/discontinued' ).closest( 'tr' ) as HTMLElement;
+		expect( within( unused ).getByText( 'No hits yet' ) ).toBeInTheDocument();
+	} );
+
+	it( 'deletes and disables a row from its menu', async () => {
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
+		setup();
+
+		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
+		await openMenu( first );
+		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Disable' } ) );
+		expect( bulk.mutate ).toHaveBeenCalledWith( { items: [ 1 ] } );
+
+		await openMenu( first );
+		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Delete' } ) );
+		expect( remove.mutate ).toHaveBeenCalledWith( { items: [ 1 ] } );
+		confirm.mockRestore();
+	} );
+
 	it( 'shows the purpose of each redirect', () => {
 		setup();
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
-		expect( within( first ).getByText( 'Redirections' ) ).toHaveClass( 'dsr-badge' );
+		expect( within( first ).getByText( 'Redirections' ) ).toHaveClass( 'dsr-table__purpose' );
 	} );
 
-	it( 'downloads a QR code for the full short link', () => {
+	it( 'downloads a QR code for the full short link', async () => {
 		setup();
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
-		fireEvent.click( within( first ).getByRole( 'button', { name: 'QR code' } ) );
+		await openMenu( first );
+		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Download QR code' } ) );
 
 		expect( downloadQr ).toHaveBeenCalledWith( `${ window.location.origin }/old-sale`, '/old-sale' );
 	} );
 
-	it( 'says when an address is too long for a QR code', () => {
+	it( 'says when an address is too long for a QR code', async () => {
 		( downloadQr as jest.Mock ).mockImplementationOnce( () => {
 			throw new Error( 'This address is too long for a QR code.' );
 		} );
 		setup();
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
-		fireEvent.click( within( first ).getByRole( 'button', { name: 'QR code' } ) );
+		await openMenu( first );
+		fireEvent.click( screen.getByRole( 'menuitem', { name: 'Download QR code' } ) );
 
-		expect( within( first ).getByRole( 'status' ) ).toHaveTextContent( 'Too long for a QR code' );
+		expect( useMessageStore.getState().notices.map( ( notice ) => notice.message ) ).toContain(
+			'This address is too long for a QR code.'
+		);
 	} );
 
-	it( 'offers no test for a wildcard redirect', () => {
+	it( 'offers no test for a wildcard redirect', async () => {
 		setup();
 
 		const wildcard = screen.getByText( '/blog/*' ).closest( 'tr' ) as HTMLElement;
 		expect( within( wildcard ).queryByRole( 'button', { name: 'Test' } ) ).toBeNull();
-		expect( within( wildcard ).queryByRole( 'button', { name: 'QR code' } ) ).toBeNull();
+		await openMenu( wildcard );
+		expect( screen.queryByRole( 'menuitem', { name: 'Download QR code' } ) ).toBeNull();
+		expect( screen.queryByRole( 'menuitem', { name: 'Copy link' } ) ).toBeNull();
 	} );
 
-	it( 'hides actions the user cannot perform', () => {
+	it( 'hides actions the user cannot perform', async () => {
 		setup( [ 'redirection_cap_redirect_manage' ] );
 
 		const first = screen.getByText( '/old-sale' ).closest( 'tr' ) as HTMLElement;
 		expect( within( first ).queryByRole( 'button', { name: 'Edit' } ) ).toBeNull();
-		expect( within( first ).queryByRole( 'button', { name: 'Disable' } ) ).toBeNull();
-		expect( within( first ).queryByRole( 'button', { name: 'Delete' } ) ).toBeNull();
+		await openMenu( first );
+		expect( screen.queryByRole( 'menuitem', { name: 'Disable' } ) ).toBeNull();
+		expect( screen.queryByRole( 'menuitem', { name: 'Delete' } ) ).toBeNull();
+		expect( screen.getByRole( 'menuitem', { name: 'Copy link' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows when a scheduled redirect starts', () => {

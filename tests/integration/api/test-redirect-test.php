@@ -159,8 +159,9 @@ class RedirectTestApiTest extends Redirection_Api_Test {
 	public function testOldTokensStopWorking() {
 		// A token seen once (in a proxy log, say) must not hide visits forever.
 		$this->assertTrue( Tester::is_valid_token( Tester::token() ) );
-		$this->assertTrue( Tester::is_valid_token( Tester::token( time() - HOUR_IN_SECONDS ) ) );
-		$this->assertFalse( Tester::is_valid_token( Tester::token( time() - 3 * HOUR_IN_SECONDS ) ) );
+		$this->assertTrue( Tester::is_valid_token( Tester::token( time() - Tester::TOKEN_WINDOW ) ) );
+		$this->assertFalse( Tester::is_valid_token( Tester::token( time() - 3 * Tester::TOKEN_WINDOW ) ) );
+		$this->assertFalse( Tester::is_valid_token( Tester::token( time() - HOUR_IN_SECONDS ) ) );
 		$this->assertFalse( Tester::is_valid_token( '' ) );
 	}
 }

@@ -317,4 +317,20 @@ class RedirectSanitizeTest extends WP_UnitTestCase {
 
 		$this->assertWPError( $result );
 	}
+
+	public function testDoubleEncodedSourcesNeverReachAProtectedPath() {
+		// Whatever is saved (refused, or with its stray octets stripped) must not match the page it disguises.
+		$cases = [ [ '/wp-%256Cogin.php', 0 ], [ '/WP-%254Cogin.php', 0 ], [ '/wp-admin%252F', 0 ], [ '^/wp-%256Cogin\\.php$', 1 ] ];
+
+		foreach ( $cases as [ $url, $regex ] ) {
+			$result = $this->sanitizer->get( $this->get_new( [ 'url' => $url, 'regex' => $regex ] ) );
+			if ( is_wp_error( $result ) ) {
+				continue;
+			}
+
+			$matcher = $regex === 1 ? new \Redirection\Core\Regex( $result['url'], true ) : null;
+			$this->assertNull( \Redirection\Url\ProtectedPaths::find_blocked( $result['url'], $matcher, \Redirection\Url\ProtectedPaths::DEFAULTS ), $url );
+			$this->assertNotSame( '/wp-login.php', $result['match_url'], $url );
+		}
+	}
 }
