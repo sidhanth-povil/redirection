@@ -67,6 +67,8 @@ export const CheckResponseSchema = z.object( {
 	path: z.array( z.string() ).optional(),
 	final_target: z.string().optional(),
 	existing_id: z.number().optional(),
+	/** Redirects whose target is this source; the drawer offers to point them straight at the new target. */
+	inbound: z.array( RedirectSchema ).optional(),
 } );
 
 export type CheckResponse = z.infer< typeof CheckResponseSchema >;

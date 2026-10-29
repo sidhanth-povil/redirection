@@ -239,3 +239,25 @@ export function toPayload( state: DrawerState ): CreateRedirectInput {
 		end_at: state.end_at === '' ? null : state.end_at,
 	};
 }
+
+/**
+ * The plain redirect that serves a scheduled one's old URL whenever the schedule isn't live. Saved after it, so
+ * matching (position, then oldest first) prefers the scheduled redirect while it is live.
+ *
+ * @param state Scheduled redirect as saved.
+ * @param url   Where visitors go outside the schedule.
+ */
+export function fallbackPayload( state: DrawerState, url: string ): CreateRedirectInput {
+	// Only the old URL and its matching flags carry over: no condition, title, options or schedule.
+	const plain: DrawerState = {
+		...state,
+		title: '',
+		match_type: MATCH_URL,
+		action_data: { url },
+		options: {},
+		start_at: '',
+		end_at: '',
+	};
+
+	return toPayload( applySimpleType( plain, 'temporary' ) );
+}

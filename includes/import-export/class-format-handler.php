@@ -117,7 +117,7 @@ abstract class FormatHandler {
 			'errors_imported' => 0,
 			'settings_imported' => 0,
 			'preview' => $redirect->get_preview_items(),
-		];
+		] + $redirect->get_preflight_result();
 	}
 
 	/**

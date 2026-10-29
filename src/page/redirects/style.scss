@@ -446,3 +446,14 @@
 	color: var(--dsr-success-text);
 	font-size: 13px;
 }
+
+// Redirects that lead to this one's old URL, offered for repointing.
+.dsr-app .dsr-repoint__list {
+	margin: var(--dsr-space-2) 0 0;
+	padding-left: var(--dsr-space-6);
+	list-style: none;
+
+	code {
+		overflow-wrap: anywhere;
+	}
+}

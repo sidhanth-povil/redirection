@@ -49,6 +49,16 @@ class ImportRedirect {
 	private $preview_items = [];
 
 	/**
+	 * @var ImportPreflight|null Checks rows before saving; only set for previews and "skip problem rows" imports.
+	 */
+	private $preflight = null;
+
+	/**
+	 * @var bool Skip rows the pre-flight says would fail or duplicate.
+	 */
+	private $skip_problems = false;
+
+	/**
 	 * @param array<string, bool|string|array<int, string>> $options Import options.
 	 */
 	public function __construct( array $options = [], ?RedirectDuplicateMatcher $duplicate_matcher = null, ?RedirectRepository $redirects = null ) {
@@ -79,6 +89,16 @@ class ImportRedirect {
 			}
 		}
 
+		// Only rows about to be created are checked: an update of a duplicate is what the chosen mode asked for.
+		if ( $this->preflight !== null ) {
+			$issues = $this->preflight->check( $redirect );
+
+			if ( $this->skip_problems && ImportPreflight::is_blocking( $issues ) ) {
+				$this->ignored++;
+				return true;
+			}
+		}
+
 		$resolved_group = $group->get_group( $file_group_id, $group_data );
 		if ( $resolved_group === false ) {
 			return false;
@@ -102,6 +122,23 @@ class ImportRedirect {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param ImportPreflight $preflight Row checks.
+	 * @param bool            $skip_problems Skip rows that would fail or duplicate.
+	 * @return void
+	 */
+	public function set_preflight( ImportPreflight $preflight, $skip_problems ) {
+		$this->preflight = $preflight;
+		$this->skip_problems = $skip_problems;
+	}
+
+	/**
+	 * @return array{problems?: list<array{source: string, target: string, issue: string, message: string}>, problem_count?: int}
+	 */
+	public function get_preflight_result() {
+		return $this->preflight !== null ? $this->preflight->get_result() : [];
 	}
 
 	/**

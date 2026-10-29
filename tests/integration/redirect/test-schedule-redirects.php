@@ -227,4 +227,22 @@ class ScheduleRedirectsTest extends Redirection_Api_Test {
 		$this->assertStringEndsWith( ',"2030-11-28T09:00:00+05:30","2030-12-02T09:00:00+05:30"', $lines[1] );
 		$this->assertStringEndsWith( ',"",""', $lines[2] );
 	}
+
+	private function first_target( $url ) {
+		$items = Red_Item::get_for_matched_url( $url );
+
+		return count( $items ) > 0 ? $items[0]->get_action_data() : null;
+	}
+
+	public function testAFallbackSavedAfterwardsServesWheneverTheCampaignIsNotLive() {
+		// The drawer's "When it isn't live" field saves a second, unscheduled redirect after the scheduled one.
+		$campaign = $this->create( '/bfcm', [ 'action_data' => [ 'url' => '/black-friday' ], 'start_at' => $this->utc( -HOUR_IN_SECONDS ), 'end_at' => $this->utc( HOUR_IN_SECONDS ) ] );
+		$this->create( '/bfcm', [ 'action_data' => [ 'url' => '/deals' ] ] );
+
+		$this->assertSame( '/black-friday', $this->first_target( '/bfcm' ) );
+
+		$campaign->update( [ 'url' => '/bfcm', 'group_id' => $this->group->get_id(), 'match_type' => 'url', 'action_type' => 'url', 'action_code' => 301, 'action_data' => [ 'url' => '/black-friday' ], 'start_at' => $this->utc( -2 * HOUR_IN_SECONDS ), 'end_at' => $this->utc( -HOUR_IN_SECONDS ) ] );
+
+		$this->assertSame( '/deals', $this->first_target( '/bfcm' ) );
+	}
 }

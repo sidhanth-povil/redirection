@@ -227,6 +227,37 @@ class Chains {
 	}
 
 	/**
+	 * Does a redirect already start at this key? Then sending visitors to it adds a hop.
+	 *
+	 * @param string $key Source or target key.
+	 * @return bool
+	 */
+	public function leads_on( $key ) {
+		return isset( $this->map[ $key ] );
+	}
+
+	/**
+	 * Redirects whose target is this source: once it is saved they reach the page through it, a chain the drawer
+	 * offers to avoid by repointing them. Leaves out the redirect being edited and any that would then point at itself.
+	 *
+	 * @param string      $source Source key.
+	 * @param string|null $target_key Target key of the redirect being saved, null when external.
+	 * @param int         $id Redirect being edited; 0 for a new one.
+	 * @return list<int>
+	 */
+	public function inbound( $source, $target_key, $id = 0 ) {
+		$ids = [];
+
+		foreach ( $this->edges as $edge ) {
+			if ( $edge['target_key'] === $source && $edge['id'] !== $id && $edge['source'] !== $target_key ) {
+				$ids[] = $edge['id'];
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * Follow targets through the map. O(n) per walk thanks to the visited set.
 	 *
 	 * @param Edge                $edge Starting redirect.

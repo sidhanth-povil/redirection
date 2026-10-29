@@ -18,6 +18,7 @@ use WP_REST_Server;
  * }
  * @phpstan-type ImportFileParams array{
  *  dry_run?: bool|string|int,
+ *  skip_problems?: bool|string|int,
  *  duplicate_mode?: string,
  *  deduplicate?: bool|string|int,
  *  import_sections?: list<string>|string,
@@ -40,6 +41,10 @@ class Import extends BaseRoute {
 					'permission_callback' => [ $this, 'permission_callback_file_import' ],
 					'args' => [
 						'dry_run' => [
+							'sanitize_callback' => [ $this, 'sanitize_boolean_param' ],
+							'validate_callback' => [ $this, 'validate_boolean_param' ],
+						],
+						'skip_problems' => [
 							'sanitize_callback' => [ $this, 'sanitize_boolean_param' ],
 							'validate_callback' => [ $this, 'validate_boolean_param' ],
 						],
@@ -319,6 +324,7 @@ class Import extends BaseRoute {
 		$group_id = intval( $request['group_id'], 10 );
 		$options = [
 			'dry_run' => isset( $params['dry_run'] ) ? $this->sanitize_boolean_param( $params['dry_run'] ) : false,
+			'skip_problems' => isset( $params['skip_problems'] ) ? $this->sanitize_boolean_param( $params['skip_problems'] ) : false,
 			'duplicate_mode' => isset( $params['duplicate_mode'] ) ? $this->sanitize_duplicate_mode_param( $params['duplicate_mode'] ) : 'import',
 			'import_sections' => isset( $params['import_sections'] ) ? $this->sanitize_import_sections_param( $params['import_sections'] ) : [],
 		];

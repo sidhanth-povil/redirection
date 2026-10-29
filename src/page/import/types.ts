@@ -11,6 +11,13 @@ interface ImportPreviewRow {
 	redirect_id?: number;
 }
 
+interface ImportProblem {
+	source: string;
+	target: string;
+	issue: 'invalid' | 'duplicate' | 'chain';
+	message: string;
+}
+
 interface ImportStats {
 	created: number;
 	updated: number;
@@ -22,6 +29,9 @@ interface ImportStats {
 	errors_imported: number;
 	settings_imported: number;
 	preview: ImportPreviewRow[];
+	/** Pre-flight on a file preview: rows that would fail, duplicate or chain. */
+	problems?: ImportProblem[];
+	problem_count?: number;
 }
 
 interface ImportPlugin {
@@ -60,4 +70,4 @@ interface ImportState {
 	previewSupported: boolean;
 }
 
-export type { ImportPlugin, ImportPreviewRow, ImportState, ImportStats, ImportSniffResult };
+export type { ImportPlugin, ImportPreviewRow, ImportProblem, ImportState, ImportStats, ImportSniffResult };

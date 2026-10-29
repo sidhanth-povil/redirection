@@ -229,6 +229,9 @@ function ImportPage() {
 					activeImportType={ state.activeImportType }
 					lastImport={ state.lastImport }
 					lastImportWasDryRun={ state.lastImportWasDryRun }
+					{ ...( state.activeImportType === 'file' || state.activeImportType === 'paste'
+						? { onImportClean: () => onImport( false, true ) }
+						: {} ) }
 				/>
 			</section>
 		</div>

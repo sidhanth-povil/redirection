@@ -19,6 +19,8 @@ type FileImportVariables = {
 	deleteSource?: boolean;
 	importSections?: string[];
 	format?: FileImportFormat | undefined;
+	/** Skip rows the pre-flight says would fail or duplicate. */
+	skipProblems?: boolean;
 };
 type PluginImportVariables = {
 	sourceType: 'plugin';
@@ -214,6 +216,7 @@ export function useImportRunner(
 							delete_source: variables.deleteSource ? 1 : 0,
 							import_sections: variables.importSections || [],
 							format: variables.format,
+							skip_problems: variables.skipProblems ? 1 : 0,
 						} )
 					);
 				} catch ( error ) {

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import ImportResults from './import-results';
 import type { ImportStats } from './types';
 
@@ -108,5 +108,57 @@ describe( 'ImportResults', () => {
 		expect( screen.getByText( 'All matching redirects would be ignored.' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Preview only. No changes have been made.' ) ).toBeInTheDocument();
 		expect( screen.getByText( '2' ) ).toBeInTheDocument();
+	} );
+
+	it( 'lists rows that would fail and offers to import without them', () => {
+		const onImportClean = jest.fn();
+		render(
+			<ImportResults
+				activeImportType="file"
+				lastImport={ getPreviewResults( {
+					problem_count: 2,
+					problems: [
+						{
+							source: '/wp-login.php',
+							target: '/x',
+							issue: 'invalid',
+							message: 'This would redirect /wp-login.php',
+						},
+						{
+							source: '/hop',
+							target: '/middle',
+							issue: 'chain',
+							message: 'The destination redirects again',
+						},
+					],
+				} ) }
+				lastImportWasDryRun={ true }
+				onImportClean={ onImportClean }
+			/>
+		);
+
+		const problems = screen.getByRole( 'region', { name: '2 rows need a look' } );
+		expect( within( problems ).getByText( 'Would fail' ) ).toBeInTheDocument();
+		expect( within( problems ).getByText( 'This would redirect /wp-login.php' ) ).toBeInTheDocument();
+		expect( within( problems ).getByText( 'Extra hop' ) ).toBeInTheDocument();
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Import, skipping rows that would fail or duplicate' } ) );
+		expect( onImportClean ).toHaveBeenCalled();
+	} );
+
+	it( 'offers no skip when the only problems are chains', () => {
+		render(
+			<ImportResults
+				activeImportType="file"
+				lastImport={ getPreviewResults( {
+					problem_count: 1,
+					problems: [ { source: '/hop', target: '/middle', issue: 'chain', message: 'Extra hop' } ],
+				} ) }
+				lastImportWasDryRun={ true }
+				onImportClean={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByRole( 'button', { name: /skipping rows/ } ) ).toBeNull();
 	} );
 } );
