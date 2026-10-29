@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useDebounce } from 'use-debounce';
 import { useRedirectCheck } from 'lib/api/hooks';
@@ -154,11 +155,17 @@ interface RepointProps {
  */
 export function RepointInbound( { inbound, target, checked, onChange }: RepointProps ) {
 	const hidden = inbound.length - MAX_LISTED;
+	const checkId = useId();
 
 	return (
 		<div className="dsr-notice dsr-repoint">
-			<label className="dsr-check">
-				<input type="checkbox" checked={ checked } onChange={ ( event ) => onChange( event.target.checked ) } />
+			<label className="dsr-check" htmlFor={ checkId }>
+				<input
+					id={ checkId }
+					type="checkbox"
+					checked={ checked }
+					onChange={ ( event ) => onChange( event.target.checked ) }
+				/>
 				{ sprintf(
 					/* translators: 1: number of redirects, 2: destination URL */
 					_n(
