@@ -156,7 +156,7 @@ class RedirectionApiRedirectTest extends Redirection_Api_Test {
 
 	public function testListFilterUrlMatch() {
 		$this->createAB();
-		Red_Item::create( array( 'url' => '/', 'group_id' => $this->group->get_id(), 'action_type' => 'url', 'match_type' => 'url', 'regex' => 1 ) );
+		Red_Item::create( array( 'url' => '^/old/(.*)$', 'group_id' => $this->group->get_id(), 'action_type' => 'url', 'match_type' => 'url', 'regex' => 1 ) );
 
 		$result = $this->callApi( 'redirect', [ 'filterBy' => [ 'url-match' => 'regular' ] ] );
 		$this->assertEquals( 1, $result->data['total'] );

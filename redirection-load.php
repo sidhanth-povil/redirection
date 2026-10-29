@@ -137,6 +137,9 @@ add_action( 'wp_trash_post', [ Redirection\Plugin\TrashNotice::class, 'remember'
 add_action( 'before_delete_post', [ Redirection\Plugin\TrashNotice::class, 'remember' ] );
 add_action( 'untrashed_post', [ Redirection\Plugin\TrashNotice::class, 'forget' ] );
 
+// Front end only: "Redirect here" on a page, "Redirect this 404" on a missing one
+add_action( 'admin_bar_menu', [ Redirection\Plugin\AdminBar::class, 'add_node' ], 80 );
+
 /**
  * @return bool
  */

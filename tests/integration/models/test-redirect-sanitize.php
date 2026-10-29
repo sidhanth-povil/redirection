@@ -72,7 +72,7 @@ class RedirectSanitizeTest extends WP_UnitTestCase {
 	}
 
 	public function testGoodRegex() {
-		$result = $this->sanitizer->get( $this->get_new( array( 'regex' => true ) ) );
+		$result = $this->sanitizer->get( $this->get_new( array( 'regex' => true, 'url' => '^/a$' ) ) );
 		$this->assertEquals( 1, $result['regex'] );
 	}
 
@@ -196,7 +196,7 @@ class RedirectSanitizeTest extends WP_UnitTestCase {
 	}
 
 	public function testSourceFlagsRegexOverride() {
-		$flags = [ 'regex' => true ];
+		$flags = [ 'regex' => true, 'url' => '^/a$' ];
 		$result = $this->sanitizer->get( $this->get_new( $flags ) );
 
 		$this->assertEquals( 1, $result['regex'] );
@@ -289,5 +289,32 @@ class RedirectSanitizeTest extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'action_data', $result );
 		$this->assertNull( $result['action_data'] );
+	}
+
+	public function testRefusesProtectedPaths() {
+		// A plain source, a wildcard and a regex that would each lock the team out.
+		foreach ( [ [ '/wp-login.php', 0 ], [ '/wp-*', 0 ], [ '^/(.*)$', 1 ] ] as [ $url, $regex ] ) {
+			$result = $this->sanitizer->get( $this->get_new( [ 'url' => $url, 'regex' => $regex ] ) );
+
+			$this->assertWPError( $result, $url );
+		}
+	}
+
+	public function testAllowsPathsThatOnlyLookProtected() {
+		$result = $this->sanitizer->get( $this->get_new( [ 'url' => '/wp-admin-guide' ] ) );
+
+		$this->assertSame( '/wp-admin-guide', $result['url'] );
+	}
+
+	public function testProtectedPathsCanBeExtended() {
+		$add = function ( $paths ) {
+			return array_merge( $paths, [ '/members' ] );
+		};
+		add_filter( 'dsr_protected_paths', $add );
+
+		$result = $this->sanitizer->get( $this->get_new( [ 'url' => '/members/area' ] ) );
+		remove_filter( 'dsr_protected_paths', $add );
+
+		$this->assertWPError( $result );
 	}
 }

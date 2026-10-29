@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from 'ui';
 import type { Redirect } from 'types';
+import { copyText } from 'page/export/download';
 import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
 
 interface RedirectTableProps {
@@ -15,6 +16,34 @@ interface RedirectTableProps {
 	onEdit: ( row: Redirect ) => void;
 	onToggle: ( row: Redirect ) => void;
 	onDelete: ( row: Redirect ) => void;
+}
+
+const COPIED_MS = 2000;
+
+/**
+ * Copies the full short link (for print, QR or a social bio). Only for plain sources: a wildcard or regex isn't one URL.
+ *
+ * @param props
+ * @param props.url Source path.
+ */
+function CopyLink( { url }: { url: string } ) {
+	const [ copied, setCopied ] = useState( false );
+
+	const onCopy = () => {
+		copyText( window.location.origin + url )
+			.then( () => {
+				setCopied( true );
+				window.setTimeout( () => setCopied( false ), COPIED_MS );
+			} )
+			// Nothing to roll back; the label simply stays "Copy link" so the user can retry or copy by hand.
+			.catch( () => setCopied( false ) );
+	};
+
+	return (
+		<button type="button" className="dsr-link" onClick={ onCopy } aria-live="polite">
+			{ copied ? __( 'Copied', 'dsuite-redirects' ) : __( 'Copy link', 'dsuite-redirects' ) }
+		</button>
+	);
 }
 
 export default function RedirectTable( props: RedirectTableProps ) {
@@ -101,6 +130,9 @@ export default function RedirectTable( props: RedirectTableProps ) {
 								{ row.last_access && row.last_access !== '-' ? row.last_access : '–' }
 							</td>
 							<td className="dsr-table__actions">
+								{ row.match_type === 'url' && ! row.regex && ! isWildcardRow( row ) && (
+									<CopyLink url={ row.url } />
+								) }
 								{ canEdit && (
 									<button type="button" className="dsr-link" onClick={ () => onEdit( row ) }>
 										{ __( 'Edit', 'dsuite-redirects' ) }

@@ -23,6 +23,8 @@ const SEARCH_DELAY = 300;
 interface DrawerTarget {
 	item: Redirect | null;
 	url: string;
+	/** Prefilled destination, from the admin bar's "Create redirect to this page". */
+	target?: string;
 }
 
 interface StatusChip {
@@ -78,14 +80,14 @@ export default function Redirects() {
 		}
 	}, [ addTop, setRedirectsAddTop ] );
 
-	// Deep link used by 404 emails and other pages: #/redirects?new=1&from=/old-url
-	const { new: isNew, from } = route.query;
+	// Deep link used by 404 emails (#/redirects?new=1&from=/old-url) and the admin bar (…&to=/page/)
+	const { new: isNew, from, to } = route.query;
 	useEffect( () => {
 		if ( isNew === '1' && canAdd ) {
-			setDrawer( { item: null, url: from ?? '' } );
+			setDrawer( { item: null, url: from ?? '', target: to ?? '' } );
 			window.history.replaceState( {}, '', buildHash( 'redirects' ) );
 		}
-	}, [ isNew, from, canAdd ] );
+	}, [ isNew, from, to, canAdd ] );
 
 	const filterBy: Record< string, string > = table.filterBy ?? {};
 	const [ field, setField ] = useState< SearchField >(
@@ -334,6 +336,7 @@ export default function Redirects() {
 					key={ drawer.item?.id ?? 'new' }
 					item={ drawer.item }
 					initialUrl={ drawer.url }
+					initialTarget={ drawer.target ?? '' }
 					onClose={ () => setDrawer( null ) }
 				/>
 			) }
