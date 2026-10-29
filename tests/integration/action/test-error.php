@@ -11,6 +11,10 @@ class ErrorTest extends WP_UnitTestCase {
 	}
 
 	public function setUp(): void {
+		// Without this WordPress skips its per-test hook backup and DB transaction, and the error action's
+		// pre_handle_404 and wp hooks outlive the test, turning later tests' requests into 404s.
+		parent::setUp();
+
 		$module = Redirection::init()->get_module();
 		$module->reset();
 	}
