@@ -19,6 +19,7 @@ export const RedirectionApi = {
 		update: ( id: number, data: any ) => postApiRequest( 'redirection/v1/redirect/' + id, data ),
 		create: ( data: any, query?: TableParams ) => postApiRequest( 'redirection/v1/redirect', data, query ),
 		matchPost: ( text: string ) => getApiRequest( 'redirection/v1/redirect/post', { text } ),
+		test: ( id: number ) => postApiRequest( 'redirection/v1/redirect/' + id + '/test', {} ),
 	},
 	health: {
 		get: () => getApiRequest( 'redirection/v1/health' ),
