@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Badge } from 'ui';
 import type { Redirect, RedirectTestResult } from 'types';
 import { useRedirectTest } from 'lib/api/hooks';
+import { useMessageStore } from 'stores';
 import { copyText } from 'page/export/download';
 import { downloadQr } from 'lib/qr';
 import { describeTarget, isWildcardRow, scheduleBadge, typeBadge } from './describe';
@@ -22,37 +24,13 @@ interface RedirectTableProps {
 	onDelete: ( row: Redirect ) => void;
 }
 
-const COPIED_MS = 2000;
-
-// A wildcard or regex isn't one URL, so it can't be copied or requested.
+// A wildcard or regex isn't one URL, so it can't be copied, encoded or requested.
 function isSingleAddress( row: Redirect ): boolean {
 	return row.match_type === 'url' && ! row.regex && ! isWildcardRow( row );
 }
 
-/**
- * Copies the full short link (for print, QR or a social bio). Only for plain sources: a wildcard or regex isn't one URL.
- *
- * @param props
- * @param props.url Source path.
- */
-function CopyLink( { url }: { url: string } ) {
-	const [ copied, setCopied ] = useState( false );
-
-	const onCopy = () => {
-		copyText( window.location.origin + url )
-			.then( () => {
-				setCopied( true );
-				window.setTimeout( () => setCopied( false ), COPIED_MS );
-			} )
-			// Nothing to roll back; the label simply stays "Copy link" so the user can retry or copy by hand.
-			.catch( () => setCopied( false ) );
-	};
-
-	return (
-		<button type="button" className="dsr-link" onClick={ onCopy } aria-live="polite">
-			{ copied ? __( 'Copied', 'dsuite-redirects' ) : __( 'Copy link', 'dsuite-redirects' ) }
-		</button>
-	);
+function isTestable( row: Redirect ): boolean {
+	return isSingleAddress( row ) && [ 'url', 'error' ].includes( row.action_type );
 }
 
 interface TestOutcome {
@@ -85,7 +63,7 @@ function describeTest( result: RedirectTestResult ): TestOutcome {
  * @param props
  * @param props.id Redirect ID.
  */
-function TestLink( { id }: { id: number } ) {
+function TestButton( { id }: { id: number } ) {
 	const test = useRedirectTest();
 	const [ outcome, setOutcome ] = useState< TestOutcome | null >( null );
 
@@ -97,7 +75,7 @@ function TestLink( { id }: { id: number } ) {
 
 	return (
 		<>
-			<button type="button" className="dsr-link" onClick={ onTest } disabled={ test.isPending }>
+			<button type="button" className="dsr-row-action" onClick={ onTest } disabled={ test.isPending }>
 				{ test.isPending ? __( 'Testing…', 'dsuite-redirects' ) : __( 'Test', 'dsuite-redirects' ) }
 			</button>
 			{ outcome && (
@@ -109,34 +87,116 @@ function TestLink( { id }: { id: number } ) {
 	);
 }
 
+interface RowMenuProps {
+	row: Redirect;
+	canEdit: boolean;
+	canDelete: boolean;
+	onToggle: ( row: Redirect ) => void;
+	onDelete: ( row: Redirect ) => void;
+}
+
 /**
- * Downloads a QR code of the full short link; says so in the row when the address can't fit in one.
+ * The less frequent actions, kept out of the row so it reads at a glance. Portaled, so the table's rounded,
+ * overflow-hidden frame can't clip it; feedback goes to the page notice, as the menu closes on click.
  *
  * @param props
- * @param props.url Source path.
+ * @param props.row       Redirect.
+ * @param props.canEdit   Can enable and disable.
+ * @param props.canDelete Can delete.
+ * @param props.onToggle  Enable or disable.
+ * @param props.onDelete  Delete.
  */
-function QrLink( { url }: { url: string } ) {
-	const [ error, setError ] = useState( '' );
+function RowMenu( { row, canEdit, canDelete, onToggle, onDelete }: RowMenuProps ) {
+	const addNotice = useMessageStore( ( store ) => store.addNotice );
+	const isSingle = isSingleAddress( row );
+	const fullUrl = window.location.origin + row.url;
 
-	const onDownload = () => {
+	if ( ! isSingle && ! canEdit && ! canDelete ) {
+		return null;
+	}
+
+	const onCopy = () =>
+		copyText( fullUrl )
+			.then( () => addNotice( __( 'Link copied', 'dsuite-redirects' ) ) )
+			.catch( () =>
+				addNotice( __( 'Could not copy. Select the address and copy it by hand.', 'dsuite-redirects' ) )
+			);
+
+	const onQr = () => {
 		try {
-			downloadQr( window.location.origin + url, url );
-			setError( '' );
+			downloadQr( fullUrl, row.url );
 		} catch {
-			setError( __( 'Too long for a QR code', 'dsuite-redirects' ) );
+			addNotice( __( 'This address is too long for a QR code.', 'dsuite-redirects' ) );
 		}
 	};
 
 	return (
+		<Menu>
+			<MenuButton
+				className="dsr-row-more"
+				/* translators: %s: old URL */
+				aria-label={ sprintf( __( 'More actions for %s', 'dsuite-redirects' ), row.url ) }
+			>
+				<span aria-hidden="true">⋯</span>
+			</MenuButton>
+			<MenuItems anchor="bottom end" className="dsr-menu" modal={ false }>
+				{ isSingle && (
+					<MenuItem>
+						<button type="button" className="dsr-menu__item" onClick={ onCopy }>
+							{ __( 'Copy link', 'dsuite-redirects' ) }
+						</button>
+					</MenuItem>
+				) }
+				{ isSingle && (
+					<MenuItem>
+						<button type="button" className="dsr-menu__item" onClick={ onQr }>
+							{ __( 'Download QR code', 'dsuite-redirects' ) }
+						</button>
+					</MenuItem>
+				) }
+				{ canEdit && (
+					<MenuItem>
+						<button type="button" className="dsr-menu__item" onClick={ () => onToggle( row ) }>
+							{ row.enabled === false
+								? __( 'Enable', 'dsuite-redirects' )
+								: __( 'Disable', 'dsuite-redirects' ) }
+						</button>
+					</MenuItem>
+				) }
+				{ canDelete && (
+					<MenuItem>
+						<button
+							type="button"
+							className="dsr-menu__item dsr-menu__item--danger"
+							onClick={ () => onDelete( row ) }
+						>
+							{ __( 'Delete', 'dsuite-redirects' ) }
+						</button>
+					</MenuItem>
+				) }
+			</MenuItems>
+		</Menu>
+	);
+}
+
+function Activity( { row }: { row: Redirect } ) {
+	const hits = row.hits ?? 0;
+	const hasLastHit = Boolean( row.last_access ) && row.last_access !== '-';
+
+	if ( hits === 0 ) {
+		return <span className="dsr-activity__none">{ __( 'No hits yet', 'dsuite-redirects' ) }</span>;
+	}
+
+	return (
 		<>
-			<button type="button" className="dsr-link" onClick={ onDownload }>
-				{ __( 'QR code', 'dsuite-redirects' ) }
-			</button>
-			{ error && (
-				<span role="status" className="dsr-test-result is-bad">
-					{ error }
-				</span>
-			) }
+			<span className="dsr-activity__hits">
+				{ sprintf(
+					/* translators: %s: number of hits */
+					_n( '%s hit', '%s hits', hits, 'dsuite-redirects' ),
+					hits.toLocaleString()
+				) }
+			</span>
+			{ hasLastHit && <span className="dsr-activity__last">{ row.last_access }</span> }
 		</>
 	);
 }
@@ -158,7 +218,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 		onSelect( selected.includes( id ) ? selected.filter( ( item ) => item !== id ) : [ ...selected, id ] );
 
 	return (
-		<table className="dsr-table">
+		<table className="dsr-table dsr-redirect-table">
 			<thead>
 				<tr>
 					<th className="dsr-table__check">
@@ -170,9 +230,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 						/>
 					</th>
 					<th>{ __( 'Redirect', 'dsuite-redirects' ) }</th>
-					<th className="dsr-table__type">{ __( 'Type', 'dsuite-redirects' ) }</th>
-					<th className="dsr-table__hits dsr-num">{ __( 'Hits', 'dsuite-redirects' ) }</th>
-					<th className="dsr-table__last">{ __( 'Last hit', 'dsuite-redirects' ) }</th>
+					<th className="dsr-table__activity">{ __( 'Activity', 'dsuite-redirects' ) }</th>
 					<th className="dsr-table__actions">
 						<span className="screen-reader-text">{ __( 'Actions', 'dsuite-redirects' ) }</span>
 					</th>
@@ -184,6 +242,7 @@ export default function RedirectTable( props: RedirectTableProps ) {
 					const schedule = scheduleBadge( row );
 					const target = describeTarget( row );
 					const isDisabled = row.enabled === false;
+					const purpose = groupNames[ row.group_id ];
 
 					return (
 						<tr key={ row.id } className={ isDisabled ? 'is-disabled' : undefined }>
@@ -198,63 +257,59 @@ export default function RedirectTable( props: RedirectTableProps ) {
 							</td>
 							<td className="dsr-table__redirect">
 								{ row.title && <span className="dsr-table__title">{ row.title }</span> }
-								<span className="dsr-table__source" title={ row.url }>
-									{ row.url }
+								<span className="dsr-table__headline">
+									<span className="dsr-table__source" title={ row.url }>
+										{ row.url }
+									</span>
+									<span className="dsr-table__badges">
+										<Badge tone={ badge.tone } title={ String( badge.code ) }>
+											{ badge.label }
+										</Badge>
+										{ isWildcardRow( row ) && (
+											<Badge tone="accent">{ __( 'Wildcard', 'dsuite-redirects' ) }</Badge>
+										) }
+										{ schedule && <Badge tone={ schedule.tone }>{ schedule.label }</Badge> }
+										{ isDisabled && (
+											<Badge tone="neutral">{ __( 'Disabled', 'dsuite-redirects' ) }</Badge>
+										) }
+									</span>
 								</span>
 								<span className="dsr-table__target" title={ target }>
-									→ { target }
+									<span aria-hidden="true">→ </span>
+									{ target }
 								</span>
+								{ purpose && (
+									<span className="dsr-table__purpose">
+										<span className="screen-reader-text">
+											{ __( 'Purpose:', 'dsuite-redirects' ) }{ ' ' }
+										</span>
+										{ purpose }
+									</span>
+								) }
 							</td>
-							<td className="dsr-table__type">
-								<span className="dsr-table__badges">
-									<Badge tone={ badge.tone } title={ String( badge.code ) }>
-										{ badge.label }
-									</Badge>
-									{ groupNames[ row.group_id ] && (
-										<Badge tone="neutral">{ groupNames[ row.group_id ] }</Badge>
-									) }
-									{ isWildcardRow( row ) && (
-										<Badge tone="accent">{ __( 'Wildcard', 'dsuite-redirects' ) }</Badge>
-									) }
-									{ schedule && <Badge tone={ schedule.tone }>{ schedule.label }</Badge> }
-									{ isDisabled && (
-										<Badge tone="neutral">{ __( 'Disabled', 'dsuite-redirects' ) }</Badge>
-									) }
-								</span>
-							</td>
-							<td className="dsr-table__hits dsr-num" data-label={ __( 'Hits', 'dsuite-redirects' ) }>
-								{ row.hits ?? 0 }
-							</td>
-							<td className="dsr-table__last" data-label={ __( 'Last hit', 'dsuite-redirects' ) }>
-								{ row.last_access && row.last_access !== '-' ? row.last_access : '–' }
+							<td className="dsr-table__activity">
+								<Activity row={ row } />
 							</td>
 							<td className="dsr-table__actions">
-								{ isSingleAddress( row ) && <CopyLink url={ row.url } /> }
-								{ isSingleAddress( row ) && <QrLink url={ row.url } /> }
-								{ isSingleAddress( row ) && [ 'url', 'error' ].includes( row.action_type ) && (
-									<TestLink id={ row.id } />
-								) }
-								{ canEdit && (
-									<button type="button" className="dsr-link" onClick={ () => onEdit( row ) }>
-										{ __( 'Edit', 'dsuite-redirects' ) }
-									</button>
-								) }
-								{ canEdit && (
-									<button type="button" className="dsr-link" onClick={ () => onToggle( row ) }>
-										{ isDisabled
-											? __( 'Enable', 'dsuite-redirects' )
-											: __( 'Disable', 'dsuite-redirects' ) }
-									</button>
-								) }
-								{ canDelete && (
-									<button
-										type="button"
-										className="dsr-link dsr-link--danger"
-										onClick={ () => onDelete( row ) }
-									>
-										{ __( 'Delete', 'dsuite-redirects' ) }
-									</button>
-								) }
+								<span className="dsr-row-actions">
+									{ isTestable( row ) && <TestButton id={ row.id } /> }
+									{ canEdit && (
+										<button
+											type="button"
+											className="dsr-row-action"
+											onClick={ () => onEdit( row ) }
+										>
+											{ __( 'Edit', 'dsuite-redirects' ) }
+										</button>
+									) }
+									<RowMenu
+										row={ row }
+										canEdit={ canEdit }
+										canDelete={ canDelete }
+										onToggle={ onToggle }
+										onDelete={ onDelete }
+									/>
+								</span>
 							</td>
 						</tr>
 					);
