@@ -18,7 +18,13 @@ global.ResizeObserver = class {
 	disconnect() {}
 } as any;
 
-const create = { mutate: jest.fn(), reset: jest.fn(), isPending: false, error: null as Error | null };
+const create = {
+	mutate: jest.fn(),
+	mutateAsync: jest.fn().mockResolvedValue( null ),
+	reset: jest.fn(),
+	isPending: false,
+	error: null as Error | null,
+};
 const update = {
 	mutate: jest.fn(),
 	mutateAsync: jest.fn().mockResolvedValue( {} ),
@@ -117,6 +123,41 @@ describe( 'RedirectDrawer', () => {
 
 		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
 		expect( update.mutateAsync ).not.toHaveBeenCalled();
+	} );
+
+	it( 'saves a fallback for when a scheduled redirect is not live', async () => {
+		const onClose = jest.fn();
+		render( <RedirectDrawer item={ null } initialUrl="/bfcm" initialTarget="/black-friday" onClose={ onClose } /> );
+
+		expect( screen.queryByLabelText( "When it isn't live, send visitors to" ) ).toBeNull();
+		fireEvent.click( screen.getByRole( 'switch', { name: 'Only active between dates' } ) );
+		fireEvent.change( screen.getByLabelText( 'Ends' ), { target: { value: '2026-12-01T09:00' } } );
+		fireEvent.change( screen.getByLabelText( "When it isn't live, send visitors to" ), {
+			target: { value: '/deals' },
+		} );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+
+		expect( create.mutate ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				url: '/bfcm',
+				action_data: { url: '/black-friday' },
+				end_at: '2026-12-01T09:00',
+			} ),
+			expect.anything()
+		);
+		create.mutate.mock.calls[ 0 ][ 1 ].onSuccess();
+
+		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
+		expect( create.mutateAsync ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				url: '/bfcm',
+				action_type: 'url',
+				action_code: 302,
+				action_data: { url: '/deals' },
+				start_at: null,
+				end_at: null,
+			} )
+		);
 	} );
 
 	it( 'starts typing in Old URL and files new redirects in the last used group', async () => {

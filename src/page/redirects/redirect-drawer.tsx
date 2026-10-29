@@ -17,6 +17,7 @@ import {
 	applySimpleType,
 	canSave,
 	createState,
+	fallbackPayload,
 	getTarget,
 	hasSchedule,
 	hasSingleTarget,
@@ -94,6 +95,8 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 	// Repointing reports its own failures page-wide: the drawer has already closed by then.
 	const repointUpdate = useRedirectUpdate();
 	const [ repoint, setRepoint ] = useState( true );
+	const createFallback = useRedirectCreate();
+	const [ fallback, setFallback ] = useState( '' );
 
 	const [ state, setState ] = useState< DrawerState >( () =>
 		createState( item, {
@@ -147,6 +150,7 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 	const scheduleId = useId();
 	const startId = useId();
 	const endId = useId();
+	const fallbackId = useId();
 	const rangeError = scheduleError( state );
 	const timezone = window.Redirectioni10n?.timezone || 'UTC';
 
@@ -179,7 +183,18 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 		}
 
 		const payload = toPayload( state );
-		const onSuccess = repoint && inbound.length > 0 ? () => repointInbound().finally( onClose ) : onClose;
+		const fallbackUrl = scheduleOn && ! item ? fallback.trim() : '';
+		const hasFollowUps = ( repoint && inbound.length > 0 ) || fallbackUrl !== '';
+		// Follow-ups report their own failures page-wide; the drawer closes once they have all finished.
+		const onSuccess = hasFollowUps
+			? () =>
+					Promise.allSettled( [
+						...( repoint ? repointInbound() : [] ),
+						...( fallbackUrl !== ''
+							? [ createFallback.mutateAsync( fallbackPayload( state, fallbackUrl ) ) ]
+							: [] ),
+					] ).finally( onClose )
+			: onClose;
 
 		if ( item ) {
 			update.mutate( { id: item.id, ...payload }, { onSuccess } );
@@ -190,10 +205,8 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 
 	// Each is saved as Flatten saves one, through the usual update route; one failing doesn't stop the rest.
 	const repointInbound = () =>
-		Promise.allSettled(
-			inbound.map( ( redirect ) =>
-				repointUpdate.mutateAsync( { id: redirect.id, ...withTarget( redirect, repointTarget ) } )
-			)
+		inbound.map( ( redirect ) =>
+			repointUpdate.mutateAsync( { id: redirect.id, ...withTarget( redirect, repointTarget ) } )
 		);
 
 	// Upstream field components emit change events named after the state keys.
@@ -401,6 +414,24 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 									/>
 								</Field>
 							</div>
+							{ ! item && (
+								<Field
+									label={ __( "When it isn't live, send visitors to", 'dsuite-redirects' ) }
+									htmlFor={ fallbackId }
+								>
+									<input
+										id={ fallbackId }
+										type="text"
+										className="dsr-input"
+										placeholder={ __( 'Optional, e.g. /deals/', 'dsuite-redirects' ) }
+										value={ fallback }
+										onChange={ ( event ) => {
+											setTouched( true );
+											setFallback( event.target.value );
+										} }
+									/>
+								</Field>
+							) }
 							{ rangeError ? (
 								<p className="dsr-field-error" role="alert">
 									{ rangeError }
