@@ -19,7 +19,13 @@ global.ResizeObserver = class {
 } as any;
 
 const create = { mutate: jest.fn(), reset: jest.fn(), isPending: false, error: null as Error | null };
-const update = { mutate: jest.fn(), reset: jest.fn(), isPending: false, error: null as Error | null };
+const update = {
+	mutate: jest.fn(),
+	mutateAsync: jest.fn().mockResolvedValue( {} ),
+	reset: jest.fn(),
+	isPending: false,
+	error: null as Error | null,
+};
 
 beforeEach( () => {
 	jest.clearAllMocks();
@@ -47,6 +53,19 @@ const redirect307: Redirect = {
 	position: 0,
 };
 
+const inboundRow: Redirect = { ...redirect307, id: 9, url: '/spring', action_data: { url: '/sale' } };
+
+function saveSaleToSummer() {
+	( useRedirectCheck as jest.Mock ).mockReturnValue( {
+		data: { status: 'ok', inbound: [ inboundRow ] },
+		isPlaceholderData: false,
+	} );
+	const onClose = jest.fn();
+	render( <RedirectDrawer item={ null } initialUrl="/sale" initialTarget="/summer" onClose={ onClose } /> );
+
+	return onClose;
+}
+
 describe( 'RedirectDrawer', () => {
 	it( 'creates a temporary redirect from the simple fields', () => {
 		const onClose = jest.fn();
@@ -69,6 +88,35 @@ describe( 'RedirectDrawer', () => {
 			} ),
 			expect.objectContaining( { onSuccess: onClose } )
 		);
+	} );
+
+	it( 'repoints redirects that lead here once the new one is saved', async () => {
+		const onClose = saveSaleToSummer();
+
+		const repoint = screen.getByRole( 'checkbox', {
+			name: /Also point 1 redirect that leads here straight to \/summer/,
+		} );
+		expect( repoint ).toBeChecked();
+		expect( screen.getByText( '/spring' ) ).toBeInTheDocument();
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+		create.mutate.mock.calls[ 0 ][ 1 ].onSuccess();
+
+		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
+		expect( update.mutateAsync ).toHaveBeenCalledWith(
+			expect.objectContaining( { id: 9, url: '/spring', action_data: { url: '/summer' } } )
+		);
+	} );
+
+	it( 'leaves redirects that lead here alone when asked', async () => {
+		const onClose = saveSaleToSummer();
+
+		fireEvent.click( screen.getByRole( 'checkbox', { name: /Also point 1 redirect/ } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Save redirect' } ) );
+		create.mutate.mock.calls[ 0 ][ 1 ].onSuccess();
+
+		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
+		expect( update.mutateAsync ).not.toHaveBeenCalled();
 	} );
 
 	it( 'starts typing in Old URL and files new redirects in the last used group', async () => {

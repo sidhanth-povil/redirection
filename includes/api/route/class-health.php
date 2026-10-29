@@ -126,7 +126,27 @@ class Health extends BaseRoute {
 			return [ 'status' => Chains::STATUS_OK ];
 		}
 
-		return Chains::load()->check( Chains::source_key( $source ), Chains::target_key( $target ), $target, intval( $request['id'], 10 ) );
+		$chains = Chains::load();
+		$id = intval( $request['id'], 10 );
+		$source_key = Chains::source_key( $source );
+		$target_key = Chains::target_key( $target );
+		$result = $chains->check( $source_key, $target_key, $target, $id );
+
+		// A loop blocks saving, so there is nothing to repoint.
+		if ( $result['status'] === Chains::STATUS_LOOP ) {
+			return $result;
+		}
+
+		$inbound = [];
+		foreach ( $chains->inbound( $source_key, $target_key, $id ) as $inbound_id ) {
+			$redirect = RedirectItem::get_by_id( $inbound_id );
+			if ( $redirect !== false ) {
+				$inbound[] = $redirect->to_json();
+			}
+		}
+
+		// Full redirects, so the drawer can save each with a new target through the usual update route, like Flatten.
+		return count( $inbound ) > 0 ? array_merge( $result, [ 'inbound' => $inbound ] ) : $result;
 	}
 
 	/**

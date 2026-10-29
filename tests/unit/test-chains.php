@@ -112,6 +112,20 @@ class ChainsTest extends TestCase {
 		$this->assertSame( [ 'status' => 'duplicate', 'existing_id' => 7 ], $chains->check( '/a', '/z', '/z' ) );
 	}
 
+	public function testInboundListsRedirectsPointingAtTheSource() {
+		$chains = new Chains( [ $this->edge( 1, '/a', '/c' ), $this->edge( 2, '/b', '/c' ), $this->edge( 3, '/x', '/y' ) ] );
+
+		// Saving /c -> /d: /a and /b would reach /d through /c.
+		$this->assertSame( [ 1, 2 ], $chains->inbound( '/c', '/d', 0 ) );
+	}
+
+	public function testInboundSkipsTheRedirectBeingEditedAndAnyThatWouldPointAtThemselves() {
+		$chains = new Chains( [ $this->edge( 1, '/c', '/old' ), $this->edge( 2, '/d', '/c' ), $this->edge( 3, '/e', '/c' ) ] );
+
+		// Editing 1 (/c -> /d): repointing /d at /d would make it redirect to itself.
+		$this->assertSame( [ 3 ], $chains->inbound( '/c', '/d', 1 ) );
+	}
+
 	public function testCheckIgnoresTheRedirectBeingEdited() {
 		$chains = new Chains( [ $this->edge( 7, '/a', '/b' ), $this->edge( 8, '/b', '/a' ) ] );
 

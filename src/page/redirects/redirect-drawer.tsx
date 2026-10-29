@@ -26,11 +26,12 @@ import {
 	setTarget,
 	simpleTypeOf,
 	toPayload,
+	withTarget,
 	type DrawerState,
 	type SimpleType,
 } from './model';
 import { searchContent } from './search-content';
-import Precheck, { useSaveCheck } from './precheck';
+import Precheck, { RepointInbound, useSaveCheck } from './precheck';
 import './style.scss';
 
 const ADVANCED_KEY = 'dsr_advanced_open';
@@ -90,6 +91,9 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 	// Errors are shown inside the drawer; the no-op stops the hooks also raising the page-wide error panel.
 	const create = useRedirectCreate( { onError: () => {} } );
 	const update = useRedirectUpdate( { onError: () => {} } );
+	// Repointing reports its own failures page-wide: the drawer has already closed by then.
+	const repointUpdate = useRedirectUpdate();
+	const [ repoint, setRepoint ] = useState( true );
 
 	const [ state, setState ] = useState< DrawerState >( () =>
 		createState( item, {
@@ -148,6 +152,9 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 
 	const saving = create.isPending || update.isPending;
 	const check = useSaveCheck( state, item?.id ?? 0 );
+	const inbound = check.result?.inbound ?? [];
+	// Through a chain, straight to its end; otherwise to this redirect's own target.
+	const repointTarget = check.result?.final_target ?? getTarget( state ).trim();
 	const isSaveable = canSave( state ) && ! check.isBlocked;
 	const error = ( item ? update.error : create.error )?.message;
 	const simpleType = simpleTypeOf( state );
@@ -172,13 +179,22 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 		}
 
 		const payload = toPayload( state );
+		const onSuccess = repoint && inbound.length > 0 ? () => repointInbound().finally( onClose ) : onClose;
 
 		if ( item ) {
-			update.mutate( { id: item.id, ...payload }, { onSuccess: onClose } );
+			update.mutate( { id: item.id, ...payload }, { onSuccess } );
 		} else {
-			create.mutate( payload, { onSuccess: onClose } );
+			create.mutate( payload, { onSuccess } );
 		}
 	};
+
+	// Each is saved as Flatten saves one, through the usual update route; one failing doesn't stop the rest.
+	const repointInbound = () =>
+		Promise.allSettled(
+			inbound.map( ( redirect ) =>
+				repointUpdate.mutateAsync( { id: redirect.id, ...withTarget( redirect, repointTarget ) } )
+			)
+		);
 
 	// Upstream field components emit change events named after the state keys.
 	const onChangeRule = ( event: ChangeEvent< HTMLSelectElement > ) => {
@@ -308,6 +324,15 @@ export default function RedirectDrawer( { item, initialUrl = '', initialTarget =
 						result={ check.result }
 						source={ state.url.trim() }
 						onUseTarget={ ( url ) => change( ( prev ) => setTarget( prev, url ) ) }
+					/>
+				) }
+
+				{ inbound.length > 0 && (
+					<RepointInbound
+						inbound={ inbound }
+						target={ repointTarget }
+						checked={ repoint }
+						onChange={ setRepoint }
 					/>
 				) }
 

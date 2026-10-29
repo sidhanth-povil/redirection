@@ -153,6 +153,22 @@ class HealthApiTest extends Redirection_Api_Test {
 		$this->assertSame( 'ok', $this->check( [ 'source' => '/b/*', 'target' => '/b' ] )['status'] );
 	}
 
+	public function testCheckListsRedirectsThatWouldChainThroughTheNewOne() {
+		$inbound = $this->create( '/spring', '/sale' );
+		$this->create( '/other', '/elsewhere' );
+
+		$result = $this->check( [ 'source' => '/sale', 'target' => '/summer' ] );
+
+		$this->assertSame( 'ok', $result['status'] );
+		$this->assertCount( 1, $result['inbound'] );
+		$this->assertSame( $inbound->get_id(), $result['inbound'][0]['id'] );
+		$this->assertSame( '/spring', $result['inbound'][0]['url'] );
+	}
+
+	public function testCheckWithoutInboundRedirectsLeavesThemOut() {
+		$this->assertArrayNotHasKey( 'inbound', $this->check( [ 'source' => '/sale', 'target' => '/summer' ] ) );
+	}
+
 	public function testRequiresAccess() {
 		$this->setUnauthorised();
 

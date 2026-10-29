@@ -1,10 +1,10 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useDebounce } from 'use-debounce';
 import { useRedirectCheck } from 'lib/api/hooks';
 import { MATCH_URL } from 'lib/redirect-constants';
 import { buildHash } from 'app/router';
 import { Button } from 'ui';
-import type { CheckResponse } from 'types';
+import type { CheckResponse, Redirect } from 'types';
 import { getTarget, hasSingleTarget, isWildcard, type DrawerState } from './model';
 
 const CHECK_DELAY = 400;
@@ -132,4 +132,60 @@ export default function Precheck( { result, source, onUseTarget }: PrecheckProps
 				</div>
 			);
 	}
+}
+
+const MAX_LISTED = 5;
+
+interface RepointProps {
+	inbound: Redirect[];
+	target: string;
+	checked: boolean;
+	onChange: ( checked: boolean ) => void;
+}
+
+/**
+ * Redirects that point at this redirect's old URL would reach the page through it. Offer to send them straight on.
+ *
+ * @param props
+ * @param props.inbound  Redirects whose target is this source.
+ * @param props.target   Where they would be sent.
+ * @param props.checked  Repoint on save.
+ * @param props.onChange Toggle.
+ */
+export function RepointInbound( { inbound, target, checked, onChange }: RepointProps ) {
+	const hidden = inbound.length - MAX_LISTED;
+
+	return (
+		<div className="dsr-notice dsr-repoint">
+			<label className="dsr-check">
+				<input type="checkbox" checked={ checked } onChange={ ( event ) => onChange( event.target.checked ) } />
+				{ sprintf(
+					/* translators: 1: number of redirects, 2: destination URL */
+					_n(
+						'Also point %1$d redirect that leads here straight to %2$s',
+						'Also point %1$d redirects that lead here straight to %2$s',
+						inbound.length,
+						'dsuite-redirects'
+					),
+					inbound.length,
+					target
+				) }
+			</label>
+			<ul className="dsr-repoint__list">
+				{ inbound.slice( 0, MAX_LISTED ).map( ( redirect ) => (
+					<li key={ redirect.id }>
+						<code>{ redirect.url }</code>
+					</li>
+				) ) }
+				{ hidden > 0 && (
+					<li>
+						{
+							/* translators: %d: number of redirects not listed */
+							sprintf( __( 'and %d more', 'dsuite-redirects' ), hidden )
+						}
+					</li>
+				) }
+			</ul>
+		</div>
+	);
 }
