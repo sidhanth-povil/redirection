@@ -65,6 +65,8 @@ export default function Logs404() {
 	const canFix = has_capability( CAP_REDIRECT_ADD );
 	const canDelete = has_capability( CAP_404_DELETE );
 	const filterBy: Record< string, string > = table.filterBy ?? {};
+	// Grouped 404s are ordered by hit count on the server; only the direction changes.
+	const isFewestFirst = table.direction === 'asc';
 	const [ search, setSearch ] = useState( filterBy.url ?? '' );
 	const [ fixing, setFixing ] = useState< Fixing | null >( null );
 	const [ viewingId, setViewingId ] = useState( 0 );
@@ -163,7 +165,25 @@ export default function Logs404() {
 					<thead>
 						<tr>
 							<th>{ __( 'URL', 'dsuite-redirects' ) }</th>
-							<th className="dsr-table__hits dsr-num">{ __( 'Hits', 'dsuite-redirects' ) }</th>
+							<th
+								className="dsr-table__hits dsr-num"
+								aria-sort={ isFewestFirst ? 'ascending' : 'descending' }
+							>
+								<button
+									type="button"
+									className="dsr-sort"
+									onClick={ () =>
+										setErrorsTable( {
+											direction: isFewestFirst ? 'desc' : 'asc',
+											page: 0,
+											selected: [],
+										} )
+									}
+								>
+									{ __( 'Hits', 'dsuite-redirects' ) }
+									<span aria-hidden="true">{ isFewestFirst ? ' ↑' : ' ↓' }</span>
+								</button>
+							</th>
 							<th className="dsr-table__last">{ __( 'Last seen', 'dsuite-redirects' ) }</th>
 							<th className="dsr-table__actions">
 								<span className="screen-reader-text">{ __( 'Actions', 'dsuite-redirects' ) }</span>

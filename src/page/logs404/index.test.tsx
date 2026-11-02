@@ -107,6 +107,29 @@ describe( '404s page', () => {
 		expect( first ).toHaveTextContent( 'from https://news.test/a' );
 	} );
 
+	it( 'sorts by hits, most first, and flips to fewest first on click', () => {
+		setup();
+
+		const header = screen.getByRole( 'columnheader', { name: /Hits/ } );
+		expect( header ).toHaveAttribute( 'aria-sort', 'descending' );
+
+		fireEvent.click( within( header ).getByRole( 'button' ) );
+		expect( useTableStore.getState().errors.direction ).toBe( 'asc' );
+		expect( useErrorList ).toHaveBeenLastCalledWith( expect.objectContaining( { direction: 'asc' } ) );
+		expect( header ).toHaveAttribute( 'aria-sort', 'ascending' );
+
+		fireEvent.click( within( header ).getByRole( 'button' ) );
+		expect( useTableStore.getState().errors.direction ).toBe( 'desc' );
+	} );
+
+	it( 'goes back to the first page when the sort flips', () => {
+		useTableStore.getState().setErrorsTable( { page: 2 } );
+		setup();
+
+		fireEvent.click( within( screen.getByRole( 'columnheader', { name: /Hits/ } ) ).getByRole( 'button' ) );
+		expect( useTableStore.getState().errors.page ).toBe( 0 );
+	} );
+
 	it( 'switches the list with the chips', () => {
 		setup();
 

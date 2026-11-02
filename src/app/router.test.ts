@@ -63,7 +63,17 @@ describe( 'access', () => {
 	} );
 
 	it( 'shows Overview first to anyone who can see redirects', () => {
-		expect( allowedRoutes( [ '404s', 'redirect' ] ) ).toEqual( [ 'overview', 'redirects', '404s' ] );
+		expect( allowedRoutes( [ '404s', 'redirect' ] ) ).toEqual( [ 'overview', '404s', 'redirects' ] );
+	} );
+
+	it( 'lists 404s right after Overview, then Redirects and Groups', () => {
+		expect( allowedRoutes( [ 'groups', 'redirect', '404s', 'log' ] ) ).toEqual( [
+			'overview',
+			'404s',
+			'redirects',
+			'groups',
+			'logs',
+		] );
 	} );
 
 	it( 'falls back to the first allowed route', () => {

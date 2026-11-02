@@ -28,9 +28,10 @@ interface RouteDef {
 /** Sidebar order. */
 export const ROUTES: RouteDef[] = [
 	{ name: 'overview', pages: [], access: [ 'redirect' ] },
+	// 404s comes first: finding and fixing broken URLs is the day-to-day job.
+	{ name: '404s', pages: [ '404s' ] },
 	{ name: 'redirects', pages: [ 'redirect' ] },
 	{ name: 'groups', pages: [ 'groups' ] },
-	{ name: '404s', pages: [ '404s' ] },
 	{ name: 'logs', pages: [ 'log' ] },
 	{ name: 'site', pages: [ 'site' ] },
 	{ name: 'import-export', pages: [ 'import', 'export' ] },
