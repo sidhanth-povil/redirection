@@ -442,6 +442,24 @@
 		display: none;
 	}
 
+	// A sortable column keeps its header above the cards, so sorting still works on small screens.
+	.dsr-app .dsr-table thead:has(.dsr-sort) {
+		display: block;
+
+		th {
+			display: none;
+		}
+
+		th:has(.dsr-sort) {
+			display: block;
+			text-align: left;
+		}
+	}
+
+	.dsr-app .dsr-table thead:has(.dsr-sort) tr {
+		padding: var(--dsr-space-3) var(--dsr-space-4);
+	}
+
 	.dsr-app .dsr-table,
 	.dsr-app .dsr-table tbody,
 	.dsr-app .dsr-table tr,
@@ -711,5 +729,25 @@
 
 	code {
 		overflow-wrap: anywhere;
+	}
+}
+
+// Sortable column header: looks like the header text, acts as a button.
+.dsr-app .dsr-sort {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+
+	&:hover {
+		color: var(--dsr-text);
+	}
+
+	&:focus-visible {
+		border-radius: var(--dsr-radius-sm);
+		box-shadow: var(--dsr-focus-ring);
+		outline: none;
 	}
 }

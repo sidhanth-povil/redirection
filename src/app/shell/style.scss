@@ -15,6 +15,12 @@
 	margin-top: var(--dsr-space-4);
 }
 
+// Stays in view while the page content scrolls. The offset clears WP's admin bar.
+.dsr-app .dsr-nav {
+	position: sticky;
+	top: calc(var(--wp-admin--admin-bar--height, 32px) + var(--dsr-space-4));
+}
+
 .dsr-app .dsr-nav__list {
 	display: flex;
 	flex-direction: column;
@@ -99,6 +105,11 @@
 	.dsr-app .dsr-shell {
 		grid-template-columns: minmax(0, 1fr);
 		gap: var(--dsr-space-4);
+	}
+
+	// The tab strip sits above the content, so it scrolls away with it.
+	.dsr-app .dsr-nav {
+		position: static;
 	}
 
 	.dsr-app .dsr-nav__list {
