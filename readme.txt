@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.10.0
+Stable tag: 1.11.0
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,13 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.11.0 - 2nd November 2026 =
+* The side menu stays in view while you scroll long pages
+* Menu order: 404s now comes right after Overview, then Redirects and Groups
+* 404s: click the Hits header to see the most-hit 404s first, click again for the fewest first
+* Support page: an About section on Designsuite.ai, who build and look after the plugin
+* Tested with WordPress 7.1.4 on PHP 8.3 and 8.4
 
 = 1.10.0 - 29th October 2026 =
 * 404s: a 404 that already has a redirect shows a green Redirected badge and where it now goes, and moves to its own Redirected tab, so New this week and All list only 404s still needing a fix
