@@ -102,8 +102,8 @@ class Error extends Log {
 	}
 
 	/**
-	 * The redirect already set up for each URL, so a fixed 404 can say where it now goes. An enabled redirect wins
-	 * over a disabled one; "do nothing" redirects are the Ignored list, not a fix.
+	 * The redirect already set up for each URL, so a fixed 404 can say where it now goes. A live redirect wins over
+	 * one that is off; "do nothing" redirects are the Ignored list, not a fix. `enabled` means live, see live_sql().
 	 *
 	 * ponytail: matches the redirect's URL exactly (as Fix and Ignore save it), not regex or trailing-slash variants;
 	 * match on match_url if 404s fixed by hand-typed redirects go unlabelled.
@@ -118,7 +118,7 @@ class Error extends Log {
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
-				"SELECT id, url, action_type, action_data, status FROM {$wpdb->prefix}redirection_items WHERE url IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY status = 'enabled' DESC, position, id",
+				"SELECT id, url, action_type, action_data, (" . self::live_sql() . ") AS live FROM {$wpdb->prefix}redirection_items WHERE url IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY live DESC, position, id",
 				$urls
 			)
 		);
@@ -131,7 +131,7 @@ class Error extends Log {
 				$redirects[ $key ] = [
 					'id' => intval( $row->id, 10 ),
 					'target' => $row->action_type === 'url' && is_string( $row->action_data ) ? $row->action_data : '',
-					'enabled' => $row->status === 'enabled',
+					'enabled' => intval( $row->live, 10 ) === 1,
 				];
 			}
 		}
@@ -140,8 +140,8 @@ class Error extends Log {
 	}
 
 	/**
-	 * Adds `since` (days), `ignored` (whether a "do nothing" redirect exists for the URL) and `redirected` (whether
-	 * an enabled redirect sends it somewhere).
+	 * Adds `since` (days), `ignored` (whether a live "do nothing" redirect exists for the URL) and `redirected`
+	 * (whether a live redirect sends it somewhere).
 	 *
 	 * @param array<string, mixed> $filter Array of filter params.
 	 * @return list<string>
@@ -158,16 +158,26 @@ class Error extends Log {
 		}
 
 		if ( isset( $filter['ignored'] ) && in_array( $filter['ignored'], [ '0', '1' ], true ) ) {
-			$ignored = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type='nothing' AND status='enabled'";
+			$ignored = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type='nothing' AND " . self::live_sql();
 			$where[] = 'url ' . ( $filter['ignored'] === '1' ? 'IN' : 'NOT IN' ) . " ({$ignored})";
 		}
 
 		if ( isset( $filter['redirected'] ) && in_array( $filter['redirected'], [ '0', '1' ], true ) ) {
-			$redirected = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type!='nothing' AND status='enabled' AND regex=0";
+			$redirected = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type!='nothing' AND regex=0 AND " . self::live_sql();
 			$where[] = 'url ' . ( $filter['redirected'] === '1' ? 'IN' : 'NOT IN' ) . " ({$redirected})";
 		}
 
 		return $where;
+	}
+
+	/**
+	 * A redirect every visitor gets right now: enabled, matched on the URL alone, inside its schedule window. Others
+	 * (conditional, scheduled for later or ended) leave the URL a 404 for most visitors.
+	 *
+	 * @return string SQL condition.
+	 */
+	private static function live_sql() {
+		return "status='enabled' AND match_type='url'" . \Redirection\Redirect\Schedule::window_sql();
 	}
 
 	/**

@@ -76,12 +76,7 @@ class Chains {
 		global $wpdb;
 
 		$sql = "SELECT id, url, match_url, action_data, last_count FROM {$wpdb->prefix}redirection_items
-			WHERE status='enabled' AND regex=0 AND match_type='url' AND action_type='url'";
-
-		if ( Schedule::columns_ready() ) {
-			$now = Schedule::now();
-			$sql .= $wpdb->prepare( ' AND (start_at IS NULL OR start_at <= %s) AND (end_at IS NULL OR end_at > %s)', $now, $now );
-		}
+			WHERE status='enabled' AND regex=0 AND match_type='url' AND action_type='url'" . Schedule::window_sql();
 
 		$edges = [];
 

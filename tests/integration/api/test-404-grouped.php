@@ -112,6 +112,31 @@ class Grouped404ApiTest extends Redirection_Api_Test {
 		$this->assertEqualsCanonicalizing( [ '/paused', '/broken' ], array_column( $this->grouped( [ 'redirected' => '0' ] ), 'url' ) );
 	}
 
+	public function testOnlyALiveRedirectCountsAsAFix() {
+		global $wpdb;
+
+		$this->assertTrue( \Redirection\Redirect\Schedule::columns_ready() );
+		$this->log404( '/fixed' );
+		$this->log404( '/promo-over' );
+		$this->log404( '/promo-soon' );
+		$this->log404( '/referrer-only' );
+		$this->redirect( '/fixed', '/new' );
+		$ended = $this->redirect( '/promo-over', '/sale' );
+		$pending = $this->redirect( '/promo-soon', '/sale' );
+		$referrer = $this->redirect( '/referrer-only', '/new' );
+		$table = "{$wpdb->prefix}redirection_items";
+		$wpdb->update( $table, [ 'end_at' => gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS ) ], [ 'id' => $ended ] );
+		$wpdb->update( $table, [ 'start_at' => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ) ], [ 'id' => $pending ] );
+		$wpdb->update( $table, [ 'match_type' => 'referrer' ], [ 'id' => $referrer ] );
+
+		// They still 404 for most visitors, so they stay in the unfixed list, labelled off rather than redirected.
+		$this->assertSame( [ '/fixed' ], array_column( $this->grouped( [ 'redirected' => '1' ] ), 'url' ) );
+		$unfixed = array_column( $this->grouped( [ 'redirected' => '0' ] ), null, 'url' );
+		$this->assertEqualsCanonicalizing( [ '/promo-over', '/promo-soon', '/referrer-only' ], array_keys( $unfixed ) );
+		$this->assertFalse( $unfixed['/promo-over']->redirect['enabled'] );
+		$this->assertFalse( $unfixed['/referrer-only']->redirect['enabled'] );
+	}
+
 	public function testAnIgnoredUrlIsNotRedirected() {
 		$this->log404( '/ignored' );
 		Red_Item::create(
