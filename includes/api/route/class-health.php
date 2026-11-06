@@ -132,7 +132,7 @@ class Health extends BaseRoute {
 		$target_key = Chains::target_key( $target );
 		$result = $chains->check( $source_key, $target_key, $target, $id );
 
-		// A loop blocks saving; a duplicate is shadowed by the existing redirect and never matches. Nothing to repoint.
+		// Both block saving: a loop, or a duplicate shadowed by an earlier redirect that never matches. Nothing to repoint.
 		if ( in_array( $result['status'], [ Chains::STATUS_LOOP, Chains::STATUS_DUPLICATE ], true ) ) {
 			return $result;
 		}
