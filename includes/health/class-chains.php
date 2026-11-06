@@ -76,12 +76,7 @@ class Chains {
 		global $wpdb;
 
 		$sql = "SELECT id, url, match_url, action_data, last_count FROM {$wpdb->prefix}redirection_items
-			WHERE status='enabled' AND regex=0 AND match_type='url' AND action_type='url'";
-
-		if ( Schedule::columns_ready() ) {
-			$now = Schedule::now();
-			$sql .= $wpdb->prepare( ' AND (start_at IS NULL OR start_at <= %s) AND (end_at IS NULL OR end_at > %s)', $now, $now );
-		}
+			WHERE status='enabled' AND regex=0 AND match_type='url' AND action_type='url'" . Schedule::window_sql();
 
 		$edges = [];
 
@@ -182,8 +177,8 @@ class Chains {
 	}
 
 	/**
-	 * Check a redirect before it is saved. Only a loop back to the source blocks saving, so it wins over a duplicate
-	 * or chain. Leading into a loop elsewhere is reported as a chain with no final target.
+	 * Check a redirect before it is saved. A loop back to the source, or a duplicate that matches first and so
+	 * shadows it, blocks saving; the loop wins over a duplicate or chain. Leading into a loop elsewhere is reported as a chain with no final target.
 	 *
 	 * @param string      $source Source key.
 	 * @param string|null $target_key Target key, null when external.
@@ -202,7 +197,7 @@ class Chains {
 				)
 			)
 		);
-		$existing = $map[ $source ] ?? null;
+		$existing = self::earlier_with_source( $this->edges, $source, $id );
 		$candidate = [ 'id' => $id, 'source' => $source, 'target_key' => $target_key, 'target' => $target, 'hits' => 0 ];
 		$map[ $source ] = $candidate;
 		$walk = self::walk( $candidate, $map );
@@ -224,6 +219,29 @@ class Chains {
 		}
 
 		return [ 'status' => self::STATUS_OK ];
+	}
+
+	/**
+	 * The redirect that shadows the one being saved: the first with this source that matches before it. A new or
+	 * not-yet-live redirect (not in the edges) is shadowed by any. A later one is shadowed by it, so it never blocks.
+	 *
+	 * @param list<Edge> $edges Edges in match order.
+	 * @param string     $source Source key.
+	 * @param int        $id Redirect being saved; 0 for a new one.
+	 * @return Edge|null
+	 */
+	private static function earlier_with_source( array $edges, $source, $id ) {
+		foreach ( $edges as $edge ) {
+			if ( $edge['id'] === $id ) {
+				return null;
+			}
+
+			if ( $edge['source'] === $source ) {
+				return $edge;
+			}
+		}
+
+		return null;
 	}
 
 	/**

@@ -143,9 +143,16 @@ class ChainsTest extends TestCase {
 		$this->assertArrayNotHasKey( 'final_target', $result );
 	}
 
-	public function testEditingTheFirstOfTwoDuplicatesStillReportsTheSecond() {
+	public function testEditingTheFirstOfTwoDuplicatesIsNotADuplicate() {
 		$chains = new Chains( [ $this->edge( 7, '/a', '/b' ), $this->edge( 8, '/a', '/c' ) ] );
 
-		$this->assertSame( [ 'status' => 'duplicate', 'existing_id' => 8 ], $chains->check( '/a', '/z', '/z', 7 ) );
+		// 7 matches first, so 8 is the shadowed one: editing 7 must not be blocked by it.
+		$this->assertSame( [ 'status' => 'ok' ], $chains->check( '/a', '/z', '/z', 7 ) );
+	}
+
+	public function testEditingTheSecondOfTwoDuplicatesReportsTheFirst() {
+		$chains = new Chains( [ $this->edge( 7, '/a', '/b' ), $this->edge( 8, '/a', '/c' ) ] );
+
+		$this->assertSame( [ 'status' => 'duplicate', 'existing_id' => 7 ], $chains->check( '/a', '/z', '/z', 8 ) );
 	}
 }

@@ -57,10 +57,12 @@ const fixed = {
 };
 const paused = { id: '/paused', url: '/paused', count: 2, redirect: { id: 8, target: '/elsewhere', enabled: false } };
 
-function setup( items: object[] = rows ) {
+const ALL_CAPS = [ 'redirection_cap_redirect_add', 'redirection_cap_redirect_manage', 'redirection_cap_404_delete' ];
+
+function setup( items: object[] = rows, capabilities: string[] = ALL_CAPS ) {
 	window.Redirectioni10n = {
 		caps: {
-			capabilities: [ 'redirection_cap_redirect_add', 'redirection_cap_404_delete' ],
+			capabilities,
 			pages: [ '404s' ],
 		},
 	} as any;
@@ -130,6 +132,16 @@ describe( '404s page', () => {
 		expect( useTableStore.getState().errors.page ).toBe( 0 );
 	} );
 
+	it( 'keeps fixed 404s out of a link saved before the Redirected chip', () => {
+		window.location.hash = '#/404s?filterby[since]=7&filterby[ignored]=0';
+		setup();
+
+		expect( useErrorList ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { filterBy: { since: '7', ignored: '0', redirected: '0' } } )
+		);
+		expect( screen.getByRole( 'button', { name: 'New this week' } ) ).toHaveAttribute( 'aria-pressed', 'true' );
+	} );
+
 	it( 'switches the list with the chips', () => {
 		setup();
 
@@ -159,8 +171,32 @@ describe( '404s page', () => {
 		expect( within( row( '/paused' ) ).getByText( 'Redirect off' ) ).toBeInTheDocument();
 	} );
 
-	it( 'says once when the redirect behind a fixed 404 has gone', () => {
+	it( 'offers Fix, not View redirect, to someone who cannot manage redirects', () => {
+		setup( [ paused ], [ 'redirection_cap_redirect_add' ] );
+
+		const pausedRow = row( '/paused' );
+		expect( within( pausedRow ).queryByRole( 'button', { name: 'View redirect' } ) ).toBeNull();
+		expect( within( pausedRow ).getByRole( 'button', { name: 'Fix' } ) ).toBeInTheDocument();
+		expect( within( pausedRow ).getByRole( 'button', { name: 'Ignore' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves a failed load to its own notice instead of saying the redirect has gone', () => {
 		( useRedirectList as jest.Mock ).mockReturnValue( { data: undefined, isFetching: false, isError: true } );
+		const addError = jest.spyOn( useMessageStore.getState(), 'addError' );
+		setup( [ fixed ] );
+
+		fireEvent.click( within( row( '/request-appointment/' ) ).getByRole( 'button', { name: 'View redirect' } ) );
+
+		expect( addError ).not.toHaveBeenCalled();
+		expect( screen.queryByRole( 'dialog' ) ).toBeNull();
+	} );
+
+	it( 'says once when the redirect behind a fixed 404 has gone', () => {
+		( useRedirectList as jest.Mock ).mockReturnValue( {
+			data: { items: [], total: 0 },
+			isFetching: false,
+			isError: false,
+		} );
 		const addError = jest.spyOn( useMessageStore.getState(), 'addError' );
 		setup( [ fixed ] );
 
@@ -236,8 +272,8 @@ describe( '404s page', () => {
 		fireEvent.click( within( row( '/old' ) ).getByRole( 'button', { name: 'Ignore' } ) );
 
 		expect( create.mutate ).toHaveBeenCalledWith(
-			expect.objectContaining( { url: '/old', match_type: 'url', action_type: 'nothing', group_id: 1 } ),
-			expect.anything()
+			// No refetch of its own: the mutation already refreshes the 404 lists.
+			expect.objectContaining( { url: '/old', match_type: 'url', action_type: 'nothing', group_id: 1 } )
 		);
 	} );
 

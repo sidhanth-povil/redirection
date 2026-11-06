@@ -4,7 +4,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { useErrorBulkAction, useErrorList, useGroupDropdown, useRedirectCreate } from 'lib/api/hooks';
 import { useTableUrlSync } from 'lib/hooks';
 import { useSettingsStore, useTableStore } from 'stores';
-import { has_capability, CAP_404_DELETE, CAP_REDIRECT_ADD } from 'lib/capabilities';
+import { has_capability, CAP_404_DELETE, CAP_REDIRECT_ADD, CAP_REDIRECT_MANAGE } from 'lib/capabilities';
 import { ACTION_NOTHING, getCodeForActionType } from 'lib/redirect-constants';
 import { Badge, Button } from 'ui';
 // The drawer brings the shared list styles (.dsr-table, .dsr-chip, …) with it.
@@ -37,6 +37,11 @@ const getChips = (): Chip[] => [
 	{ label: __( 'Ignored', 'dsuite-redirects' ), filter: { ignored: '1' } },
 ];
 
+// Links saved before 1.11 have no `redirected`; their unfixed views now leave fixed 404s out too.
+function withRedirected( filterBy: Record< string, string > ): Record< string, string > {
+	return filterBy.ignored === '0' && filterBy.redirected === undefined ? { ...filterBy, redirected: '0' } : filterBy;
+}
+
 function sameFilter( first: Record< string, string >, second: Record< string, string > ): boolean {
 	return first.since === second.since && first.ignored === second.ignored && first.redirected === second.redirected;
 }
@@ -54,7 +59,8 @@ export default function Logs404() {
 		pageName: '404s',
 	} );
 
-	const { data, isFetching, refetch } = useErrorList( table );
+	const filterBy = withRedirected( table.filterBy ?? {} );
+	const { data, isFetching } = useErrorList( { ...table, filterBy } );
 	const { data: groupData } = useGroupDropdown();
 	const remove = useErrorBulkAction();
 	const create = useRedirectCreate();
@@ -63,8 +69,9 @@ export default function Logs404() {
 	const pages = Math.max( 1, Math.ceil( total / table.per_page ) );
 
 	const canFix = has_capability( CAP_REDIRECT_ADD );
+	// Viewing loads the redirect through a route that needs manage; without it, Fix and Ignore stay.
+	const canView = has_capability( CAP_REDIRECT_MANAGE );
 	const canDelete = has_capability( CAP_404_DELETE );
-	const filterBy: Record< string, string > = table.filterBy ?? {};
 	// Grouped 404s are ordered by hit count on the server; only the direction changes.
 	const isFewestFirst = table.direction === 'asc';
 	const [ search, setSearch ] = useState( filterBy.url ?? '' );
@@ -89,15 +96,12 @@ export default function Logs404() {
 			flags: { flag_regex: false, flag_trailing: false, flag_case: false, flag_query: 'exact' },
 		} );
 
-		create.mutate(
-			{
-				...toPayload( state ),
-				action_type: ACTION_NOTHING,
-				action_code: getCodeForActionType( ACTION_NOTHING ),
-				action_data: {},
-			},
-			{ onSuccess: () => refetch() }
-		);
+		create.mutate( {
+			...toPayload( state ),
+			action_type: ACTION_NOTHING,
+			action_code: getCodeForActionType( ACTION_NOTHING ),
+			action_data: {},
+		} );
 	};
 
 	const onDelete = ( url: string ) => {
@@ -194,6 +198,7 @@ export default function Logs404() {
 						{ rows.map( ( row ) => {
 							const url = row.url ?? String( row.id );
 							const redirect = row.redirect ?? null;
+							const viewable = canView && redirect !== null;
 
 							return (
 								<tr key={ url }>
@@ -240,7 +245,7 @@ export default function Logs404() {
 										{ row.last_seen ? row.last_seen.slice( 0, 16 ) : '–' }
 									</td>
 									<td className="dsr-table__actions">
-										{ canFix && redirect && (
+										{ canView && redirect && (
 											<button
 												type="button"
 												className="dsr-link"
@@ -249,7 +254,7 @@ export default function Logs404() {
 												{ __( 'View redirect', 'dsuite-redirects' ) }
 											</button>
 										) }
-										{ canFix && ! redirect && (
+										{ canFix && ! viewable && (
 											<button
 												type="button"
 												className="dsr-link"
@@ -258,7 +263,7 @@ export default function Logs404() {
 												{ __( 'Fix', 'dsuite-redirects' ) }
 											</button>
 										) }
-										{ canFix && ! redirect && filterBy.ignored !== '1' && (
+										{ canFix && ! viewable && filterBy.ignored !== '1' && (
 											<button
 												type="button"
 												className="dsr-link"

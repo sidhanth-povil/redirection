@@ -124,7 +124,12 @@ export default function Precheck( { result, onUseTarget }: PrecheckProps ) {
 							'Another redirect already uses this old URL, so this one would never run. Change that one instead.',
 							'dsuite-redirects'
 						) }{ ' ' }
-						<a href={ buildHash( 'redirects', { edit: String( result.existing_id ?? 0 ) } ) }>
+						{ /* A new tab keeps what's typed here; navigating in place would drop it unasked. */ }
+						<a
+							href={ buildHash( 'redirects', { edit: String( result.existing_id ?? 0 ) } ) }
+							target="_blank"
+							rel="noreferrer"
+						>
 							{ __( 'Edit that redirect', 'dsuite-redirects' ) }
 						</a>
 					</p>

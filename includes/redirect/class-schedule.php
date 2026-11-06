@@ -108,6 +108,23 @@ class Schedule {
 	}
 
 	/**
+	 * SQL keeping only redirects inside their schedule window now; '' before the columns exist.
+	 *
+	 * @return string Starts with ' AND '.
+	 */
+	public static function window_sql() {
+		global $wpdb;
+
+		if ( ! self::columns_ready() ) {
+			return '';
+		}
+
+		$now = self::now();
+
+		return $wpdb->prepare( ' AND (start_at IS NULL OR start_at <= %s) AND (end_at IS NULL OR end_at > %s)', $now, $now );
+	}
+
+	/**
 	 * Whether the DSuite schedule columns exist (dsr_db_version 1+), repairing a stale version option.
 	 *
 	 * @return bool
