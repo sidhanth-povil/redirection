@@ -165,8 +165,6 @@ class Plugin extends Module {
 		$options = Settings::get();
 
 		if ( count( $options['permalinks'] ) > 0 ) {
-			include_once dirname( __DIR__ ) . '/wordpress/class-permalinks.php';
-
 			$permalinks = new Permalinks( $options['permalinks'] );
 			$permalinks->migrate( $query );
 		}
@@ -540,7 +538,7 @@ class Plugin extends Module {
 		$this->redirect_url = $url;
 		$this->redirect_code = $status;
 
-		// These send the URL as a header themselves, before WordPress sanitizes it
+		// These send their own headers before WordPress has sanitized the URL
 		$this->iis_fix( wp_sanitize_redirect( $url ) );
 		$this->cgi_fix( wp_sanitize_redirect( $url ), $status );
 

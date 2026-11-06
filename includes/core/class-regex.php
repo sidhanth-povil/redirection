@@ -60,34 +60,28 @@ class Regex {
 	 *
 	 * @param string $replace_pattern The regex replace pattern.
 	 * @param string $target Text to match the regex against.
+	 * @param bool $keep_before Keep any text before the first match, as preg_replace does.
+	 * @param array<string, string> $placeholders Characters in text from the target to replace with a placeholder.
 	 * @return string Replaced text
 	 */
-	public function replace( $replace_pattern, $target ) {
+	public function replace( $replace_pattern, $target, $keep_before = true, array $placeholders = [] ) {
 		$regex = $this->get_regex();
 
-		$found = [];
-		$is_absolute = self::is_absolute_url( $replace_pattern ) && @preg_match( $regex, $target, $found, PREG_OFFSET_CAPTURE ) === 1;
-
-		// Request text before the match would end up in front of an absolute target and change its host, so drop it
-		if ( $is_absolute && $found[0][1] > 0 ) {
-			$target = substr( $target, $found[0][1] );
-		}
-
-		$result = @preg_replace( $regex, $replace_pattern, $target );
-
-		if ( is_null( $result ) ) {
+		if ( @preg_match_all( $regex, $target, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE ) === false ) {
 			return $target;
 		}
 
-		// Text after the match is kept so a prefix rule carries the rest of the path, but it must not change the
-		// target's host: /foo@evil.com would give https://good.com@evil.com. Then only the match is replaced
-		if ( $is_absolute ) {
-			$only = @preg_replace( $regex, $replace_pattern, $found[0][0], 1 );
+		// This is the same as preg_replace, except that text from the target can use placeholders
+		$result = '';
+		$offset = ! $keep_before && count( $matches ) > 0 ? $matches[0][0][1] : 0;
 
-			if ( is_string( $only ) && self::get_authority( $result ) !== self::get_authority( $only ) ) {
-				$result = $only;
-			}
+		foreach ( $matches as $match ) {
+			$result .= strtr( substr( $target, $offset, $match[0][1] - $offset ), $placeholders );
+			$result .= $this->expand_references( $replace_pattern, $match, $placeholders );
+			$offset = $match[0][1] + strlen( $match[0][0] );
 		}
+
+		$result .= strtr( substr( $target, $offset ), $placeholders );
 
 		// Space encode the target
 		$split = explode( '?', $result );
@@ -101,23 +95,32 @@ class Regex {
 	}
 
 	/**
-	 * Does the URL name its own host, with a scheme or as protocol relative? A browser treats a backslash as a slash.
+	 * Expand the `$1`, `${1}`, and `\1` references in a replace pattern, in the same way as preg_replace.
 	 *
-	 * @param string $url URL.
-	 * @return bool
+	 * @param string $replace_pattern The regex replace pattern.
+	 * @param array<int, array{0: string, 1: int}> $match Match, with offsets.
+	 * @param array<string, string> $placeholders Characters in a reference to replace with a placeholder.
+	 * @return string
 	 */
-	public static function is_absolute_url( $url ) {
-		return preg_match( '@^([a-z][a-z0-9+.-]*:|[/\\\\]{2})@i', $url ) === 1;
-	}
+	private function expand_references( $replace_pattern, array $match, array $placeholders ) {
+		return (string) preg_replace_callback(
+			'@\\\\([\\\\$])|\\\\([0-9]{1,2})|\$([0-9]{1,2})|\$\{([0-9]{1,2})\}@',
+			function ( $reference ) use ( $match, $placeholders ) {
+				// An escaped backslash or dollar
+				if ( $reference[1] !== '' ) {
+					return $reference[1];
+				}
 
-	/**
-	 * The parts of a URL that decide where it goes.
-	 *
-	 * @param string $url URL.
-	 * @return array<string, mixed>
-	 */
-	private static function get_authority( $url ) {
-		return array_intersect_key( (array) parse_url( $url ), array_flip( [ 'scheme', 'host', 'port', 'user', 'pass' ] ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+				$index = intval( implode( '', array_slice( $reference, 2 ) ), 10 );
+
+				if ( isset( $match[ $index ] ) && $match[ $index ][1] !== -1 ) {
+					return strtr( $match[ $index ][0], $placeholders );
+				}
+
+				return '';
+			},
+			$replace_pattern
+		);
 	}
 
 	/**

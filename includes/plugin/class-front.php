@@ -3,6 +3,7 @@
 namespace Redirection\Plugin;
 
 use Redirection\Alerts\Digest;
+use Redirection\Compare\Compare;
 use Redirection\Database\Status as DatabaseStatus;
 use Redirection\Module\Module;
 use Redirection\Module\Plugin;
@@ -71,7 +72,7 @@ class Front {
 				Digest::run();
 			}
 		);
-		add_filter( 'redirection_url_target', [ $this, 'transform_url' ] );
+		add_filter( 'redirection_url_target', [ $this, 'transform_url' ], 10, 3 );
 
 		$options = Settings::get();
 		if ( $options['ip_logging'] === 0 ) {
@@ -82,11 +83,17 @@ class Front {
 	}
 
 	/**
-	 * @param string $url
+	 * @param string $url URL.
+	 * @param string $source_url Source URL.
+	 * @param Compare<array<string, mixed>, (array<string, mixed>|string)>|null $match Match object.
 	 * @return string
 	 */
-	public function transform_url( $url ) {
+	public function transform_url( $url, $source_url = '', $match = null ) {
 		$transformer = new Transform();
+
+		if ( $match instanceof Compare ) {
+			return $match->transform_target_url( $url, $transformer );
+		}
 
 		return $transformer->transform( $url );
 	}
