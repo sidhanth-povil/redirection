@@ -16,6 +16,9 @@ namespace Redirection\Log;
  * 404 error logging. Extends the base log class with specifics for 404s
  */
 class Error extends Log {
+	/** url_key() in SQL, for the `url` column of either table. */
+	const URL_KEY_SQL = "TRIM(TRAILING '/' FROM url)";
+
 	/**
 	 * Get's the table name for this log object
 	 *
@@ -95,7 +98,7 @@ class Error extends Log {
 			$row->last_seen = $seen[ strtolower( $row->url ) ] ?? '';
 			$row->referrer = $referrers[ $row->url ] ?? '';
 			$row->suggestion = $suggestions[ $row->url ] ?? '';
-			$row->redirect = $redirects[ strtolower( $row->url ) ] ?? null;
+			$row->redirect = $redirects[ self::url_key( $row->url ) ] ?? null;
 		}
 
 		return $result;
@@ -105,27 +108,29 @@ class Error extends Log {
 	 * The redirect already set up for each URL, so a fixed 404 can say where it now goes. A live redirect wins over
 	 * one that is off; "do nothing" redirects are the Ignored list, not a fix. `enabled` means live, see live_sql().
 	 *
-	 * ponytail: matches the redirect's URL exactly (as Fix and Ignore save it), not regex or trailing-slash variants;
-	 * match on match_url if 404s fixed by hand-typed redirects go unlabelled.
+	 * Matches the redirect's URL ignoring case and a trailing slash, as matching does by default.
+	 * ponytail: not regex redirects, or a redirect whose case or trailing-slash flag makes it stricter; honour
+	 * per-redirect flags if those 404s get mislabelled.
 	 *
 	 * @param list<string> $urls 404 URLs.
-	 * @return array<string, array{id: int, target: string, enabled: bool}> Lowercase URL → redirect.
+	 * @return array<string, array{id: int, target: string, enabled: bool}> url_key() → redirect.
 	 */
 	public static function get_redirects( array $urls ) {
 		global $wpdb;
 
-		$placeholders = implode( ',', array_fill( 0, count( $urls ), '%s' ) );
+		$keys = array_values( array_unique( array_map( [ self::class, 'url_key' ], $urls ) ) );
+		$placeholders = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
-				'SELECT id, url, action_type, action_data, (' . self::live_sql() . ") AS live FROM {$wpdb->prefix}redirection_items WHERE url IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY live DESC, position, id",
-				$urls
+				'SELECT id, url, action_type, action_data, (' . self::live_sql() . ") AS live FROM {$wpdb->prefix}redirection_items WHERE " . self::URL_KEY_SQL . " IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY live DESC, position, id",
+				$keys
 			)
 		);
 
 		$redirects = [];
 		foreach ( (array) $rows as $row ) {
-			$key = strtolower( $row->url );
+			$key = self::url_key( $row->url );
 
 			if ( ! isset( $redirects[ $key ] ) ) {
 				$redirects[ $key ] = [
@@ -158,16 +163,27 @@ class Error extends Log {
 		}
 
 		if ( isset( $filter['ignored'] ) && in_array( $filter['ignored'], [ '0', '1' ], true ) ) {
-			$ignored = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type='nothing' AND " . self::live_sql();
-			$where[] = 'url ' . ( $filter['ignored'] === '1' ? 'IN' : 'NOT IN' ) . " ({$ignored})";
+			$ignored = 'SELECT ' . self::URL_KEY_SQL . " FROM {$wpdb->prefix}redirection_items WHERE action_type='nothing' AND " . self::live_sql();
+			$where[] = self::URL_KEY_SQL . ' ' . ( $filter['ignored'] === '1' ? 'IN' : 'NOT IN' ) . " ({$ignored})";
 		}
 
 		if ( isset( $filter['redirected'] ) && in_array( $filter['redirected'], [ '0', '1' ], true ) ) {
-			$redirected = "SELECT url FROM {$wpdb->prefix}redirection_items WHERE action_type!='nothing' AND regex=0 AND " . self::live_sql();
-			$where[] = 'url ' . ( $filter['redirected'] === '1' ? 'IN' : 'NOT IN' ) . " ({$redirected})";
+			$redirected = 'SELECT ' . self::URL_KEY_SQL . " FROM {$wpdb->prefix}redirection_items WHERE action_type!='nothing' AND regex=0 AND " . self::live_sql();
+			$where[] = self::URL_KEY_SQL . ' ' . ( $filter['redirected'] === '1' ? 'IN' : 'NOT IN' ) . " ({$redirected})";
 		}
 
 		return $where;
+	}
+
+	/**
+	 * A URL as matching compares it: lowercase, no trailing slash. SQL does the same with URL_KEY_SQL; the URL
+	 * columns' collation already ignores case.
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	private static function url_key( $url ) {
+		return strtolower( rtrim( $url, '/' ) );
 	}
 
 	/**
