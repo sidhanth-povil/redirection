@@ -403,10 +403,10 @@ describe( 'RedirectDrawer check before saving', () => {
 		checkReturns( { status: 'duplicate', existing_id: 9 } );
 		openWith( '/new' );
 
-		expect( await screen.findByRole( 'link', { name: 'Edit that redirect' } ) ).toHaveAttribute(
-			'href',
-			'#/redirects?edit=9'
-		);
+		const link = await screen.findByRole( 'link', { name: 'Edit that redirect' } );
+		expect( link ).toHaveAttribute( 'href', '#/redirects?edit=9' );
+		// A new tab, so what is typed here survives.
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( screen.getByRole( 'button', { name: 'Save redirect' } ) ).toBeDisabled();
 	} );
 
