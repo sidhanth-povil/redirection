@@ -137,6 +137,35 @@ class Grouped404ApiTest extends Redirection_Api_Test {
 		$this->assertFalse( $unfixed['/referrer-only']->redirect['enabled'] );
 	}
 
+	public function testARedirectFixesTheUrlWithOrWithoutATrailingSlash() {
+		$this->log404( '/pcos-guide/' );
+		$this->log404( '/Old-Page' );
+		$this->log404( '/pcos-guide-2/' );
+		$slash_less = $this->redirect( '/pcos-guide', '/pmos-guide/' );
+		$this->redirect( '/old-page/', '/new-page/' );
+
+		// Matching ignores the trailing slash (and case), so these 404s are fixed, not offered a duplicate Fix.
+		$this->assertEqualsCanonicalizing( [ '/pcos-guide/', '/Old-Page' ], array_column( $this->grouped( [ 'redirected' => '1' ] ), 'url' ) );
+		$this->assertSame( [ '/pcos-guide-2/' ], array_column( $this->grouped( [ 'redirected' => '0' ] ), 'url' ) );
+		$rows = array_column( $this->grouped(), null, 'url' );
+		$this->assertSame( $slash_less, $rows['/pcos-guide/']->redirect['id'] );
+		$this->assertNull( $rows['/pcos-guide-2/']->redirect );
+	}
+
+	public function testAnIgnoreCoversTheUrlWithOrWithoutATrailingSlash() {
+		$this->log404( '/old-feed/' );
+		Red_Item::create(
+			[
+				'url' => '/old-feed',
+				'group_id' => Red_Group::create( 'ignore', 1 )->get_id(),
+				'match_type' => 'url',
+				'action_type' => 'nothing',
+			]
+		);
+
+		$this->assertSame( [ '/old-feed/' ], array_column( $this->grouped( [ 'ignored' => '1' ] ), 'url' ) );
+	}
+
 	public function testAnIgnoredUrlIsNotRedirected() {
 		$this->log404( '/ignored' );
 		Red_Item::create(
