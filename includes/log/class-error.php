@@ -118,7 +118,7 @@ class Error extends Log {
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders built above.
-				"SELECT id, url, action_type, action_data, (" . self::live_sql() . ") AS live FROM {$wpdb->prefix}redirection_items WHERE url IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY live DESC, position, id",
+				'SELECT id, url, action_type, action_data, (' . self::live_sql() . ") AS live FROM {$wpdb->prefix}redirection_items WHERE url IN ({$placeholders}) AND regex=0 AND action_type != 'nothing' ORDER BY live DESC, position, id",
 				$urls
 			)
 		);
