@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.11.2
+Stable tag: 1.11.3
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,11 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.11.3 - 6th November 2026 =
+* Security: regex redirects can no longer be steered to another site or made to run shortcodes from the visited URL (from the original Redirection plugin)
+* The old %userid%, %userlogin% and %userurl% tags in targets are no longer supported; use [userid], [userlogin] and [userurl]
+* Dependency updates
 
 = 1.11.2 - 6th November 2026 =
 * 404s: a redirect now counts as fixing its URL with or without a trailing slash, so Fix is no longer offered (and then blocked as a duplicate) for a URL that already redirects
