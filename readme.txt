@@ -2,7 +2,7 @@
 Contributors: johnny5
 Tags: redirect, htaccess, 301, 404, apache
 Tested up to: 7.1
-Stable tag: 1.11.0
+Stable tag: 1.11.1
 License: GPLv3
 
 Redirect manager for marketing teams, by DSuite. Based on Redirection by John Godley.
@@ -116,6 +116,15 @@ No. Deactivate Redirection first. DSuite Redirects uses the same data, so your r
 == Changelog ==
 
 A x.1 version increase introduces new or updated features and can be considered to contain 'breaking' changes. A x.x.1 increase is purely a bug fix and introduces no new features, and can be considered as containing no breaking changes.
+
+= 1.11.1 - 6th November 2026 =
+* Editing the redirect that runs is no longer blocked by a later duplicate of it
+* 404s: a URL counts as fixed only while its redirect is live, so ended or not-yet-started scheduled redirects and conditional ones leave it in the list
+* 404s: people who can add but not manage redirects keep Fix and Ignore instead of a View redirect button that failed
+* "Edit that redirect" opens in a new tab again, so what you typed is kept
+* A failed load no longer also says the redirect has gone
+* Older 404s links still leave fixed 404s out
+* Ignore refreshes the 404 list once instead of twice
 
 = 1.11.0 - 2nd November 2026 =
 * The side menu stays in view while you scroll long pages
