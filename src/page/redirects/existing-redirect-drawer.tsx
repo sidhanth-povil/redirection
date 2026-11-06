@@ -21,17 +21,23 @@ export default function ExistingRedirectDrawer( { id, onClose }: ExistingRedirec
 	const { data, isFetching, isError } = useRedirectList( { page: 0, filterBy: { id: String( id ) } } );
 	// The list keeps the previous query's rows while fetching, so match on the id.
 	const item = data?.items.find( ( redirect ) => redirect.id === id );
-	const isMissing = isError || ( ! isFetching && data !== undefined && item === undefined );
+	// A failed load is not a missing redirect: the list query reports its own error.
+	const isMissing = ! isError && ! isFetching && data !== undefined && item === undefined;
 	// The notice re-renders the parent, handing a new onClose; report once, not on every render.
 	const hasReported = useRef( false );
 
 	useEffect( () => {
+		if ( isError ) {
+			onClose();
+			return;
+		}
+
 		if ( isMissing && ! hasReported.current ) {
 			hasReported.current = true;
 			useMessageStore.getState().addError( __( 'That redirect no longer exists.', 'dsuite-redirects' ) );
 			onClose();
 		}
-	}, [ isMissing, onClose ] );
+	}, [ isError, isMissing, onClose ] );
 
 	return item ? <RedirectDrawer item={ item } onClose={ onClose } /> : null;
 }
